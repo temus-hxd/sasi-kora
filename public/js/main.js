@@ -1,6 +1,7 @@
 // Chat UI JavaScript for Emotion Engine Testing
 let conversationHistory = [];
 let conversationId = 'default-' + Date.now();
+let emotionState = null; // Store emotion state from server
 
 // DOM Elements
 const messageInput = document.getElementById('messageInput');
@@ -49,7 +50,7 @@ async function sendMessage() {
     timestamp: new Date().toISOString()
   });
 
-  try {
+    try {
     // Call emotion engine API
     const response = await fetch('/api/emotional-state/chat', {
       method: 'POST',
@@ -59,7 +60,8 @@ async function sendMessage() {
       body: JSON.stringify({
         message: message,
         conversation_id: conversationId,
-        history: conversationHistory.slice(0, -1) // Exclude current message
+        history: conversationHistory.slice(0, -1), // Exclude current message
+        emotion_state: emotionState // Send stored state for stateless serverless
       })
     });
 
@@ -68,6 +70,11 @@ async function sendMessage() {
     }
 
     const data = await response.json();
+
+    // Store emotion state from server (for stateless serverless)
+    if (data.emotion_state) {
+      emotionState = data.emotion_state;
+    }
 
     // Add assistant response to history
     conversationHistory.push({
@@ -204,6 +211,7 @@ async function resetConversation() {
 
   conversationHistory = [];
   conversationId = 'default-' + Date.now();
+  emotionState = null; // Clear emotion state
   chatMessages.innerHTML = '';
 
   try {

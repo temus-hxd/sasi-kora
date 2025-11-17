@@ -4,6 +4,7 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
+import emotionalStateRoutes from './dist/api/emotional-state.js';
 
 // Load environment variables
 dotenv.config();
@@ -37,36 +38,8 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Emotion engine API endpoint (will be implemented)
-app.post('/api/emotional-state/chat', async (req, res) => {
-  try {
-    // TODO: Implement emotion engine
-    res.json({
-      response: 'Emotion engine not yet implemented',
-      conversation_id: req.body.conversation_id || 'default',
-      agent_type: 'normal',
-      timestamp: new Date().toISOString(),
-      sentiment_analysis: null,
-      orchestrator_decision: null,
-      orchestrator_insights: null
-    });
-  } catch (error) {
-    console.error('Error in emotion engine:', error);
-    res.status(500).json({
-      error: 'Internal server error',
-      message: error.message
-    });
-  }
-});
-
-// Reset endpoint
-app.post('/api/emotional-state/reset', (req, res) => {
-  // TODO: Implement reset
-  res.json({
-    message: 'Reset endpoint not yet implemented',
-    timestamp: new Date().toISOString()
-  });
-});
+// Emotion engine API routes
+app.use('/api/emotional-state', emotionalStateRoutes);
 
 // Start server
 app.listen(PORT, () => {
@@ -74,7 +47,8 @@ app.listen(PORT, () => {
   console.log(`📡 Server: http://localhost:${PORT}`);
   console.log(`🎭 Chat UI: http://localhost:${PORT}`);
   console.log(`🔊 Health: http://localhost:${PORT}/api/health`);
+  console.log(`💬 Emotion Engine: http://localhost:${PORT}/api/emotional-state/chat`);
   console.log('');
-  console.log('⚠️  Emotion engine not yet implemented - placeholder endpoints active');
+  console.log('✨ Emotion Engine Ready!');
 });
 

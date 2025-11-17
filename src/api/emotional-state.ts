@@ -1,0 +1,158 @@
+/**
+ * Emotional State API Routes
+ * Handles /api/emotional-state/* endpoints
+ */
+
+import { Router } from 'express';
+import { Orchestrator } from '../emotion-engine/orchestrator.js';
+import { StateManager } from '../emotion-engine/utils/state-manager.js';
+import type { ChatRequest, ChatResponse } from '../emotion-engine/types.js';
+
+const router = Router();
+
+// Create orchestrator instance (singleton pattern for serverless)
+let orchestratorInstance: Orchestrator | null = null;
+
+/**
+ * Get or create orchestrator instance
+ */
+async function getOrchestrator(): Promise<Orchestrator> {
+  if (!orchestratorInstance) {
+    orchestratorInstance = new Orchestrator();
+    await orchestratorInstance.initialize();
+  }
+  if (!orchestratorInstance) {
+    throw new Error('Failed to initialize orchestrator');
+  }
+  return orchestratorInstance;
+}
+
+/**
+ * POST /api/emotional-state/chat
+ * Main chat endpoint
+ */
+router.post('/chat', async (req, res) => {
+  try {
+    const request: ChatRequest = req.body;
+
+    if (!request.message) {
+      res.status(400).json({
+        error: 'Message is required',
+        success: false,
+      });
+      return;
+    }
+
+    // Get conversation history from client (or empty list for new conversation)
+    const conversationHistory = request.history || [];
+
+    // Get orchestrator instance
+    const orchestrator = await getOrchestrator();
+
+    // Check if this is a new conversation
+    if (StateManager.isNewConversation(conversationHistory)) {
+      console.log(`🆕 New conversation ${request.conversation_id?.substring(0, 8) || 'default'}... - resetting orchestrator state`);
+      orchestrator.resetState();
+    }
+
+    // Deserialize emotion state if provided (for stateless serverless)
+    const emotionState = request.emotion_state
+      ? StateManager.deserializeState(request.emotion_state)
+      : undefined;
+
+    // Process message through orchestrator
+    console.log('⏱️  [TRACE] Starting orchestrator.processMessage()');
+    const [responseContent, agentType, analysisData, updatedState] = await orchestrator.processMessage(
+      request.message,
+      conversationHistory,
+      emotionState
+    );
+
+    // Generate conversation ID if not provided
+    const conversationId = request.conversation_id || `conv-${Date.now()}`;
+
+    // Create response
+    const response: ChatResponse = {
+      response: responseContent,
+      conversation_id: conversationId,
+      agent_type: agentType,
+      timestamp: new Date().toISOString(),
+      sentiment_analysis: analysisData.sentiment_analysis,
+      orchestrator_decision: analysisData.orchestrator_decision,
+      orchestrator_insights: analysisData.orchestrator_insights,
+      emotion_state: StateManager.serializeState(updatedState), // Return state for client to store
+    };
+
+    res.json(response);
+  } catch (error: unknown) {
+    const err = error as Error;
+    console.error('❌ Error in /api/emotional-state/chat:', err);
+    res.status(500).json({
+      error: 'Error processing chat',
+      message: err.message,
+      success: false,
+    });
+  }
+});
+
+/**
+ * GET /api/emotional-state/health
+ * Health check endpoint
+ */
+router.get('/health', async (_req, res) => {
+  try {
+    const orchestrator = await getOrchestrator();
+    const state = orchestrator.getCurrentState();
+
+    res.json({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      env: {
+        GROQ_API_KEY: !!process.env.GROQ_API_KEY,
+        GROQ_MODEL: process.env.GROQ_MODEL || 'not set',
+        CLIENT_NAME: process.env.CLIENT_NAME || 'synapse',
+      },
+      orchestrator: {
+        current_agent: state.current_agent,
+        anger_points: state.anger_points,
+        ended: state.ended,
+      },
+    });
+  } catch (error: unknown) {
+    const err = error as Error;
+    res.status(500).json({
+      status: 'degraded',
+      error: err.message,
+      timestamp: new Date().toISOString(),
+    });
+  }
+});
+
+/**
+ * POST /api/emotional-state/reset
+ * Reset orchestrator state
+ */
+router.post('/reset', async (_req, res) => {
+  try {
+    const orchestrator = await getOrchestrator();
+    orchestrator.resetState();
+    const state = orchestrator.getCurrentState();
+
+    res.json({
+      message: 'State reset successfully (client should clear localStorage)',
+      timestamp: new Date().toISOString(),
+      current_agent: state.current_agent,
+      anger_points: state.anger_points,
+    });
+  } catch (error: unknown) {
+    const err = error as Error;
+    res.status(500).json({
+      error: 'Error resetting state',
+      message: err.message,
+      success: false,
+    });
+  }
+});
+
+export default router;
+

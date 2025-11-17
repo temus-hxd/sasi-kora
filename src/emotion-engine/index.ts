@@ -58,6 +58,7 @@ export {
 } from './agents/angry-agents.js';
 export { AgentFactory } from './agents/agent-factory.js';
 
-// Future exports (will be added in later phases)
-// export { Orchestrator } from './orchestrator.js';
+// Phase 4 exports
+export { Orchestrator } from './orchestrator.js';
+export { StateManager } from './utils/state-manager.js';
 
