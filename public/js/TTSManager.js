@@ -369,6 +369,12 @@ export class TTSManager {
       this.animationManager.onSpeechStart();
     }
 
+    // Stop voice recognition when TTS starts (prevent input from capturing avatar speech)
+    if (window.speechRecognitionManager && window.speechRecognitionManager.isRecording) {
+      console.log('🎤 Stopping voice recognition during TTS playback');
+      window.speechRecognitionManager.stopVoiceRecognition();
+    }
+    
     // Show speech bubble with timing data
     if (this.speechBubbleManager) {
       const lipSync = data.lipSync || {};
@@ -451,6 +457,14 @@ export class TTSManager {
           this.cleanupCurrentTimers();
         }
         
+        // Restart voice recognition after TTS ends (if it was enabled)
+        if (window.speechRecognitionManager && window.speechRecognitionManager.isSupported && !window.speechRecognitionManager.isRecording) {
+          setTimeout(() => {
+            console.log('🎤 Restarting voice recognition after TTS');
+            window.speechRecognitionManager.startVoiceRecognition();
+          }, 500); // Small delay to ensure TTS is fully stopped
+        }
+        
         // Trigger animation when speech ends
         if (this.animationManager) {
           this.animationManager.onSpeechEnd();
@@ -472,6 +486,14 @@ export class TTSManager {
         // Clean up our monitoring timers
         if (this.cleanupCurrentTimers) {
           this.cleanupCurrentTimers();
+        }
+        
+        // Restart voice recognition after TTS error (if it was enabled)
+        if (window.speechRecognitionManager && window.speechRecognitionManager.isSupported && !window.speechRecognitionManager.isRecording) {
+          setTimeout(() => {
+            console.log('🎤 Restarting voice recognition after TTS error');
+            window.speechRecognitionManager.startVoiceRecognition();
+          }, 500);
         }
         
         // Trigger animation end on error too

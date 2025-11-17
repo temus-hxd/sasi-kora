@@ -149,6 +149,9 @@ export class ChatManager {
     // Handle response like WebSocket would
     const avatarEmoji = data.avatar_emoji || '😐';
     this.handleClaudeResponse(data.response, avatarEmoji, false, false, null);
+    
+    // Re-enable input after response is handled
+    this.uiManager?.setLoading(false);
   }
 
   handleKeyPress(event) {
