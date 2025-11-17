@@ -72,63 +72,132 @@ export class SentimentAgent extends BaseAgent {
 
   /**
    * Analyze sentiment of a single message with thinking process
+   * Includes retry logic for better reliability
    */
-  async analyzeSentiment(message: string): Promise<SentimentAnalysis> {
+  async analyzeSentiment(message: string, retries: number = 3): Promise<SentimentAnalysis> {
     await this.ensureInitialized();
 
-    // Create a simple message list for analysis
+    // Create a simple message list for analysis with strict JSON instruction
     const analysisMessages: ChatMessage[] = [
+      { 
+        role: 'system', 
+        content: 'CRITICAL: You MUST return ONLY valid JSON. No text before or after. No markdown. Pure JSON only. Example: {"emotion":"neutral","intensity":0.5,"emotional_indicators":[],"thinking":"..."}'
+      },
       { role: 'user', content: message }
     ];
 
-    // Get raw response from Groq
-    const rawResponse = await this.callGroq(analysisMessages, 300, 0.3);
+    let lastError: Error | null = null;
+    let lastRawResponse: string = '';
 
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        // Get raw response from Groq
+        const rawResponse = await this.callGroq(analysisMessages, 300, 0.3);
+        lastRawResponse = rawResponse;
+
+        // Try to extract JSON from response (handles cases where model adds extra text)
+        const jsonData = this.extractJSON(rawResponse);
+
+        // Validate required fields
+        if (typeof jsonData.emotion !== 'string') {
+          throw new Error('Missing or invalid "emotion" field');
+        }
+        if (typeof jsonData.intensity !== 'number') {
+          throw new Error('Missing or invalid "intensity" field');
+        }
+
+        // Add thinking tag if not present
+        if (!jsonData.thinking) {
+          jsonData.thinking = 'Analysis completed without explicit reasoning';
+        }
+
+        // Ensure emotional_indicators is an array
+        if (!Array.isArray(jsonData.emotional_indicators)) {
+          jsonData.emotional_indicators = [];
+        }
+
+        return {
+          emotion: jsonData.emotion,
+          intensity: Math.max(0, Math.min(1, jsonData.intensity)), // Clamp to 0-1
+          emotional_indicators: jsonData.emotional_indicators,
+          thinking: jsonData.thinking,
+        };
+      } catch (error) {
+        const err = error as Error;
+        lastError = err;
+        
+        if (attempt < retries) {
+          console.warn(`⚠️  Sentiment analysis attempt ${attempt}/${retries} failed, retrying...`, err.message);
+          // Wait a bit before retry (exponential backoff)
+          await new Promise(resolve => setTimeout(resolve, 200 * attempt));
+        } else {
+          console.error(`⚠️  Sentiment analysis failed after ${retries} attempts:`, err.message);
+          console.error('Raw response (first 300 chars):', lastRawResponse.substring(0, 300));
+          
+          // Return a safe fallback instead of throwing
+          // This allows the conversation to continue even if sentiment analysis fails
+          console.warn('⚠️  Using fallback sentiment analysis (neutral)');
+          return {
+            emotion: 'neutral',
+            intensity: 0.5,
+            emotional_indicators: [],
+            thinking: `Sentiment analysis failed after ${retries} attempts. Using neutral fallback. Error: ${err.message}. Raw response: ${lastRawResponse.substring(0, 100)}...`,
+          };
+        }
+      }
+    }
+
+    // This should never be reached, but TypeScript needs it
+    throw new SentimentAnalysisError(
+      `Sentiment analysis failed after ${retries} attempts: ${lastError?.message || 'Unknown error'}`,
+      lastError || undefined
+    );
+  }
+
+  /**
+   * Extract JSON from response, handling cases where model adds extra text
+   */
+  private extractJSON(response: string): Partial<SentimentAnalysis> {
+    let cleanedResponse = response.trim();
+
+    // Remove markdown code blocks if present
+    if (cleanedResponse.includes('```json')) {
+      const jsonMatch = cleanedResponse.match(/```json\s*([\s\S]*?)\s*```/);
+      if (jsonMatch) {
+        cleanedResponse = jsonMatch[1].trim();
+      }
+    } else if (cleanedResponse.includes('```')) {
+      const codeMatch = cleanedResponse.match(/```\s*([\s\S]*?)\s*```/);
+      if (codeMatch) {
+        cleanedResponse = codeMatch[1].trim();
+      }
+    }
+
+    // Try to find JSON object in the response (handles cases where model adds text before/after)
+    const jsonMatch = cleanedResponse.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      cleanedResponse = jsonMatch[0];
+    }
+
+    // Try parsing
     try {
-      // Clean the response - remove markdown code blocks if present
-      let cleanedResponse = rawResponse.trim();
-      if (cleanedResponse.startsWith('```json')) {
-        cleanedResponse = cleanedResponse.replace(/```json/g, '').replace(/```/g, '').trim();
-      } else if (cleanedResponse.startsWith('```')) {
-        cleanedResponse = cleanedResponse.replace(/```/g, '').trim();
+      return JSON.parse(cleanedResponse) as Partial<SentimentAnalysis>;
+    } catch (parseError) {
+      // If still fails, try to find any valid JSON structure
+      // Look for JSON-like patterns
+      const jsonPattern = /\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/;
+      const patternMatch = cleanedResponse.match(jsonPattern);
+      if (patternMatch) {
+        try {
+          return JSON.parse(patternMatch[0]) as Partial<SentimentAnalysis>;
+        } catch {
+          // Fall through to throw original error
+        }
       }
-
-      // Parse JSON response
-      const sentimentData = JSON.parse(cleanedResponse) as Partial<SentimentAnalysis>;
-
-      // Validate required fields
-      if (typeof sentimentData.emotion !== 'string') {
-        throw new Error('Missing or invalid "emotion" field');
-      }
-      if (typeof sentimentData.intensity !== 'number') {
-        throw new Error('Missing or invalid "intensity" field');
-      }
-
-      // Add thinking tag if not present
-      if (!sentimentData.thinking) {
-        sentimentData.thinking = 'Analysis completed without explicit reasoning';
-      }
-
-      // Ensure emotional_indicators is an array
-      if (!Array.isArray(sentimentData.emotional_indicators)) {
-        sentimentData.emotional_indicators = [];
-      }
-
-      return {
-        emotion: sentimentData.emotion,
-        intensity: Math.max(0, Math.min(1, sentimentData.intensity)), // Clamp to 0-1
-        emotional_indicators: sentimentData.emotional_indicators,
-        thinking: sentimentData.thinking,
-      };
-    } catch (error) {
-      const err = error as Error;
-      console.error('⚠️  Sentiment analysis JSON parsing failed:', err.message);
-      console.error('Raw response (first 200 chars):', rawResponse.substring(0, 200));
       
-      throw new SentimentAnalysisError(
-        `AI returned invalid JSON. Please try again. Error: ${err.message}`,
-        err
-      );
+      // Store raw response for debugging
+      (parseError as any).rawResponse = response;
+      throw parseError;
     }
   }
 
