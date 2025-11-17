@@ -19,16 +19,17 @@
 </head>
 
 <body>
-  <!-- Korav4-style Loading Screen -->
-  <!-- TEMPORARILY DISABLED FOR DEBUGGING -->
-  <div class="loading-screen hidden" id="loadingScreen" style="display: none !important;">
-    <div class="loading-title">RPM-HCC</div>
-    <div class="loading-subtitle">Claude AI Avatar Assistant</div>
-    <div class="loading-counter" id="loadingCounter">0%</div>
-    <div class="loading-progress">
-      <div class="loading-progress-bar" id="loadingProgressBar"></div>
+  <!-- Avatar Loading Screen with Countdown -->
+  <div class="avatar-loading-screen" id="avatarLoadingScreen">
+    <div class="avatar-loading-content">
+      <div class="avatar-loading-title">Loading Simulation...</div>
+      <div class="avatar-loading-countdown" id="avatarLoadingCountdown">3</div>
+      <div class="avatar-loading-spinner">
+        <div class="spinner-circle"></div>
+        <div class="spinner-circle"></div>
+        <div class="spinner-circle"></div>
+      </div>
     </div>
-    <div class="loading-text" id="loadingText">Initializing...</div>
   </div>
 
   <div class="container">

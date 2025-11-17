@@ -128,6 +128,9 @@ export class AvatarManager {
       this.isLoaded = true;
       this.uiManager?.hideLoadingScreen();
       
+      // Hide avatar loading screen (countdown or when avatar is ready)
+      this.hideAvatarLoadingScreen();
+      
       // Initialize other managers with avatar dependencies
       await this.initializeOtherManagers();
       
@@ -364,6 +367,63 @@ export class AvatarManager {
 
   getCurrentMood() {
     return this.currentMood;
+  }
+
+  // =====================================================
+  // AVATAR LOADING SCREEN MANAGEMENT
+  // =====================================================
+  startAvatarLoadingCountdown() {
+    const loadingScreen = document.getElementById('avatarLoadingScreen');
+    const countdownElement = document.getElementById('avatarLoadingCountdown');
+    
+    if (!loadingScreen || !countdownElement) {
+      console.warn('Avatar loading screen elements not found');
+      return;
+    }
+    
+    // Show loading screen
+    loadingScreen.classList.remove('hidden');
+    
+    let countdown = 3;
+    countdownElement.textContent = countdown;
+    
+    const countdownInterval = setInterval(() => {
+      countdown--;
+      
+      if (countdown > 0) {
+        countdownElement.textContent = countdown;
+      } else {
+        countdownElement.textContent = '0';
+        clearInterval(countdownInterval);
+        
+        // Hide after a brief moment
+        setTimeout(() => {
+          this.hideAvatarLoadingScreen();
+        }, 300);
+      }
+    }, 1000);
+    
+    // Store interval ID for cleanup
+    this.countdownInterval = countdownInterval;
+  }
+  
+  hideAvatarLoadingScreen() {
+    const loadingScreen = document.getElementById('avatarLoadingScreen');
+    
+    if (loadingScreen) {
+      loadingScreen.classList.add('hidden');
+      
+      // Remove from DOM after animation
+      setTimeout(() => {
+        loadingScreen.style.display = 'none';
+      }, 500);
+    }
+    
+    // Clear countdown interval if still running
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);
+      this.countdownInterval = null;
+    }
   }
 
   isAvatarReady() {

@@ -144,6 +144,108 @@ html, body {
 
 .loading-progress-bar {
   height: 100%;
+  background: var(--text-white);
+  transition: width var(--transition-medium);
+}
+
+/* Avatar Loading Screen with Countdown */
+.avatar-loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--primary-gradient);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  opacity: 1;
+  transition: opacity 0.5s ease-out;
+}
+
+.avatar-loading-screen.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.avatar-loading-content {
+  text-align: center;
+  color: var(--text-white);
+}
+
+.avatar-loading-title {
+  font-size: 1.5rem;
+  font-weight: 300;
+  margin-bottom: 2rem;
+  letter-spacing: 0.1em;
+  opacity: 0.9;
+}
+
+.avatar-loading-countdown {
+  font-size: 5rem;
+  font-weight: 200;
+  font-family: 'Courier New', monospace;
+  margin-bottom: 2rem;
+  min-height: 6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: countdownPulse 1s ease-in-out infinite;
+}
+
+@keyframes countdownPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+.avatar-loading-spinner {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+}
+
+.spinner-circle {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--text-white);
+  opacity: 0.6;
+  animation: spinnerBounce 1.4s ease-in-out infinite;
+}
+
+.spinner-circle:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.spinner-circle:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.spinner-circle:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes spinnerBounce {
+  0%, 80%, 100% {
+    transform: scale(0.8);
+    opacity: 0.6;
+  }
+  40% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+.loading-progress-bar {
+  height: 100%;
   background: white;
   border-radius: 2px;
   transition: width 0.3s ease;

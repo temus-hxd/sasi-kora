@@ -124,6 +124,10 @@ async function initializeApp() {
   });
   
   // Initialize the avatar (this will initialize all other managers too)
+  // Start avatar loading countdown immediately
+  avatarManager.startAvatarLoadingCountdown();
+  
+  // Initialize avatar (will hide loading screen when ready)
   await avatarManager.initAvatar();
   
   // Make managers available globally for interruption after initialization
