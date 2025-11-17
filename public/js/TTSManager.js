@@ -213,6 +213,8 @@ export class TTSManager {
           const timingType = data.streaming ? 'estimated' : 'precise';
           const syncInfo = data.lipSync.isSynchronized ? 'synchronized' : 'basic';
           console.log(`🎵 TTS Response: ${timingType} timing, ${syncInfo} lip sync, ${data.duration}s duration`);
+        } else {
+          console.log(`🎵 TTS Response: audio-driven lip sync (no visemes), ${data.duration}s duration`);
         }
         
         return data;
@@ -641,9 +643,15 @@ export class TTSManager {
       if (!this.audioContext) {
         this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
       }
+      // CRITICAL: Resume AudioContext on user interaction (required by browser autoplay policy)
       if (this.audioContext.state === 'suspended') {
-        // Resume in background, don't wait
-        this.audioContext.resume().catch(() => {});
+        try {
+          await this.audioContext.resume();
+          console.log('⚡ Audio context resumed for TTS');
+        } catch (error) {
+          console.warn('⚠️ Failed to resume audio context:', error);
+          // Will retry on next user interaction
+        }
       }
       
       // Call TTS API
