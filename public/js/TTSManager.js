@@ -240,15 +240,9 @@ export class TTSManager {
     }
     
     // OPTIMIZATION: Resume audio context if suspended (browser autoplay policy)
-    // CRITICAL: Must resume after user interaction (click, keypress, etc.)
     if (this.audioContext.state === 'suspended') {
-      try {
-        await this.audioContext.resume();
-        console.log('⚡ Audio context resumed');
-      } catch (error) {
-        console.warn('⚠️ Failed to resume audio context:', error);
-        // Try again on next user interaction
-      }
+      await this.audioContext.resume();
+      console.log('⚡ Audio context resumed');
     }
     
     let audioBuffer = await this.base64ToAudioBuffer(data.audio);
@@ -266,10 +260,8 @@ export class TTSManager {
     const serverEstimatedDuration = data.duration || actualAudioDuration; // server's estimate
     
     // Check if we have server-generated visemes (preferred) or need audio-driven
-    // Handle case where lipSync might be missing or undefined
-    const lipSync = data.lipSync || {};
-    const hasServerVisemes = lipSync.visemes && Array.isArray(lipSync.visemes) && lipSync.visemes.length > 0;
-    const isAudioDriven = (data.audioDriven && !hasServerVisemes) || (data.provider === 'elevenlabs' && !hasServerVisemes) || !data.lipSync;
+    const hasServerVisemes = data.lipSync && data.lipSync.visemes && data.lipSync.visemes.length > 0;
+    const isAudioDriven = (data.audioDriven && !hasServerVisemes) || (data.provider === 'elevenlabs' && !hasServerVisemes);
     
     if (hasServerVisemes) {
       const uniqueVisemes = [...new Set(data.lipSync.visemes)];
@@ -318,29 +310,26 @@ export class TTSManager {
         vdurations: data.lipSync.visemeDurations,
         actualDuration: actualAudioDuration // Store for fallback timers
       };
-    } else if (isAudioDriven || !data.lipSync) {
+    } else if (isAudioDriven) {
       console.log('🎤 Using audio-driven lip sync (TalkingHead will analyze audio)');
       // Fallback: let TalkingHead analyze audio (less ideal)
-      // Handle case where lipSync is missing or undefined
-      const lipSync = data.lipSync || {};
       return {
         audio: audioBuffer,
-        words: lipSync.words || [],
-        wtimes: lipSync.wordTimes || [],
-        wdurations: lipSync.wordDurations || []
+        words: data.lipSync.words || [],
+        wtimes: data.lipSync.wordTimes || [],
+        wdurations: data.lipSync.wordDurations || []
         // NO viseme properties - TalkingHead will generate from audio
       };
     } else {
       console.log('🎤 Using viseme-based lip sync (Polly data)');
-      const lipSync = data.lipSync || {};
       return {
         audio: audioBuffer,
-        words: lipSync.words || [],
-        wtimes: lipSync.wordTimes || [],
-        wdurations: lipSync.wordDurations || [],
-        visemes: lipSync.visemes || [],
-        vtimes: lipSync.visemeTimes || [],
-        vdurations: lipSync.visemeDurations || []
+        words: data.lipSync.words,
+        wtimes: data.lipSync.wordTimes,
+        wdurations: data.lipSync.wordDurations,
+        visemes: data.lipSync.visemes,
+        vtimes: data.lipSync.visemeTimes,
+        vdurations: data.lipSync.visemeDurations
       };
     }
   }
@@ -641,15 +630,9 @@ export class TTSManager {
       if (!this.audioContext) {
         this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
       }
-      // CRITICAL: Resume AudioContext on user interaction (required by browser autoplay policy)
       if (this.audioContext.state === 'suspended') {
-        try {
-          await this.audioContext.resume();
-          console.log('⚡ Audio context resumed for TTS');
-        } catch (error) {
-          console.warn('⚠️ Failed to resume audio context:', error);
-          // Will retry on next user interaction
-        }
+        // Resume in background, don't wait
+        this.audioContext.resume().catch(() => {});
       }
       
       // Call TTS API

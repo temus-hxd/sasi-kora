@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SASI-KORA - Emotion Engine with Avatar</title>
-  
-  <!-- Load Three.js and TalkingHead dependencies -->
+  <title>ReadyPlayerMe Avatar with Claude AI Chatbot</title>
+  <link rel="stylesheet" href="css/styles.css">
+
+  <!-- Load Three.js and TalkingHead dependencies directly -->
   <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
   <script type="importmap">
   { "imports": {
@@ -15,339 +16,187 @@
     }
   }
   </script>
-  
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    body {
-      height: 100vh;
-      width: 100vw;
-      overflow: hidden;
-      background: #101218;
-      font-family: 'Source Code Pro', monospace;
-      color: #7fd6ff;
-    }
-    
-    .container {
-      display: flex;
-      height: 100vh;
-      width: 100vw;
-    }
-    
-    .avatar-section {
-      flex: 1;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    #avatar {
-      width: 100%;
-      height: 100%;
-    }
-    
-    .chat-section {
-      width: 400px;
-      background: #08090c;
-      border-left: 2px solid #1e90ff;
-      display: flex;
-      flex-direction: column;
-    }
-    
-    .chat-header {
-      padding: 1rem;
-      border-bottom: 2px solid #1e90ff;
-      background: #101218;
-    }
-    
-    .chat-messages {
-      flex: 1;
-      overflow-y: auto;
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-    
-    .message {
-      padding: 0.75rem;
-      border-radius: 8px;
-      border: 1px solid #1e3a5c;
-      max-width: 80%;
-    }
-    
-    .message.user {
-      align-self: flex-end;
-      background: #1e3a5c;
-    }
-    
-    .message.assistant {
-      align-self: flex-start;
-      background: #08090c;
-    }
-    
-    .chat-input {
-      padding: 1rem;
-      border-top: 2px solid #1e90ff;
-      display: flex;
-      gap: 0.5rem;
-    }
-    
-    .chat-input input {
-      flex: 1;
-      background: #08090c;
-      border: 2px solid #1e90ff;
-      color: #7fd6ff;
-      padding: 0.5rem;
-      border-radius: 6px;
-    }
-    
-    .chat-input button {
-      background: #1e90ff;
-      color: #101218;
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    
-    .status {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 0.5rem 1rem;
-      background: rgba(0, 0, 0, 0.7);
-      border: 1px solid #1e90ff;
-      border-radius: 6px;
-      font-size: 0.875rem;
-    }
-  </style>
 </head>
+
 <body>
+  <!-- Korav4-style Loading Screen -->
+  <!-- TEMPORARILY DISABLED FOR DEBUGGING -->
+  <div class="loading-screen hidden" id="loadingScreen" style="display: none !important;">
+    <div class="loading-title">RPM-HCC</div>
+    <div class="loading-subtitle">Claude AI Avatar Assistant</div>
+    <div class="loading-counter" id="loadingCounter">0%</div>
+    <div class="loading-progress">
+      <div class="loading-progress-bar" id="loadingProgressBar"></div>
+    </div>
+    <div class="loading-text" id="loadingText">Initializing...</div>
+  </div>
+
   <div class="container">
     <div class="avatar-section">
       <div id="avatar"></div>
-      <div class="status" id="status">Initializing avatar...</div>
+      <div class="status" id="status">🚀 Initializing ReadyPlayerMe Avatar with Claude AI...</div>
+      
+      <!-- Speech Bubble -->
+      <div class="speech-bubble" id="speechBubble">
+        <div class="speech-bubble-content">
+          <div class="speech-bubble-tail"></div>
+          <div class="speech-bubble-tail-inner"></div>
+          <div id="speechBubbleText"></div>
+        </div>
+      </div>
+      
+      <!-- ================================ -->
+      <!-- CONFETTI APPRECIATION SYSTEM     -->
+      <!-- ================================ -->
+      <!-- Triggers when user shows appreciation like "Thanks", "I love you", "You look good" -->
+      <div class="confetti-container" id="confettiContainer" aria-hidden="true">
+        <!-- Hearts will be dynamically generated here -->
+      </div>
+      <!-- ================================ -->
+      <!-- END CONFETTI SYSTEM              -->
+      <!-- ================================ -->
+
+      <!-- Knowledge Base Thinking Bubble -->
+      <div class="knowledge-base-thinking" id="knowledgeBaseThinking">
+        <div class="knowledge-base-thinking-content">
+          <div class="kb-thinking-icon">🧠</div>
+          <div class="kb-thinking-text">give me a moment while i check</div>
+          <div class="kb-thinking-dots">...</div>
+          <div class="knowledge-base-thinking-tail">
+            <div class="thinking-circle"></div>
+            <div class="thinking-circle"></div>
+            <div class="thinking-circle"></div>
+          </div>
+        </div>
+      </div>
+      
+
+      <!-- Events Thinking Bubble -->
+      <div class="events-thinking" id="eventsThinking">
+        <div class="events-thinking-content">
+          <div class="events-thinking-icon">📅</div>
+          <div class="events-thinking-text">let me check the calendar</div>
+          <div class="events-thinking-dots">...</div>
+          <div class="events-thinking-tail">
+            <div class="thinking-circle"></div>
+            <div class="thinking-circle"></div>
+            <div class="thinking-circle"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Book Cover Display -->
+      <div class="book-cover-display" id="bookCoverDisplay">
+        <div class="books-header" id="singleBookHeader">Featured Book</div>
+        <div class="book-cover-container">
+          <div class="book-cover-loading u-hidden" id="bookCoverLoading"></div>
+          <img class="book-cover-image u-hidden" id="bookCoverImage" />
+          <div class="book-cover-title" id="bookCoverTitle"></div>
+          <div class="book-cover-author" id="bookCoverAuthor"></div>
+        </div>
+      </div>
+
+      <!-- Multiple Books Display -->
+      <div class="multiple-books-display" id="multipleBooksDisplay">
+        <div class="books-header" id="booksHeader">Recommended Books</div>
+        <div class="books-grid" id="booksGrid"></div>
+      </div>
+
+      <!-- Single Leadership Display -->
+      <div class="leadership-display" id="leadershipDisplay">
+        <div class="leadership-header" id="singleLeaderHeader">Leadership Team</div>
+        <div class="leadership-container">
+          <div class="leadership-loading u-hidden" id="leadershipLoading"></div>
+          <img class="leadership-image u-hidden" id="leadershipImage" />
+          <div class="leadership-name" id="leadershipName"></div>
+          <div class="leadership-title" id="leadershipTitle"></div>
+        </div>
+      </div>
+
+      <!-- Multiple Leadership Display -->
+      <div class="leadership-multiple-display" id="leadershipMultipleDisplay">
+        <div class="leadership-header" id="leadershipMultipleHeader">Leadership Team</div>
+        <div class="leadership-grid" id="leadershipGrid"></div>
+      </div>
+
+      <!-- Link Buttons Container -->
+      <div class="link-buttons-container" id="linkButtonsContainer">
+        <!-- Buttons will be dynamically generated here -->
+      </div>
     </div>
-    
-    <div class="chat-section">
-      <div class="chat-header">
-        <h2>Emotion Engine Chat</h2>
-        <div id="status-bar" style="font-size: 0.75rem; margin-top: 0.5rem;">Status: Loading...</div>
+
+    <!-- KORAV4-STYLE CHAT INPUT -->
+    <div class="chat-input-container">
+      <!-- Status Indicator -->
+      <div class="claude-status-indicator u-hidden" id="claudeStatusIndicator">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusText">Ready</span>
       </div>
       
-      <div class="chat-messages" id="chatMessages"></div>
-      
-      <div class="chat-input">
-        <input type="text" id="messageInput" placeholder="Type your message..." />
-        <button id="sendButton">Send</button>
+      <div class="chat-input-form">
+        <!-- Mic Button -->
+        <button
+          id="micBtn"
+          onclick="toggleVoice()"
+          class="input-icon-button mic-button"
+          title="Voice input"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="23"/>
+            <line x1="8" y1="23" x2="16" y2="23"/>
+          </svg>
+        </button>
+        
+        <!-- Text Input -->
+        <input
+          type="text"
+          id="messageInput"
+          class="main-text-input"
+          placeholder="Talk to me..."
+          maxlength="500"
+          onkeypress="handleKeyPress(event)"
+        />
+        
+        <!-- Send Button -->
+        <button
+          class="input-icon-button send-button"
+          id="sendBtn"
+          onclick="sendMessage()"
+          title="Send message"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22,2 15,22 11,13 2,9"/>
+          </svg>
+        </button>
       </div>
+    </div>
+
+    <!-- Debug buttons will be created by JavaScript -->
+
+    <!-- Hidden controls section -->
+    <div class="controls-section">
     </div>
   </div>
+
+  <!-- Load AnimationManager before app.js -->
+  <script src="js/AnimationManager.js"></script>
   
-  <script type="module">
-    import { TalkingHead } from "talkinghead";
-    import { ConfigManager } from "/js/avatar/ConfigManager.js";
-    import { EmojiManager } from "/js/avatar/EmojiManager.js";
-    import { TTSManager } from "/js/avatar/TTSManager.js";
-    
-    // Initialize managers
-    const configManager = new ConfigManager();
-    const emojiManager = new EmojiManager();
-    const ttsManager = new TTSManager();
-    
-    // Chat state
-    let conversationHistory = [];
-    let conversationId = 'default-' + Date.now();
-    let emotionState = null;
-    
-    // DOM elements
-    const avatarElement = document.getElementById('avatar');
-    const statusElement = document.getElementById('status');
-    const statusBar = document.getElementById('status-bar');
-    const chatMessages = document.getElementById('chatMessages');
-    const messageInput = document.getElementById('messageInput');
-    const sendButton = document.getElementById('sendButton');
-    
-    // Initialize avatar
-    async function initAvatar() {
-      try {
-        statusElement.textContent = 'Loading configuration...';
-        
-        // Load config
-        await configManager.loadConfig();
-        const avatarUrl = configManager.getAvatarUrl();
-        const voiceId = configManager.getVoiceId();
-        
-        if (!avatarUrl || !voiceId) {
-          throw new Error('Avatar URL or Voice ID not configured');
-        }
-        
-        statusElement.textContent = 'Initializing avatar...';
-        
-        // Initialize TalkingHead
-        const head = new TalkingHead(avatarElement, {
-          ttsEndpoint: "/api/dummy-tts",
-          lipsyncModules: ["en"],
-          cameraView: "upper",
-          cameraY: 0.15,
-          modelFPS: 120,
-          avatarMood: 'neutral',
-          avatarIdleEyeContact: 0.3,
-          avatarIdleHeadMove: 0.25,
-          avatarSpeakingEyeContact: 1.0,
-          avatarSpeakingHeadMove: 0.8,
-        });
-        
-        await head.showAvatar({
-          url: avatarUrl,
-          avatarMood: 'neutral',
-        });
-        
-        // Setup managers
-        const currentMoodRef = { current: 'neutral' };
-        emojiManager.setDependencies(head, currentMoodRef, () => {});
-        ttsManager.setDependencies(head, true, configManager, null, null, null, null, null);
-        
-        statusElement.textContent = 'Avatar ready!';
-        statusBar.textContent = 'Status: Online | Ready to chat';
-        
-        return { head, configManager, emojiManager, ttsManager };
-      } catch (error) {
-        console.error('Avatar initialization error:', error);
-        statusElement.textContent = `Error: ${error.message}`;
-        throw error;
-      }
-    }
-    
-    // Send message
-    async function sendMessage() {
-      const message = messageInput.value.trim();
-      if (!message) return;
-      
-      // Add user message to UI
-      addMessageToUI('user', message);
-      messageInput.value = '';
-      messageInput.disabled = true;
-      sendButton.disabled = true;
-      
-      // Add to history
-      conversationHistory.push({
-        role: 'user',
-        content: message,
-        timestamp: new Date().toISOString()
-      });
-      
-      try {
-        // Prepare history for API
-        const historyForAPI = conversationHistory.slice(0, -1).map(msg => ({
-          role: msg.role,
-          content: msg.content
-        }));
-        
-        // Call emotion engine API
-        const response = await fetch('/api/emotional-state/chat', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            message: message,
-            conversation_id: conversationId,
-            history: historyForAPI,
-            emotion_state: emotionState
-          })
-        });
-        
-        if (!response.ok) {
-          throw new Error(`API error: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        // Store emotion state
-        if (data.emotion_state) {
-          emotionState = data.emotion_state;
-        }
-        
-        // Add assistant response to history
-        conversationHistory.push({
-          role: 'assistant',
-          content: data.response,
-          timestamp: data.timestamp
-        });
-        
-        // Update UI
-        addMessageToUI('assistant', data.response);
-        updateStatusBar(data);
-        
-        // Trigger avatar emoji if available
-        if (data.avatar_emoji && window.head && window.emojiManager) {
-          window.emojiManager.triggerEmojiAction(data.avatar_emoji);
-        }
-        
-        // Generate TTS
-        if (window.ttsManager && window.head) {
-          // TTSManager will clean the text itself
-          try {
-            await window.ttsManager.speakText(data.response, window.head);
-          } catch (ttsError) {
-            console.error('TTS error:', ttsError);
-          }
-        }
-        
-      } catch (error) {
-        console.error('Error sending message:', error);
-        addMessageToUI('assistant', `Error: ${error.message}`, true);
-      } finally {
-        messageInput.disabled = false;
-        sendButton.disabled = false;
-        messageInput.focus();
-      }
-    }
-    
-    function addMessageToUI(role, content, isError = false) {
-      const messageDiv = document.createElement('div');
-      messageDiv.className = `message ${role}`;
-      messageDiv.textContent = content;
-      if (isError) {
-        messageDiv.style.color = '#ef4444';
-      }
-      chatMessages.appendChild(messageDiv);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-    
-    function updateStatusBar(data) {
-      const agent = data.agent_type || 'normal';
-      const intensity = data.sentiment_analysis?.intensity || 0;
-      statusBar.textContent = `Status: Online | Current: ${agent} | Intensity: ${intensity.toFixed(2)}/1.0`;
-    }
-    
-    // Event listeners
-    sendButton.addEventListener('click', sendMessage);
-    messageInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        sendMessage();
-      }
-    });
-    
-    // Initialize
-    initAvatar().then(({ head, emojiManager, ttsManager }) => {
-      window.head = head;
-      window.emojiManager = emojiManager;
-      window.ttsManager = ttsManager;
-      messageInput.focus();
-    }).catch(error => {
-      console.error('Failed to initialize avatar:', error);
-    });
-  </script>
+  <!-- Load BrowserMemory for persistent conversation context -->
+  <script src="js/browser-memory.js"></script>
+  
+  <!-- ================================ -->
+  <!-- CONFETTI APPRECIATION SYSTEM     -->
+  <!-- ================================ -->
+  <script src="js/ConfettiManager.js"></script>
+  <!-- ================================ -->
+  
+  <!-- Main app initialization -->
+  <!-- app.js imports all managers (LeadershipManager, LinkButtonManager, etc.) -->
+  <!-- No need to load them separately - ES modules handle dependencies automatically -->
+  <!-- Cache busting: Use timestamp to force fresh load -->
+  <script type="module" src="js/app.js?v=20250127-003"></script>
 </body>
 </html>
-
