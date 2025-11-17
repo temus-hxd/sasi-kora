@@ -49,7 +49,6 @@ export class AvatarManager {
     this.idleTimerManager = idleTimerManager;
     this.voiceStateManager = voiceStateManager;
     this.emojiManager = emojiManager;
-    this.bookCoverManager = bookCoverManager;
     this.leadershipManager = leadershipManager;
     this.linkButtonManager = linkButtonManager;
     this.speechBubbleManager = speechBubbleManager;
@@ -176,7 +175,6 @@ export class AvatarManager {
       idleTimerManager: this.idleTimerManager,
       ttsManager: this.ttsManager,
       emojiManager: this.emojiManager,
-      bookCoverManager: this.bookCoverManager,
       leadershipManager: this.leadershipManager,
       linkButtonManager: this.linkButtonManager,
       head: this.head,

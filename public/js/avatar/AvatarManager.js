@@ -175,7 +175,6 @@ export class AvatarManager {
       idleTimerManager: this.idleTimerManager,
       ttsManager: this.ttsManager,
       emojiManager: this.emojiManager,
-      bookCoverManager: this.bookCoverManager,
       leadershipManager: this.leadershipManager,
       linkButtonManager: this.linkButtonManager,
       head: this.head,
