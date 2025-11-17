@@ -30,10 +30,15 @@ export abstract class BaseAgent {
     // Determine model from env var or default
     if (options.modelEnvVar) {
       let modelName = process.env[options.modelEnvVar] || 'llama-3.1-8b-instant';
-      // Fix common model name issues (remove meta-llama/ prefix if present)
+      // Fix common model name issues
       if (modelName.includes('meta-llama/')) {
         modelName = modelName.replace('meta-llama/', '');
         console.warn(`⚠️  Fixed model name for ${options.modelEnvVar}: removed 'meta-llama/' prefix. Using: ${modelName}`);
+      }
+      // Fix common mistake: llama-3.1-8b-instruct -> llama-3.1-8b-instant
+      if (modelName === 'llama-3.1-8b-instruct') {
+        modelName = 'llama-3.1-8b-instant';
+        console.warn(`⚠️  Fixed model name for ${options.modelEnvVar}: changed 'instruct' to 'instant'. Using: ${modelName}`);
       }
       this.model = modelName;
     } else {

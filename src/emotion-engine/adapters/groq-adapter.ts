@@ -31,10 +31,16 @@ export class GroqAdapter {
     this.client = new Groq({ apiKey });
     let modelName = options.model || process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
     
-    // Fix common model name issues (remove meta-llama/ prefix if present)
+    // Fix common model name issues
     if (modelName.includes('meta-llama/')) {
       modelName = modelName.replace('meta-llama/', '');
       console.warn(`⚠️  Fixed model name: removed 'meta-llama/' prefix. Using: ${modelName}`);
+    }
+    
+    // Fix common mistake: llama-3.1-8b-instruct -> llama-3.1-8b-instant
+    if (modelName === 'llama-3.1-8b-instruct') {
+      modelName = 'llama-3.1-8b-instant';
+      console.warn(`⚠️  Fixed model name: changed 'instruct' to 'instant'. Using: ${modelName}`);
     }
     
     this.defaultModel = modelName;
