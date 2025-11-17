@@ -135,7 +135,7 @@ export class TTSManager {
         voiceId: voiceId, // From server (.env) - no hardcoded fallback
         stream: true, // Enable streaming for faster response
         modelId: 'eleven_multilingual_v2', // Multilingual model for Chinese/English mix
-        speed: 0.75, // Slower speech rate (0.7-1.2, 0.75 = slower, less energetic)
+        speed: 0.5, // Much slower for Ah Meng (76-year-old) - was 0.75, now 0.5 for elderly character
         style: 0.0 // Less energetic (0.0 = calm, 1.0 = very energetic)
       };
 
