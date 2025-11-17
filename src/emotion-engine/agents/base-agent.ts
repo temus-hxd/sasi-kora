@@ -29,7 +29,11 @@ export abstract class BaseAgent {
 
     // Determine model from env var or default
     if (options.modelEnvVar) {
-      let modelName = process.env[options.modelEnvVar] || 'llama-3.1-8b-instant';
+      // Use Grok for angry agents by default, otherwise use llama
+      const isAngryAgent = ['MODEL_IRRITATED', 'MODEL_AGITATED', 'MODEL_ENRAGED'].includes(options.modelEnvVar);
+      const defaultModel = isAngryAgent ? 'x-ai/grok-4-fast' : 'llama-3.1-8b-instant';
+      
+      let modelName = process.env[options.modelEnvVar] || defaultModel;
       // Fix common model name issues
       if (modelName.includes('meta-llama/')) {
         modelName = modelName.replace('meta-llama/', '');
