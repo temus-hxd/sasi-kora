@@ -2,6 +2,9 @@
 
 Refactored emotion engine from Python FastAPI to Node.js/TypeScript for Vercel deployment.
 
+**Project Name**: `kora-synapxe-01`  
+**Character**: Ah Meng - 76-year-old retired Singaporean man for AIC volunteer training
+
 ## 🚀 Quick Start
 
 1. **Install dependencies**
