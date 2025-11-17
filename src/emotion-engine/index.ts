@@ -38,6 +38,26 @@ export { AngerMeter } from './systems/anger-meter.js';
 export { GroqAdapter } from './adapters/groq-adapter.js';
 export type { GroqAdapterOptions } from './adapters/groq-adapter.js';
 
+// Phase 3 exports
+export { SentimentAgent } from './agents/sentiment-agent.js';
+export { NormalAgent } from './agents/normal-agent.js';
+export {
+  HappyLevel1PleasedAgent,
+  HappyLevel2CheerfulAgent,
+  HappyLevel3EcstaticAgent,
+} from './agents/happy-agents.js';
+export {
+  SadLevel1MelancholyAgent,
+  SadLevel2SorrowfulAgent,
+  SadLevel3DepressedAgent,
+} from './agents/sad-agents.js';
+export {
+  AngryLevel1IrritatedAgent,
+  AngryLevel2AgitatedAgent,
+  AngryLevel3EnragedAgent,
+} from './agents/angry-agents.js';
+export { AgentFactory } from './agents/agent-factory.js';
+
 // Future exports (will be added in later phases)
 // export { Orchestrator } from './orchestrator.js';
 
