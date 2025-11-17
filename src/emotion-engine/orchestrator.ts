@@ -82,10 +82,15 @@ export class Orchestrator {
 
     // Step 2: Process anger meter (anger persists across messages)
     const angerEmotions = ['anger', 'frustration', 'irritation', 'rage', 'annoyance'];
-    const happyEmotions = ['joy', 'happiness', 'excitement', 'enthusiasm', 'pleasure'];
+    // Expanded happy emotions list to catch more variations
+    const happyEmotions = ['joy', 'happiness', 'excitement', 'enthusiasm', 'pleasure', 'love', 'affection', 'appreciation', 'gratitude', 'admiration', 'positive'];
     const sadEmotions = ['sadness', 'melancholy', 'grief', 'disappointment', 'sorrow'];
     const emotion = sentimentAnalysis.emotion || 'neutral';
     const intensity = sentimentAnalysis.intensity || 0;
+
+    // Debug: Log detected emotion
+    console.log(`🎭 Detected emotion: "${emotion}", intensity: ${intensity.toFixed(2)}`);
+    console.log(`🎭 Emotional indicators: ${sentimentAnalysis.emotional_indicators?.join(', ') || 'none'}`);
 
     // ALWAYS use anger meter system - anger persists regardless of current message emotion
     const [angerAgent, angerMeterInfo] = this.angerMeter.processMessage(message, sentimentAnalysis);
@@ -108,7 +113,30 @@ export class Orchestrator {
       }
     }
     // If no anger, route based on positive emotions
-    else if (happyEmotions.includes(emotion)) {
+    // Check if emotion matches happy emotions or contains happy keywords
+    // Also check emotional indicators for positive words (compliments often detected as "positive" or "neutral")
+    const emotionLower = emotion.toLowerCase();
+    const hasHappyEmotion = happyEmotions.includes(emotion) || 
+                            emotionLower.includes('happy') || 
+                            emotionLower.includes('joy') ||
+                            emotionLower === 'positive';
+    
+    // Check emotional indicators for compliment keywords
+    const hasComplimentIndicators = sentimentAnalysis.emotional_indicators?.some(indicator => {
+      const indicatorLower = indicator.toLowerCase();
+      return indicatorLower.includes('like') || 
+             indicatorLower.includes('love') || 
+             indicatorLower.includes('amazing') ||
+             indicatorLower.includes('nice') ||
+             indicatorLower.includes('good') ||
+             indicatorLower.includes('best') ||
+             indicatorLower.includes('friend') ||
+             indicatorLower.includes('kind') ||
+             indicatorLower.includes('great');
+    }) || false;
+    
+    // Route to happy if emotion is happy OR if we detect compliment indicators with positive intensity
+    if (hasHappyEmotion || (hasComplimentIndicators && intensity > 0.3 && emotionLower !== 'anger' && emotionLower !== 'sadness')) {
       if (intensity >= 0.7) {
         nextAgent = 'ecstatic';
         action = 'emotion_routing_happy_high';
