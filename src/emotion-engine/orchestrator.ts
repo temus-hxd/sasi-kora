@@ -82,21 +82,68 @@ export class Orchestrator {
 
     // Step 2: Process anger meter (anger persists across messages)
     const angerEmotions = ['anger', 'frustration', 'irritation', 'rage', 'annoyance'];
+    const happyEmotions = ['joy', 'happiness', 'excitement', 'enthusiasm', 'pleasure'];
+    const sadEmotions = ['sadness', 'melancholy', 'grief', 'disappointment', 'sorrow'];
     const emotion = sentimentAnalysis.emotion || 'neutral';
+    const intensity = sentimentAnalysis.intensity || 0;
 
     // ALWAYS use anger meter system - anger persists regardless of current message emotion
     const [angerAgent, angerMeterInfo] = this.angerMeter.processMessage(message, sentimentAnalysis);
-    const nextAgent = angerAgent;
-
-    // Determine routing reason
+    
+    // Determine next agent based on emotion and anger meter
+    // Priority: Anger > Happiness > Sadness > Normal
+    let nextAgent: string;
     let action: string;
     let thinking: string;
-    if (angerEmotions.includes(emotion)) {
-      action = 'anger_meter_routing_angry';
-      thinking = `Angry message detected. Anger meter: ${angerMeterInfo.anger_points} pts, routing to ${angerAgent} agent.`;
-    } else {
-      action = 'anger_meter_routing_persistent';
-      thinking = `Non-angry message but anger persists. Anger meter: ${angerMeterInfo.anger_points} pts, routing to ${angerAgent} agent.`;
+
+    // If anger meter says we should be angry, use that (anger persists)
+    if (angerAgent !== 'normal') {
+      nextAgent = angerAgent;
+      if (angerEmotions.includes(emotion)) {
+        action = 'anger_meter_routing_angry';
+        thinking = `Angry message detected. Anger meter: ${angerMeterInfo.anger_points} pts, routing to ${angerAgent} agent.`;
+      } else {
+        action = 'anger_meter_routing_persistent';
+        thinking = `Non-angry message but anger persists. Anger meter: ${angerMeterInfo.anger_points} pts, routing to ${angerAgent} agent.`;
+      }
+    }
+    // If no anger, route based on positive emotions
+    else if (happyEmotions.includes(emotion)) {
+      if (intensity >= 0.7) {
+        nextAgent = 'ecstatic';
+        action = 'emotion_routing_happy_high';
+        thinking = `High intensity happiness (${intensity.toFixed(2)}) detected, routing to ecstatic agent.`;
+      } else if (intensity >= 0.4) {
+        nextAgent = 'cheerful';
+        action = 'emotion_routing_happy_medium';
+        thinking = `Medium intensity happiness (${intensity.toFixed(2)}) detected, routing to cheerful agent.`;
+      } else {
+        nextAgent = 'pleased';
+        action = 'emotion_routing_happy_low';
+        thinking = `Low intensity happiness (${intensity.toFixed(2)}) detected, routing to pleased agent.`;
+      }
+    }
+    // Route based on negative emotions (sadness)
+    else if (sadEmotions.includes(emotion)) {
+      if (intensity >= 0.7) {
+        nextAgent = 'depressed';
+        action = 'emotion_routing_sad_high';
+        thinking = `High intensity sadness (${intensity.toFixed(2)}) detected, routing to depressed agent.`;
+      } else if (intensity >= 0.4) {
+        nextAgent = 'sorrowful';
+        action = 'emotion_routing_sad_medium';
+        thinking = `Medium intensity sadness (${intensity.toFixed(2)}) detected, routing to sorrowful agent.`;
+      } else {
+        nextAgent = 'melancholy';
+        action = 'emotion_routing_sad_low';
+        thinking = `Low intensity sadness (${intensity.toFixed(2)}) detected, routing to melancholy agent.`;
+      }
+    }
+    // Default to normal
+    else {
+      nextAgent = 'normal';
+      action = 'emotion_routing_normal';
+      thinking = `Neutral emotion (${emotion}, ${intensity.toFixed(2)}) detected, routing to normal agent.`;
     }
 
     // Create orchestrator thinking for anger meter decision
