@@ -20,6 +20,7 @@ export class AvatarManager {
     this.webSocketManager = null;
     this.chatManager = null;
     this.animationManager = null;
+    this.countdownInterval = null;
     
     // Page visibility event handler bound to this instance
     this.handleVisibilityChange = this.handleVisibilityChange.bind(this);
