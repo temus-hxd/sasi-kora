@@ -26,14 +26,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/css', express.static(path.join(__dirname, 'public', 'css')));
 app.use('/js', express.static(path.join(__dirname, 'public', 'js')));
 
-// Serve chat-ui.html (text-only testing)
+// Serve avatar-ui.html (with ReadyPlayerMe avatar) - DEFAULT ROUTE
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'chat-ui.html'));
+  res.sendFile(path.join(__dirname, 'avatar-ui.html'));
 });
 
-// Serve avatar-ui.html (with ReadyPlayerMe avatar)
-app.get('/avatar', (req, res) => {
-  res.sendFile(path.join(__dirname, 'avatar-ui.html'));
+// Serve chat-ui.html (text-only testing) - available at /chat
+app.get('/chat', (req, res) => {
+  res.sendFile(path.join(__dirname, 'chat-ui.html'));
 });
 
 // Health check
