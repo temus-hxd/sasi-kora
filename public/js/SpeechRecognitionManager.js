@@ -105,9 +105,18 @@ export class SpeechRecognitionManager {
       return false;
     }
     
-    // Interrupt current speech if speaking
-    if (window.ttsManager) {
-      window.ttsManager.interruptSpeech();
+    // Check if avatar is currently speaking - wait for speech to end instead of interrupting
+    if (window.ttsManager && window.ttsManager.isSpeaking) {
+      console.log('⏸️ Avatar is speaking - voice recognition will start after speech ends');
+      // Wait for speech to end, then start
+      const checkSpeaking = setInterval(() => {
+        if (!window.ttsManager.isSpeaking) {
+          clearInterval(checkSpeaking);
+          console.log('✅ Avatar finished speaking, starting voice recognition');
+          this.startVoiceRecognition();
+        }
+      }, 500);
+      return false;
     }
     
     if (!this.isRecording) {
@@ -144,6 +153,12 @@ export class SpeechRecognitionManager {
   }
 
   toggleVoice() {
+    // If avatar is speaking, don't allow toggling on (wait for speech to end)
+    if (window.ttsManager && window.ttsManager.isSpeaking && !this.isRecording) {
+      console.log('⏸️ Avatar is speaking - cannot start voice recognition. Wait for speech to end.');
+      return;
+    }
+    
     if (this.isRecording) {
       this.stopVoiceRecognition();
     } else {

@@ -137,13 +137,9 @@ async function initializeApp() {
   window.speechRecognitionManager = speechRecognitionManager;
   window.speechBubbleManager = speechBubbleManager;
   
-  // Auto-start voice recognition as default input method
-  setTimeout(() => {
-    if (speechRecognitionManager && speechRecognitionManager.isSupported) {
-      console.log('🎤 Auto-starting voice recognition as default input');
-      speechRecognitionManager.startVoiceRecognition();
-    }
-  }, 1000); // Small delay to ensure everything is fully loaded
+  // Voice recognition is OFF by default - user must press mic button to enable
+  // This prevents the mic from interrupting the avatar's speech
+  console.log('🎤 Voice recognition available - press mic button to enable');
   
   // Add global keyboard interruption
   document.addEventListener('keydown', (event) => {
