@@ -16,10 +16,21 @@ const promptCache = new Map<string, string>();
 
 /**
  * Get the project root directory
+ * Works in both local development and Vercel serverless environments
  */
 function getProjectRoot(): string {
-  // Go up from src/emotion-engine/utils to project root
-  return join(__dirname, '..', '..', '..');
+  // In Vercel serverless, process.cwd() points to the project root
+  // In local dev, if running from dist/, we need to go up
+  const cwd = process.cwd();
+  const fromCompiled = join(__dirname, '..', '..', '..');
+  
+  // Default to cwd (works in Vercel and local when running from root)
+  // If we're in a dist/ directory, use the compiled location path
+  if (__dirname.includes('dist')) {
+    return fromCompiled;
+  }
+  
+  return cwd;
 }
 
 /**
@@ -46,22 +57,38 @@ export async function loadPrompt(
   try {
     // Build path: prompts/{client}/emotional-state-engine-prompts/{promptFile}
     const projectRoot = getProjectRoot();
-    const promptPath = join(
-      projectRoot,
-      'prompts',
-      client,
-      'emotional-state-engine-prompts',
-      promptFile
-    );
-
-    console.log(`📄 Loading prompt: ${promptFile} (client: ${client})`);
-    console.log(`   Path: ${promptPath}`);
-
-    // Read the file
-    const content = await readFile(promptPath, 'utf-8');
+    
+    // Try multiple possible paths (for different deployment scenarios)
+    const possiblePaths = [
+      join(projectRoot, 'prompts', client, 'emotional-state-engine-prompts', promptFile),
+      join(process.cwd(), 'prompts', client, 'emotional-state-engine-prompts', promptFile),
+      join(__dirname, '..', '..', '..', 'prompts', client, 'emotional-state-engine-prompts', promptFile),
+    ];
+    
+    let content: string | null = null;
+    let successfulPath: string | null = null;
+    
+    // Try each path until one works
+    for (const promptPath of possiblePaths) {
+      try {
+        console.log(`📄 Trying to load prompt: ${promptFile} (client: ${client})`);
+        console.log(`   Attempting path: ${promptPath}`);
+        
+        content = await readFile(promptPath, 'utf-8');
+        successfulPath = promptPath;
+        break;
+      } catch (pathError) {
+        // Try next path
+        continue;
+      }
+    }
+    
+    if (!content) {
+      throw new Error(`Prompt file not found in any of the attempted paths: ${possiblePaths.join(', ')}`);
+    }
+    
     const trimmedContent = content.trim();
-
-    console.log(`✅ Loaded prompt: ${promptFile} (${trimmedContent.length} chars)`);
+    console.log(`✅ Loaded prompt: ${promptFile} (${trimmedContent.length} chars) from ${successfulPath}`);
 
     // Cache it
     promptCache.set(cacheKey, trimmedContent);
