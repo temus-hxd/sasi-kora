@@ -315,7 +315,7 @@ router.post('/tts', async (req, res) => {
       stability = 0.5,
       similarityBoost = 0.75,
       style = 0.0,
-      speed = 0.75,
+      speed = 0.45, // Slower for Ah Meng (76-year-old man) - default was 0.75
       speakerBoost = true,
       stream = true,
     } = req.body;
@@ -370,7 +370,7 @@ router.post('/tts', async (req, res) => {
           style,
           use_speaker_boost: speakerBoost,
         },
-        speed: Math.max(0.7, Math.min(1.2, speed)),
+        speed: Math.max(0.3, Math.min(1.2, speed)), // Allow slower speeds for elderly characters (min 0.3 instead of 0.7)
       }),
     });
 
