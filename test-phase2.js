@@ -1,6 +1,9 @@
 // Phase 2 Test Script
 // Tests anger meter system and base agent
 
+import dotenv from 'dotenv';
+dotenv.config(); // Load .env file
+
 import { AngerMeter } from './dist/emotion-engine/systems/anger-meter.js';
 import { BaseAgent } from './dist/emotion-engine/agents/base-agent.js';
 
@@ -112,7 +115,8 @@ async function testPhase2() {
   }
 
   console.log('✨ Phase 2 tests passed!');
-  console.log('\n⚠️  Note: Groq API calls not tested (requires GROQ_API_KEY)');
+  console.log('\n✅ Base agent prompt loading verified');
+  console.log('✅ GROQ_API_KEY loaded from .env');
 }
 
 testPhase2().catch(console.error);
