@@ -12,7 +12,6 @@ export class ChatManager {
     this.idleTimerManager = null;
     this.ttsManager = null;
     this.emojiManager = null;
-    this.bookCoverManager = null;
     this.leadershipManager = null;
     this.linkButtonManager = null;
     this.animationManager = null;
@@ -31,7 +30,6 @@ export class ChatManager {
     idleTimerManager, 
     ttsManager, 
     emojiManager, 
-    bookCoverManager,
     leadershipManager,
     linkButtonManager,
     head,
@@ -43,7 +41,6 @@ export class ChatManager {
     this.idleTimerManager = idleTimerManager;
     this.ttsManager = ttsManager;
     this.emojiManager = emojiManager;
-    this.bookCoverManager = bookCoverManager;
     this.leadershipManager = leadershipManager;
     this.linkButtonManager = linkButtonManager;
     this.head = head;
@@ -217,14 +214,6 @@ export class ChatManager {
       this.emojiManager.triggerEmojiAction(avatarEmoji);
     }
     
-    // Handle book covers - use text analysis (parallel to TTS)
-    // Skip book thumbnails if this was an events-related response
-    if (this.bookCoverManager && !usedEvents) {
-      console.log('📚 Processing text for book covers (parallel to TTS)');
-      this.bookCoverManager.processTextForBooks(response);
-    } else if (usedEvents) {
-      console.log('📅 Skipping book thumbnails - this was an events response');
-    }
     
     // Handle leadership displays (parallel to TTS)
     if (this.leadershipManager) {

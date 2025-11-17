@@ -1,6 +1,5 @@
 // Import modules
 import { EmojiManager } from "./EmojiManager.js";
-import { BookCoverManager } from "./BookCoverManager.js";
 import { LeadershipManager } from "./LeadershipManager.js";
 import { LinkButtonManager } from "./LinkButtonManager.js";
 import { VoiceStateManager } from "./VoiceStateManager.js";
@@ -20,7 +19,6 @@ import { AvatarManager } from "./AvatarManager.js";
 // Avatar variables moved to AvatarManager
 
 // Manager instances
-let bookCoverManager = null;
 let leadershipManager = null;
 let linkButtonManager = null;
 let emojiManager = null;
@@ -75,7 +73,6 @@ async function initializeApp() {
   idleTimerManager = new IdleTimerManager();
   voiceStateManager = new VoiceStateManager();
   emojiManager = new EmojiManager();
-  bookCoverManager = new BookCoverManager();
   leadershipManager = new LeadershipManager();
   linkButtonManager = new LinkButtonManager();
   webSocketManager = new WebSocketManager();
@@ -120,7 +117,6 @@ async function initializeApp() {
     idleTimerManager,
     voiceStateManager,
     emojiManager,
-    bookCoverManager,
     leadershipManager,
     linkButtonManager,
     speechBubbleManager,
@@ -221,7 +217,6 @@ window.toggleVoice = () => speechRecognitionManager?.toggleVoice();
 window.triggerExpression = (emoji) => avatarManager?.triggerExpression(emoji);
 window.changeView = (view) => avatarManager?.changeView(view);
 window.resetAvatar = () => avatarManager?.resetAvatar();
-window.testBookCover = () => bookCoverManager?.testBookCover();
 window.resetVoiceSettings = () => voiceStateManager?.resetVoiceSettings();
 
 // ================================
