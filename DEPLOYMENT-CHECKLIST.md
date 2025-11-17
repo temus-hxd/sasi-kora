@@ -24,6 +24,9 @@
 - [ ] `CLIENT_NAME` - Set to `synapse` (default)
 - [ ] Model overrides if needed (`MODEL_*`)
 
+**NOT NEEDED (Legacy/Unused):**
+- [ ] `PRIMARY_PROVIDER` - **NOT USED** - Do not set this in Vercel, it's not referenced in the codebase
+
 ### 🚀 Deployment Steps
 
 1. **Push to Git Repository**

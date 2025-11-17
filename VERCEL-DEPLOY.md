@@ -36,6 +36,9 @@ Set these in your Vercel project settings (Settings → Environment Variables):
 - `PORT` - Server port (Vercel sets this automatically)
 - `SASSI_API_URL` - Override emotional-state API URL
 
+### Not Used (Legacy/Unused Variables)
+- `PRIMARY_PROVIDER` - **NOT USED** - This variable is not referenced in the codebase. You do NOT need to set this in Vercel.
+
 ## Deployment Steps
 
 ### Option 1: Deploy via Vercel Dashboard
