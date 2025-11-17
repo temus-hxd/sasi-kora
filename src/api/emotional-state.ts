@@ -87,9 +87,23 @@ router.post('/chat', async (req, res) => {
   } catch (error: unknown) {
     const err = error as Error;
     console.error('❌ Error in /api/emotional-state/chat:', err);
-    res.status(500).json({
+    console.error('Stack:', err.stack);
+    
+    // Provide more helpful error messages
+    let errorMessage = err.message;
+    let statusCode = 500;
+    
+    if (err.message.includes('model_not_found') || err.message.includes('does not exist')) {
+      statusCode = 400;
+      errorMessage = `Invalid Groq model name. Please check your .env file. Error: ${err.message}`;
+    } else if (err.message.includes('GROQ_API_KEY')) {
+      statusCode = 500;
+      errorMessage = 'GROQ_API_KEY is not set. Please check your .env file.';
+    }
+    
+    res.status(statusCode).json({
       error: 'Error processing chat',
-      message: err.message,
+      message: errorMessage,
       success: false,
     });
   }

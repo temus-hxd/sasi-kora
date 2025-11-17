@@ -29,7 +29,15 @@ export class GroqAdapter {
     }
 
     this.client = new Groq({ apiKey });
-    this.defaultModel = options.model || process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
+    let modelName = options.model || process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
+    
+    // Fix common model name issues (remove meta-llama/ prefix if present)
+    if (modelName.includes('meta-llama/')) {
+      modelName = modelName.replace('meta-llama/', '');
+      console.warn(`⚠️  Fixed model name: removed 'meta-llama/' prefix. Using: ${modelName}`);
+    }
+    
+    this.defaultModel = modelName;
     this.defaultMaxTokens = options.maxTokens || 1500;
     this.defaultTemperature = options.temperature || 0.7;
     this.timeout = options.timeout || 30000; // 30 seconds

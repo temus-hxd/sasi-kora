@@ -91,7 +91,17 @@ async function sendMessage() {
 
   } catch (error) {
     console.error('Error sending message:', error);
-    addMessageToUI('assistant', `Error: ${error.message}`, true);
+    const errorMsg = error.message || 'Unknown error occurred';
+    addMessageToUI('assistant', `Error: ${errorMsg}`, true);
+    
+    // Show more details in console for debugging
+    if (error.message.includes('API error: 500')) {
+      console.error('Server returned 500 error. Check server logs for details.');
+      console.error('This might be due to:');
+      console.error('1. Invalid Groq model name in .env');
+      console.error('2. Missing GROQ_API_KEY');
+      console.error('3. Groq API error');
+    }
   } finally {
     messageInput.disabled = false;
     sendButton.disabled = false;

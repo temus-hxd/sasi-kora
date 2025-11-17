@@ -29,7 +29,13 @@ export abstract class BaseAgent {
 
     // Determine model from env var or default
     if (options.modelEnvVar) {
-      this.model = process.env[options.modelEnvVar] || 'llama-3.1-8b-instant';
+      let modelName = process.env[options.modelEnvVar] || 'llama-3.1-8b-instant';
+      // Fix common model name issues (remove meta-llama/ prefix if present)
+      if (modelName.includes('meta-llama/')) {
+        modelName = modelName.replace('meta-llama/', '');
+        console.warn(`⚠️  Fixed model name for ${options.modelEnvVar}: removed 'meta-llama/' prefix. Using: ${modelName}`);
+      }
+      this.model = modelName;
     } else {
       this.model = 'llama-3.1-8b-instant'; // Default fallback
     }
