@@ -392,7 +392,6 @@ export class ChatManager {
     this.idleTimerManager = null;
     this.ttsManager = null;
     this.emojiManager = null;
-    this.bookCoverManager = null;
     this.head = null;
     this.isLoaded = null;
     this.animationManager = null;
