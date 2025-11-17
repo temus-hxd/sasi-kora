@@ -42,11 +42,6 @@ export class LeadershipManager {
         name: "Seok Ling Wong",
         title: "Managing Director – Cloud, Application & Platform",
         imageUrl: "https://temus.com/wp-content/uploads/2025/02/Wong-Seok-Ling_Temus1524-1-e1740127437314.jpg"
-      },
-      {
-        name: "Megha",
-        title: "Consulting Director for Digital Strategy & Transformation",
-        imageUrl: "https://media.licdn.com/dms/image/v2/D5603AQHGcD_oAF-lhA/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1668860622719?e=1756944000&v=beta&t=GIZIcQABsGutdMnrrvZNCi8lHLKxcE2j3BJ3fL5EHsU"
       }
     ];
   }
@@ -72,7 +67,7 @@ export class LeadershipManager {
       'leadership team', 'our leaders', 'management team', 'executive team', 'ceo', 
       'chief executive', 'chief people officer', 'managing director', 'finance director',
       'who is our', 'meet our', 'our management', 'company leaders',
-      'lai yee', 'melissa', 'chun wei', 'shridar', 'daniel', 'peng hooi', 'marcus', 'seok ling', 'megha'
+      'lai yee', 'melissa', 'chun wei', 'shridar', 'daniel', 'peng hooi', 'marcus', 'seok ling'
     ];
     
     return leadershipKeywords.some(keyword => lowerText.includes(keyword));
