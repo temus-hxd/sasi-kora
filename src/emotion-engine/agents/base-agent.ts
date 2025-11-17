@@ -119,8 +119,12 @@ export abstract class BaseAgent {
       this.systemPrompt = nonEmptyParts.join('\n\n---\n\n');
       this.initialized = true;
     } catch (error) {
-      console.error(`Failed to load prompts for ${this.agentType}:`, error);
-      // Fallback to basic prompt
+      const err = error as Error;
+      console.error(`❌ Failed to load prompts for ${this.agentType}:`, err.message);
+      console.error(`   Client: ${this.clientName}, Prompt file: ${(this as any)._promptFile}`);
+      console.error(`   Error details:`, err);
+      // Fallback to basic prompt - but log warning
+      console.warn(`⚠️  Using fallback generic prompt for ${this.agentType} - prompts not loaded!`);
       this.systemPrompt = `You are ${this.agentType} agent. Respond appropriately.`;
       this.initialized = true;
     }

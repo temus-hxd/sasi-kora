@@ -54,9 +54,14 @@ export async function loadPrompt(
       promptFile
     );
 
+    console.log(`📄 Loading prompt: ${promptFile} (client: ${client})`);
+    console.log(`   Path: ${promptPath}`);
+
     // Read the file
     const content = await readFile(promptPath, 'utf-8');
     const trimmedContent = content.trim();
+
+    console.log(`✅ Loaded prompt: ${promptFile} (${trimmedContent.length} chars)`);
 
     // Cache it
     promptCache.set(cacheKey, trimmedContent);
@@ -64,6 +69,20 @@ export async function loadPrompt(
     return trimmedContent;
   } catch (error) {
     const err = error as NodeJS.ErrnoException;
+    const projectRoot = getProjectRoot();
+    const attemptedPath = join(
+      projectRoot,
+      'prompts',
+      client,
+      'emotional-state-engine-prompts',
+      promptFile
+    );
+    console.error(`❌ Failed to load prompt file: ${promptFile}`);
+    console.error(`   Client: ${client}`);
+    console.error(`   Attempted path: ${attemptedPath}`);
+    console.error(`   Project root: ${projectRoot}`);
+    console.error(`   Error: ${err.message} (code: ${err.code})`);
+    
     if (err.code === 'ENOENT') {
       throw new PromptLoadError(promptFile, client, err);
     }
