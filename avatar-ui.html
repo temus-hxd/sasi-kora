@@ -21,13 +21,24 @@
 <body>
   <!-- Avatar Loading Screen with Countdown -->
   <div class="avatar-loading-screen" id="avatarLoadingScreen">
+    <div class="avatar-loading-backdrop"></div>
     <div class="avatar-loading-content">
-      <div class="avatar-loading-title">Loading Simulation...</div>
-      <div class="avatar-loading-countdown" id="avatarLoadingCountdown">3</div>
+      <div class="avatar-loading-logo">
+        <div class="logo-icon">🤖</div>
+      </div>
+      <div class="avatar-loading-title">Initializing Avatar</div>
+      <div class="avatar-loading-subtitle">Preparing your experience...</div>
+      <div class="avatar-loading-countdown-wrapper">
+        <div class="avatar-loading-countdown" id="avatarLoadingCountdown">4</div>
+        <div class="countdown-label">seconds</div>
+      </div>
+      <div class="avatar-loading-progress">
+        <div class="progress-bar" id="loadingProgressBar"></div>
+      </div>
       <div class="avatar-loading-spinner">
-        <div class="spinner-circle"></div>
-        <div class="spinner-circle"></div>
-        <div class="spinner-circle"></div>
+        <div class="spinner-ring"></div>
+        <div class="spinner-ring"></div>
+        <div class="spinner-ring"></div>
       </div>
     </div>
   </div>
