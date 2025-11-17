@@ -155,7 +155,7 @@ export class AvatarManager {
   // =====================================================
   async initializeOtherManagers() {
     // Initialize managers that depend on avatar
-    this.idleTimerManager?.setDependencies(this.head, this.isLoaded, this.currentMoodRef, this.currentMood);
+    this.idleTimerManager?.setDependencies(this.head, this.isLoaded, this.currentMoodRef, this.currentMood, this.chatManager, this.ttsManager);
     
     this.voiceStateManager?.setUpdateStatusFunction(this.uiManager?.updateStatus.bind(this.uiManager));
     

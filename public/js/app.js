@@ -135,6 +135,7 @@ async function initializeApp() {
   window.chatManager = chatManager;
   window.linkButtonManager = linkButtonManager;
   window.speechRecognitionManager = speechRecognitionManager;
+  window.speechBubbleManager = speechBubbleManager;
   
   // Auto-start voice recognition as default input method
   setTimeout(() => {

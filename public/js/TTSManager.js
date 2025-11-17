@@ -393,6 +393,11 @@ export class TTSManager {
     
     // Mark as speaking
     this.isSpeaking = true;
+    
+    // Notify idle timer manager that we're speaking
+    if (this.idleTimerManager && typeof this.idleTimerManager.setSpeaking === 'function') {
+      this.idleTimerManager.setSpeaking(true);
+    }
 
     // Hide knowledge base thinking bubble immediately when TTS starts
     if (this.uiManager) {
@@ -487,6 +492,11 @@ export class TTSManager {
         this.isSpeaking = false;
         this.currentAudioSource = null;
         
+        // Notify idle timer manager that we're done speaking
+        if (this.idleTimerManager && typeof this.idleTimerManager.setSpeaking === 'function') {
+          this.idleTimerManager.setSpeaking(false);
+        }
+        
         // Clean up our monitoring timers
         if (this.cleanupCurrentTimers) {
           this.cleanupCurrentTimers();
@@ -517,6 +527,11 @@ export class TTSManager {
         // Mark as not speaking
         this.isSpeaking = false;
         this.currentAudioSource = null;
+        
+        // Notify idle timer manager that we're done speaking
+        if (this.idleTimerManager && typeof this.idleTimerManager.setSpeaking === 'function') {
+          this.idleTimerManager.setSpeaking(false);
+        }
         
         // Clean up our monitoring timers
         if (this.cleanupCurrentTimers) {
