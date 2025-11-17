@@ -348,6 +348,41 @@ export class TTSManager {
       return;
     }
     
+    // CRITICAL: Ensure AudioContext is resumed before playback
+    if (!this.audioContext) {
+      this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    
+    // Force resume AudioContext - this is critical for audio playback
+    if (this.audioContext.state === 'suspended') {
+      this.audioContext.resume().then(() => {
+        console.log('✅ Audio context resumed in playSpeechWithLipSync');
+        this.actuallyPlayAudio(audioObject, cleanText, data);
+      }).catch((error) => {
+        console.error('❌ CRITICAL: Failed to resume audio context in playSpeechWithLipSync:', error);
+        // Try to create new context
+        try {
+          this.audioContext.close();
+        } catch (closeError) {
+          // Ignore
+        }
+        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        console.log('✅ Created new audio context, retrying playback');
+        this.actuallyPlayAudio(audioObject, cleanText, data);
+      });
+      return;
+    }
+    
+    // AudioContext is already running, proceed with playback
+    this.actuallyPlayAudio(audioObject, cleanText, data);
+  }
+  
+  actuallyPlayAudio(audioObject, cleanText, data) {
+    if (!this.head || !this.isLoaded) {
+      console.warn('Head or avatar not ready for speech');
+      return;
+    }
+    
     // Use ACTUAL audio duration from decoded buffer (most accurate)
     // This ensures fallback timers match the real audio length
     const actualAudioDuration = audioObject.actualDuration || audioObject.audio?.duration || data.duration || 0;
@@ -509,7 +544,39 @@ export class TTSManager {
       },
     };
     
-    this.head.speakAudio(audioObject, speakOptions);
+    // CRITICAL: Verify AudioContext state before calling speakAudio
+    if (this.audioContext && this.audioContext.state === 'suspended') {
+      console.error('❌ CRITICAL: AudioContext is suspended - audio will not play!');
+      console.error('Attempting to resume AudioContext...');
+      this.audioContext.resume().then(() => {
+        console.log('✅ AudioContext resumed, calling speakAudio');
+        this.head.speakAudio(audioObject, speakOptions);
+      }).catch((error) => {
+        console.error('❌ Failed to resume AudioContext:', error);
+        // Still try to play - might work in some browsers
+        try {
+          this.head.speakAudio(audioObject, speakOptions);
+        } catch (playError) {
+          console.error('❌ speakAudio failed:', playError);
+          // Trigger error callback
+          if (speakOptions.onError) {
+            speakOptions.onError(playError);
+          }
+        }
+      });
+    } else {
+      // AudioContext is running, proceed normally
+      try {
+        console.log(`🔊 Calling speakAudio (AudioContext state: ${this.audioContext?.state || 'unknown'})`);
+        this.head.speakAudio(audioObject, speakOptions);
+        console.log('✅ speakAudio called successfully');
+      } catch (error) {
+        console.error('❌ speakAudio threw error:', error);
+        if (speakOptions.onError) {
+          speakOptions.onError(error);
+        }
+      }
+    }
 
     // Setup fallback timers with improved monitoring
     this.setupFallbackTimers(data.duration, speechStartTime);
@@ -673,19 +740,30 @@ export class TTSManager {
       const ttsStartTime = Date.now();
       console.log(`⚡ TTS request started at ${new Date().toISOString()}`);
       
-      // OPTIMIZATION: Pre-warm audio context BEFORE API call (parallel to network request)
+      // CRITICAL: Initialize and resume AudioContext BEFORE API call
       if (!this.audioContext) {
         this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        console.log(`🔊 Created new AudioContext (state: ${this.audioContext.state})`);
       }
+      
       // CRITICAL: Resume AudioContext on user interaction (required by browser autoplay policy)
       if (this.audioContext.state === 'suspended') {
         try {
           await this.audioContext.resume();
-          console.log('⚡ Audio context resumed for TTS');
+          console.log('✅ Audio context resumed for TTS (before API call)');
         } catch (error) {
-          console.warn('⚠️ Failed to resume audio context:', error);
-          // Will retry on next user interaction
+          console.error('❌ CRITICAL: Failed to resume audio context:', error);
+          // Try to create a new context
+          try {
+            this.audioContext.close();
+          } catch (closeError) {
+            // Ignore close errors
+          }
+          this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+          console.log('✅ Created new audio context after resume failure');
         }
+      } else {
+        console.log(`✅ AudioContext already running (state: ${this.audioContext.state})`);
       }
       
       // Call TTS API
@@ -695,12 +773,30 @@ export class TTSManager {
       console.log(`⏱️ [TIMING] ElevenLabs API call took ${apiTime}ms (${(apiTime/1000).toFixed(2)}s)`);
       
       if (data.success) {
+        // CRITICAL: Double-check AudioContext state before creating audio object
+        if (this.audioContext.state === 'suspended') {
+          console.warn('⚠️ AudioContext suspended after API call, resuming...');
+          try {
+            await this.audioContext.resume();
+            console.log('✅ Audio context resumed after API call');
+          } catch (error) {
+            console.error('❌ Failed to resume audio context after API call:', error);
+          }
+        }
+        
         // OPTIMIZATION: Create audio object and start playback ASAP
         const audioObject = await this.createAudioObject(data);
         const totalTime = Date.now() - ttsStartTime;
         console.log(`⚡ Audio ready and starting playback in ${totalTime}ms total`);
         console.log(`⚡ Breakdown: API=${apiTime}ms, Processing=${totalTime - apiTime}ms`);
         console.log(`⏱️ [TIMING] TTS processing breakdown: API=${apiTime}ms, Audio decode=${totalTime - apiTime}ms`);
+        console.log(`🔊 AudioContext state before playback: ${this.audioContext.state}`);
+        
+        // Verify audio object is valid
+        if (!audioObject || !audioObject.audio) {
+          console.error('❌ Invalid audio object - cannot play');
+          throw new Error('Invalid audio object');
+        }
         
         // Play speech with lip-sync
         this.playSpeechWithLipSync(audioObject, cleanText, data);
