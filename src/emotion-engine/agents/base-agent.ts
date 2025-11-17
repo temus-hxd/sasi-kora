@@ -6,6 +6,7 @@
 import type { ChatMessage } from '../types.js';
 import { loadPrompt } from '../utils/prompt-loader.js';
 import { GroqAdapter } from '../adapters/groq-adapter.js';
+import { OpenRouterAdapter } from '../adapters/openrouter-adapter.js';
 
 export interface BaseAgentOptions {
   promptFile: string;
@@ -18,9 +19,11 @@ export abstract class BaseAgent {
   protected systemPrompt: string;
   protected agentType: string;
   protected model: string;
-  protected groqAdapter: GroqAdapter;
+  protected groqAdapter!: GroqAdapter; // Initialized conditionally in constructor
+  protected openRouterAdapter?: OpenRouterAdapter;
   protected clientName: string;
   private initialized: boolean = false;
+  private useOpenRouter: boolean = false;
 
   constructor(options: BaseAgentOptions) {
     this.clientName = options.clientName || process.env.CLIENT_NAME || 'synapse';
@@ -29,30 +32,43 @@ export abstract class BaseAgent {
 
     // Determine model from env var or default
     if (options.modelEnvVar) {
-      // Use more powerful model for angry agents by default (better emotional responses)
+      // Use Grok (OpenRouter) for angry agents by default
       const isAngryAgent = ['MODEL_IRRITATED', 'MODEL_AGITATED', 'MODEL_ENRAGED'].includes(options.modelEnvVar);
-      const defaultModel = isAngryAgent ? 'llama-3.3-70b-versatile' : 'llama-3.1-8b-instant';
+      const defaultModel = isAngryAgent ? 'x-ai/grok-4-fast' : 'llama-3.1-8b-instant';
       
       let modelName = process.env[options.modelEnvVar] || defaultModel;
-      // Fix common model name issues
-      if (modelName.includes('meta-llama/')) {
-        modelName = modelName.replace('meta-llama/', '');
-        console.warn(`⚠️  Fixed model name for ${options.modelEnvVar}: removed 'meta-llama/' prefix. Using: ${modelName}`);
-      }
-      // Fix common mistake: llama-3.1-8b-instruct -> llama-3.1-8b-instant
-      if (modelName === 'llama-3.1-8b-instruct') {
-        modelName = 'llama-3.1-8b-instant';
-        console.warn(`⚠️  Fixed model name for ${options.modelEnvVar}: changed 'instruct' to 'instant'. Using: ${modelName}`);
+      
+      // Check if model uses OpenRouter (contains '/')
+      this.useOpenRouter = modelName.includes('/');
+      
+      // Fix common model name issues (only for Groq models)
+      if (!this.useOpenRouter) {
+        if (modelName.includes('meta-llama/')) {
+          modelName = modelName.replace('meta-llama/', '');
+          console.warn(`⚠️  Fixed model name for ${options.modelEnvVar}: removed 'meta-llama/' prefix. Using: ${modelName}`);
+        }
+        // Fix common mistake: llama-3.1-8b-instruct -> llama-3.1-8b-instant
+        if (modelName === 'llama-3.1-8b-instruct') {
+          modelName = 'llama-3.1-8b-instant';
+          console.warn(`⚠️  Fixed model name for ${options.modelEnvVar}: changed 'instruct' to 'instant'. Using: ${modelName}`);
+        }
       }
       this.model = modelName;
     } else {
       this.model = 'llama-3.1-8b-instant'; // Default fallback
+      this.useOpenRouter = false;
     }
 
-    // Initialize Groq adapter
-    this.groqAdapter = new GroqAdapter({
-      model: this.model,
-    });
+    // Initialize adapters based on model type
+    if (this.useOpenRouter) {
+      this.openRouterAdapter = new OpenRouterAdapter({
+        model: this.model,
+      });
+    } else {
+      this.groqAdapter = new GroqAdapter({
+        model: this.model,
+      });
+    }
 
     // Store prompt file and options for async initialization
     (this as any)._promptFile = options.promptFile;
@@ -137,7 +153,7 @@ export abstract class BaseAgent {
   }
 
   /**
-   * Call Groq API (common LLM call logic)
+   * Call LLM API (Groq or OpenRouter) - common LLM call logic
    */
   protected async callGroq(
     messages: ChatMessage[],
@@ -158,12 +174,20 @@ export abstract class BaseAgent {
       ...trimmedMessages,
     ];
 
-    // Call Groq API
-    return await this.groqAdapter.call(apiMessages, {
-      model: this.model,
-      maxTokens,
-      temperature,
-    });
+    // Call appropriate API based on model type
+    if (this.useOpenRouter && this.openRouterAdapter) {
+      return await this.openRouterAdapter.call(apiMessages, {
+        model: this.model,
+        maxTokens,
+        temperature,
+      });
+    } else {
+      return await this.groqAdapter.call(apiMessages, {
+        model: this.model,
+        maxTokens,
+        temperature,
+      });
+    }
   }
 
   /**

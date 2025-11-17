@@ -13,6 +13,7 @@ Set these in your Vercel project settings (Settings → Environment Variables):
 ### Required
 - `GROQ_API_KEY` - Your Groq API key for LLM calls
 - `GROQ_MODEL` - Default Groq model (e.g., `llama-3.1-8b-instant`)
+- `OPENROUTER_API_KEY` - OpenRouter API key (required for angry agents using Grok models)
 - `ELEVENLABS_API_KEY` - ElevenLabs TTS API key
 - `READYPLAYERME_AVATAR_URL` - Your ReadyPlayerMe avatar URL
 - `VOICE_ID` - ElevenLabs voice ID
@@ -27,9 +28,9 @@ Set these in your Vercel project settings (Settings → Environment Variables):
 - `MODEL_MELANCHOLY` - Melancholy agent model
 - `MODEL_SORROWFUL` - Sorrowful agent model
 - `MODEL_DEPRESSED` - Depressed agent model
-- `MODEL_IRRITATED` - Irritated agent model
-- `MODEL_AGITATED` - Agitated agent model
-- `MODEL_ENRAGED` - Enraged agent model
+- `MODEL_IRRITATED` - Irritated agent model (default: `x-ai/grok-4-fast` via OpenRouter)
+- `MODEL_AGITATED` - Agitated agent model (default: `x-ai/grok-4-fast` via OpenRouter)
+- `MODEL_ENRAGED` - Enraged agent model (default: `x-ai/grok-4-fast` via OpenRouter)
 
 ### Optional (Configuration)
 - `CLIENT_NAME` - Client name for prompts (default: `synapse`)

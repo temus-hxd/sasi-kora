@@ -16,13 +16,17 @@
 **Required:**
 - [ ] `GROQ_API_KEY` - Your Groq API key
 - [ ] `GROQ_MODEL` - Default model (e.g., `llama-3.1-8b-instant`)
+- [ ] `OPENROUTER_API_KEY` - OpenRouter API key (for angry agents using Grok)
 - [ ] `ELEVENLABS_API_KEY` - ElevenLabs TTS API key
 - [ ] `READYPLAYERME_AVATAR_URL` - Your ReadyPlayerMe avatar URL
 - [ ] `VOICE_ID` - ElevenLabs voice ID
 
 **Optional (but recommended):**
 - [ ] `CLIENT_NAME` - Set to `synapse` (default)
-- [ ] Model overrides if needed (`MODEL_*`)
+- [ ] `MODEL_IRRITATED` - Set to `x-ai/grok-4-fast` (default for angry agents)
+- [ ] `MODEL_AGITATED` - Set to `x-ai/grok-4-fast` (default for angry agents)
+- [ ] `MODEL_ENRAGED` - Set to `x-ai/grok-4-fast` (default for angry agents)
+- [ ] Other model overrides if needed (`MODEL_*`)
 
 **NOT NEEDED (Legacy/Unused):**
 - [ ] `PRIMARY_PROVIDER` - **NOT USED** - Do not set this in Vercel, it's not referenced in the codebase
