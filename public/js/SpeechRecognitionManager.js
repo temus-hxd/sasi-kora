@@ -24,6 +24,8 @@ export class SpeechRecognitionManager {
   initSpeechRecognition() {
     if (!this.isSupported) {
       console.warn('Speech recognition not supported in this browser');
+      // Still update button state to show OFF
+      this.updateMicButtonState(false);
       return false;
     }
 
@@ -38,6 +40,9 @@ export class SpeechRecognitionManager {
       console.log('🎤 Voice recognition started');
       this.updateMicButtonState(true);
     };
+    
+    // Ensure button shows OFF state initially
+    this.updateMicButtonState(false);
     
     this.recognition.onresult = (event) => {
       let finalTranscript = '';
