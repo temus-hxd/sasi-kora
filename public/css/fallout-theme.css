@@ -1,0 +1,19 @@
+/* Fallout Theme CSS for Chat UI */
+.agent-list-item {
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.agent-list-item:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.active-agent {
+  background-color: rgba(59, 130, 246, 0.2);
+  font-weight: bold;
+}
+
+#anger-meter-bar {
+  transition: width 0.3s ease;
+}
+

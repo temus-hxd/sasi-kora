@@ -1,0 +1,48 @@
+# Anger Meter Configuration
+# This file controls the anger escalation system behavior
+# Modify these values to fine-tune how anger builds up and dissipates
+
+# Point calculation settings
+anger_multiplier: 15.0  # Base multiplier for sentiment intensity (0.7 intensity = 10.5 points)
+
+# Agent switching thresholds (anger points required) - GRADUAL ESCALATION ENFORCED
+thresholds:
+  irritated: 12    # Level 1: Mildly annoyed (0.8 intensity can trigger)
+  agitated: 25     # Level 2: Clearly frustrated 
+  enraged: 50      # Level 3: Full rage mode - high threshold to prevent direct jumps
+
+# Decay settings (how anger diminishes over time)
+decay:
+  idle_rate: 0.3         # Moderate decay for natural anger reduction over time
+  time_decay_enabled: false  # Enable time-based decay (not just message-based)
+  time_rate: 0.5         # Points lost per minute (if time_decay_enabled)
+  minimum_floor: 0       # Lowest anger can go
+
+# Contextual bonuses and penalties - REDUCED to prevent single-message level jumps
+bonuses:
+  consecutive_anger: 5        # Extra points for back-to-back angry messages
+  rapid_escalation: 3         # Bonus when anger builds quickly
+  vulgar_language: 8          # Extra points for swearing/offensive language (reduced)
+  direct_insults: 12          # Extra points for personal attacks/insults (reduced)
+  
+penalties:
+  apology_reduction: -15      # Points removed when user apologizes (increased for better de-escalation)
+  calm_language: -3           # Points removed for peaceful/calm messages 
+  positive_emotion: -8        # Points removed when happiness/joy detected
+
+# Meter behavior
+meter:
+  max_points: 100            # Maximum anger points possible
+  escalation_cooldown: 2     # Messages to wait before allowing escalation again
+  de_escalation_immediate: true  # Allow immediate de-escalation when anger drops
+
+# De-escalation rules (specific to enraged state)
+de_escalation:
+  enraged_apology_requirement: 2    # Number of apologies required to allow de-escalation from enraged
+  apology_memory_limit: 5           # How many messages to remember apologies for
+  reset_apology_count_on_anger: true  # Reset apology count if user gets angry again
+
+# Debug settings
+debug:
+  show_meter_in_response: true   # Include anger meter info in API responses
+  log_point_changes: true        # Log every point change for debugging 
