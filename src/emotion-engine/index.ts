@@ -31,8 +31,13 @@ export {
   SentimentAnalysisError,
 } from './utils/errors.js';
 
+// Phase 2 exports
+export { BaseAgent } from './agents/base-agent.js';
+export type { BaseAgentOptions } from './agents/base-agent.js';
+export { AngerMeter } from './systems/anger-meter.js';
+export { GroqAdapter } from './adapters/groq-adapter.js';
+export type { GroqAdapterOptions } from './adapters/groq-adapter.js';
+
 // Future exports (will be added in later phases)
-// export { BaseAgent } from './agents/base-agent.js';
-// export { AngerMeter } from './systems/anger-meter.js';
 // export { Orchestrator } from './orchestrator.js';
 
