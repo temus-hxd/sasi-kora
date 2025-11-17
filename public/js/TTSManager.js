@@ -527,6 +527,18 @@ export class TTSManager {
       const elapsed = Date.now() - speechStartTime;
       console.log(`🎤 Speech completed via timeout fallback after ${elapsed}ms (expected: ${speechDuration}ms)`);
       
+      // Mark as not speaking
+      this.isSpeaking = false;
+      this.currentAudioSource = null;
+      
+      // Restart voice recognition after TTS ends (if it was enabled)
+      if (window.speechRecognitionManager && window.speechRecognitionManager.isSupported && !window.speechRecognitionManager.isRecording) {
+        setTimeout(() => {
+          console.log('🎤 Restarting voice recognition after TTS timeout');
+          window.speechRecognitionManager.startVoiceRecognition();
+        }, 500);
+      }
+      
       if (this.speechBubbleManager) {
         this.speechBubbleManager.clearAllTimers();
         this.speechBubbleManager.hideSpeechBubble();
