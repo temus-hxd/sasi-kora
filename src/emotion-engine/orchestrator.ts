@@ -101,7 +101,8 @@ export class Orchestrator {
     let action: string;
     let thinking: string;
 
-    // If anger meter says we should be angry, use that (anger persists)
+    // CRITICAL: If anger meter says we should be angry, ALWAYS use that (anger persists)
+    // This overrides all other routing logic
     if (angerAgent !== 'normal') {
       nextAgent = angerAgent;
       if (angerEmotions.includes(emotion)) {
@@ -111,67 +112,70 @@ export class Orchestrator {
         action = 'anger_meter_routing_persistent';
         thinking = `Non-angry message but anger persists. Anger meter: ${angerMeterInfo.anger_points} pts, routing to ${angerAgent} agent.`;
       }
+      console.log(`😠 ANGER ROUTING: ${angerAgent} (${angerMeterInfo.anger_points} pts) - overriding emotion routing`);
     }
     // If no anger, route based on positive emotions
     // Check if emotion matches happy emotions or contains happy keywords
     // Also check emotional indicators for positive words (compliments often detected as "positive" or "neutral")
-    const emotionLower = emotion.toLowerCase();
-    const hasHappyEmotion = happyEmotions.includes(emotion) || 
-                            emotionLower.includes('happy') || 
-                            emotionLower.includes('joy') ||
-                            emotionLower === 'positive';
-    
-    // Check emotional indicators for compliment keywords
-    const hasComplimentIndicators = sentimentAnalysis.emotional_indicators?.some(indicator => {
-      const indicatorLower = indicator.toLowerCase();
-      return indicatorLower.includes('like') || 
-             indicatorLower.includes('love') || 
-             indicatorLower.includes('amazing') ||
-             indicatorLower.includes('nice') ||
-             indicatorLower.includes('good') ||
-             indicatorLower.includes('best') ||
-             indicatorLower.includes('friend') ||
-             indicatorLower.includes('kind') ||
-             indicatorLower.includes('great');
-    }) || false;
-    
-    // Route to happy if emotion is happy OR if we detect compliment indicators with positive intensity
-    if (hasHappyEmotion || (hasComplimentIndicators && intensity > 0.3 && emotionLower !== 'anger' && emotionLower !== 'sadness')) {
-      if (intensity >= 0.7) {
-        nextAgent = 'ecstatic';
-        action = 'emotion_routing_happy_high';
-        thinking = `High intensity happiness (${intensity.toFixed(2)}) detected, routing to ecstatic agent.`;
-      } else if (intensity >= 0.4) {
-        nextAgent = 'cheerful';
-        action = 'emotion_routing_happy_medium';
-        thinking = `Medium intensity happiness (${intensity.toFixed(2)}) detected, routing to cheerful agent.`;
-      } else {
-        nextAgent = 'pleased';
-        action = 'emotion_routing_happy_low';
-        thinking = `Low intensity happiness (${intensity.toFixed(2)}) detected, routing to pleased agent.`;
-      }
-    }
-    // Route based on negative emotions (sadness)
-    else if (sadEmotions.includes(emotion)) {
-      if (intensity >= 0.7) {
-        nextAgent = 'depressed';
-        action = 'emotion_routing_sad_high';
-        thinking = `High intensity sadness (${intensity.toFixed(2)}) detected, routing to depressed agent.`;
-      } else if (intensity >= 0.4) {
-        nextAgent = 'sorrowful';
-        action = 'emotion_routing_sad_medium';
-        thinking = `Medium intensity sadness (${intensity.toFixed(2)}) detected, routing to sorrowful agent.`;
-      } else {
-        nextAgent = 'melancholy';
-        action = 'emotion_routing_sad_low';
-        thinking = `Low intensity sadness (${intensity.toFixed(2)}) detected, routing to melancholy agent.`;
-      }
-    }
-    // Default to normal
     else {
-      nextAgent = 'normal';
-      action = 'emotion_routing_normal';
-      thinking = `Neutral emotion (${emotion}, ${intensity.toFixed(2)}) detected, routing to normal agent.`;
+      const emotionLower = emotion.toLowerCase();
+      const hasHappyEmotion = happyEmotions.includes(emotion) || 
+                              emotionLower.includes('happy') || 
+                              emotionLower.includes('joy') ||
+                              emotionLower === 'positive';
+      
+      // Check emotional indicators for compliment keywords
+      const hasComplimentIndicators = sentimentAnalysis.emotional_indicators?.some(indicator => {
+        const indicatorLower = indicator.toLowerCase();
+        return indicatorLower.includes('like') || 
+               indicatorLower.includes('love') || 
+               indicatorLower.includes('amazing') ||
+               indicatorLower.includes('nice') ||
+               indicatorLower.includes('good') ||
+               indicatorLower.includes('best') ||
+               indicatorLower.includes('friend') ||
+               indicatorLower.includes('kind') ||
+               indicatorLower.includes('great');
+      }) || false;
+      
+      // Route to happy if emotion is happy OR if we detect compliment indicators with positive intensity
+      if (hasHappyEmotion || (hasComplimentIndicators && intensity > 0.3 && emotionLower !== 'anger' && emotionLower !== 'sadness')) {
+        if (intensity >= 0.7) {
+          nextAgent = 'ecstatic';
+          action = 'emotion_routing_happy_high';
+          thinking = `High intensity happiness (${intensity.toFixed(2)}) detected, routing to ecstatic agent.`;
+        } else if (intensity >= 0.4) {
+          nextAgent = 'cheerful';
+          action = 'emotion_routing_happy_medium';
+          thinking = `Medium intensity happiness (${intensity.toFixed(2)}) detected, routing to cheerful agent.`;
+        } else {
+          nextAgent = 'pleased';
+          action = 'emotion_routing_happy_low';
+          thinking = `Low intensity happiness (${intensity.toFixed(2)}) detected, routing to pleased agent.`;
+        }
+      }
+      // Route based on negative emotions (sadness)
+      else if (sadEmotions.includes(emotion)) {
+        if (intensity >= 0.7) {
+          nextAgent = 'depressed';
+          action = 'emotion_routing_sad_high';
+          thinking = `High intensity sadness (${intensity.toFixed(2)}) detected, routing to depressed agent.`;
+        } else if (intensity >= 0.4) {
+          nextAgent = 'sorrowful';
+          action = 'emotion_routing_sad_medium';
+          thinking = `Medium intensity sadness (${intensity.toFixed(2)}) detected, routing to sorrowful agent.`;
+        } else {
+          nextAgent = 'melancholy';
+          action = 'emotion_routing_sad_low';
+          thinking = `Low intensity sadness (${intensity.toFixed(2)}) detected, routing to melancholy agent.`;
+        }
+      }
+      // Default to normal
+      else {
+        nextAgent = 'normal';
+        action = 'emotion_routing_normal';
+        thinking = `Neutral emotion (${emotion}, ${intensity.toFixed(2)}) detected, routing to normal agent.`;
+      }
     }
 
     // Create orchestrator thinking for anger meter decision
@@ -266,23 +270,33 @@ export class Orchestrator {
 
   /**
    * Detect if the agent is saying goodbye/walking away
+   * Made more strict to avoid false positives
    */
   private byeDetector(text: string): boolean {
-    const byePhrases = [
-      'bye',
-      'goodbye',
-      "i'm done",
-      'i am done',
-      "i'm leaving",
-      'i am leaving',
-      "i'm out",
-      'i am out',
-      "that's it",
-      "i'm finished",
-      'i am finished',
-    ];
     const textLower = text.toLowerCase();
-    return byePhrases.some((phrase) => textLower.includes(phrase));
+    
+    // Only trigger on explicit goodbye phrases at the start or end of response
+    // Check if the response starts or ends with goodbye phrases
+    const startsWithBye = textLower.trim().startsWith('bye') || 
+                         textLower.trim().startsWith("i'm done") ||
+                         textLower.trim().startsWith("i am done") ||
+                         textLower.trim().startsWith("i'm leaving") ||
+                         textLower.trim().startsWith("i am leaving") ||
+                         textLower.trim().startsWith("i'm out") ||
+                         textLower.trim().startsWith("i am out");
+    
+    const endsWithBye = textLower.trim().endsWith('bye') || 
+                       textLower.trim().endsWith('goodbye') ||
+                       textLower.trim().endsWith("i'm done") ||
+                       textLower.trim().endsWith("i am done");
+    
+    // Also check for explicit walk-away phrases
+    const hasWalkAway = textLower.includes("i'm done with this") ||
+                       textLower.includes("i am done with this") ||
+                       textLower.includes("walking away") ||
+                       textLower.includes("conversation over");
+    
+    return startsWithBye || endsWithBye || hasWalkAway;
   }
 
   /**
