@@ -12,7 +12,6 @@ export class ChatManager {
     this.idleTimerManager = null;
     this.ttsManager = null;
     this.emojiManager = null;
-    this.leadershipManager = null;
     this.linkButtonManager = null;
     this.animationManager = null;
     
@@ -30,7 +29,6 @@ export class ChatManager {
     idleTimerManager, 
     ttsManager, 
     emojiManager, 
-    leadershipManager,
     linkButtonManager,
     head,
     isLoaded,
@@ -41,7 +39,6 @@ export class ChatManager {
     this.idleTimerManager = idleTimerManager;
     this.ttsManager = ttsManager;
     this.emojiManager = emojiManager;
-    this.leadershipManager = leadershipManager;
     this.linkButtonManager = linkButtonManager;
     this.head = head;
     this.isLoaded = isLoaded;
@@ -214,12 +211,6 @@ export class ChatManager {
       this.emojiManager.triggerEmojiAction(avatarEmoji);
     }
     
-    
-    // Handle leadership displays (parallel to TTS)
-    if (this.leadershipManager) {
-      console.log('👥 Processing text for leadership mentions (parallel to TTS)');
-      this.leadershipManager.processTextForLeadership(response);
-    }
     
     // Handle link buttons (parallel to TTS)
     if (this.linkButtonManager) {

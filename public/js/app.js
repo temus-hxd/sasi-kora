@@ -1,6 +1,5 @@
 // Import modules
 import { EmojiManager } from "./EmojiManager.js";
-import { LeadershipManager } from "./LeadershipManager.js";
 import { LinkButtonManager } from "./LinkButtonManager.js";
 import { VoiceStateManager } from "./VoiceStateManager.js";
 import { IdleTimerManager } from "./IdleTimerManager.js";
@@ -19,7 +18,6 @@ import { AvatarManager } from "./AvatarManager.js";
 // Avatar variables moved to AvatarManager
 
 // Manager instances
-let leadershipManager = null;
 let linkButtonManager = null;
 let emojiManager = null;
 let voiceStateManager = null;
@@ -73,7 +71,6 @@ async function initializeApp() {
   idleTimerManager = new IdleTimerManager();
   voiceStateManager = new VoiceStateManager();
   emojiManager = new EmojiManager();
-  leadershipManager = new LeadershipManager();
   linkButtonManager = new LinkButtonManager();
   webSocketManager = new WebSocketManager();
   chatManager = new ChatManager();
@@ -117,7 +114,6 @@ async function initializeApp() {
     idleTimerManager,
     voiceStateManager,
     emojiManager,
-    leadershipManager,
     linkButtonManager,
     speechBubbleManager,
     speechRecognitionManager,
@@ -133,7 +129,6 @@ async function initializeApp() {
   // Make managers available globally for interruption after initialization
   window.ttsManager = ttsManager;
   window.chatManager = chatManager;
-  window.leadershipManager = leadershipManager;
   window.linkButtonManager = linkButtonManager;
   window.speechRecognitionManager = speechRecognitionManager;
   

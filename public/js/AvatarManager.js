@@ -13,7 +13,6 @@ export class AvatarManager {
     this.idleTimerManager = null;
     this.voiceStateManager = null;
     this.emojiManager = null;
-    this.leadershipManager = null;
     this.linkButtonManager = null;
     this.speechBubbleManager = null;
     this.speechRecognitionManager = null;
@@ -35,7 +34,6 @@ export class AvatarManager {
     idleTimerManager,
     voiceStateManager,
     emojiManager,
-    leadershipManager,
     linkButtonManager,
     speechBubbleManager,
     speechRecognitionManager,
@@ -49,7 +47,6 @@ export class AvatarManager {
     this.idleTimerManager = idleTimerManager;
     this.voiceStateManager = voiceStateManager;
     this.emojiManager = emojiManager;
-    this.leadershipManager = leadershipManager;
     this.linkButtonManager = linkButtonManager;
     this.speechBubbleManager = speechBubbleManager;
     this.speechRecognitionManager = speechRecognitionManager;
@@ -175,7 +172,6 @@ export class AvatarManager {
       idleTimerManager: this.idleTimerManager,
       ttsManager: this.ttsManager,
       emojiManager: this.emojiManager,
-      leadershipManager: this.leadershipManager,
       linkButtonManager: this.linkButtonManager,
       head: this.head,
       isLoaded: this.isLoaded,
