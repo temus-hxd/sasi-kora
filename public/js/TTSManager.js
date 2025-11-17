@@ -260,14 +260,16 @@ export class TTSManager {
     const serverEstimatedDuration = data.duration || actualAudioDuration; // server's estimate
     
     // Check if we have server-generated visemes (preferred) or need audio-driven
-    const hasServerVisemes = data.lipSync && data.lipSync.visemes && data.lipSync.visemes.length > 0;
-    const isAudioDriven = (data.audioDriven && !hasServerVisemes) || (data.provider === 'elevenlabs' && !hasServerVisemes);
+    // Handle case where lipSync might be missing or undefined
+    const lipSync = data.lipSync || {};
+    const hasServerVisemes = lipSync.visemes && Array.isArray(lipSync.visemes) && lipSync.visemes.length > 0;
+    const isAudioDriven = (data.audioDriven && !hasServerVisemes) || (data.provider === 'elevenlabs' && !hasServerVisemes) || !data.lipSync;
     
     if (hasServerVisemes) {
-      const uniqueVisemes = [...new Set(data.lipSync.visemes)];
+      const uniqueVisemes = [...new Set(lipSync.visemes)];
       console.log('🎤 Using server-generated phonetic visemes (better control, smoother lip sync)');
       console.log(`💋 Viseme variety: ${uniqueVisemes.length} unique visemes [${uniqueVisemes.join(', ')}]`);
-      console.log(`💋 Total visemes: ${data.lipSync.visemes.length}, First 5: [${data.lipSync.visemes.slice(0, 5).join(', ')}]`);
+      console.log(`💋 Total visemes: ${lipSync.visemes.length}, First 5: [${lipSync.visemes.slice(0, 5).join(', ')}]`);
       
       // CRITICAL FIX: Rescale visemes to match ACTUAL audio duration
       // Server duration estimate may be inaccurate, causing visemes to finish too early
@@ -280,17 +282,17 @@ export class TTSManager {
         console.log(`   Scale factor: ${durationScaleFactor.toFixed(3)}x`);
         
         // Scale all viseme timings to match actual audio duration
-        const scaledVtimes = data.lipSync.visemeTimes.map(t => t * durationScaleFactor);
-        const scaledVdurations = data.lipSync.visemeDurations.map(d => d * durationScaleFactor);
-        const scaledWtimes = data.lipSync.wordTimes.map(t => t * durationScaleFactor);
-        const scaledWdurations = data.lipSync.wordDurations.map(d => d * durationScaleFactor);
+        const scaledVtimes = (lipSync.visemeTimes || []).map(t => t * durationScaleFactor);
+        const scaledVdurations = (lipSync.visemeDurations || []).map(d => d * durationScaleFactor);
+        const scaledWtimes = (lipSync.wordTimes || []).map(t => t * durationScaleFactor);
+        const scaledWdurations = (lipSync.wordDurations || []).map(d => d * durationScaleFactor);
         
         return {
           audio: audioBuffer,
-          words: data.lipSync.words || [],
+          words: lipSync.words || [],
           wtimes: scaledWtimes,
           wdurations: scaledWdurations,
-          visemes: data.lipSync.visemes,
+          visemes: lipSync.visemes,
           vtimes: scaledVtimes,
           vdurations: scaledVdurations,
           actualDuration: actualAudioDuration // Store for fallback timers
@@ -302,34 +304,35 @@ export class TTSManager {
       // Use server-generated visemes for better control (no scaling needed)
       return {
         audio: audioBuffer,
-        words: data.lipSync.words || [],
-        wtimes: data.lipSync.wordTimes || [],
-        wdurations: data.lipSync.wordDurations || [],
-        visemes: data.lipSync.visemes,
-        vtimes: data.lipSync.visemeTimes,
-        vdurations: data.lipSync.visemeDurations,
+        words: lipSync.words || [],
+        wtimes: lipSync.wordTimes || [],
+        wdurations: lipSync.wordDurations || [],
+        visemes: lipSync.visemes,
+        vtimes: lipSync.visemeTimes || [],
+        vdurations: lipSync.visemeDurations || [],
         actualDuration: actualAudioDuration // Store for fallback timers
       };
-    } else if (isAudioDriven) {
+    } else if (isAudioDriven || !data.lipSync) {
       console.log('🎤 Using audio-driven lip sync (TalkingHead will analyze audio)');
       // Fallback: let TalkingHead analyze audio (less ideal)
+      // Handle case where lipSync is missing or undefined
       return {
         audio: audioBuffer,
-        words: data.lipSync.words || [],
-        wtimes: data.lipSync.wordTimes || [],
-        wdurations: data.lipSync.wordDurations || []
+        words: lipSync.words || [],
+        wtimes: lipSync.wordTimes || [],
+        wdurations: lipSync.wordDurations || []
         // NO viseme properties - TalkingHead will generate from audio
       };
     } else {
       console.log('🎤 Using viseme-based lip sync (Polly data)');
       return {
         audio: audioBuffer,
-        words: data.lipSync.words,
-        wtimes: data.lipSync.wordTimes,
-        wdurations: data.lipSync.wordDurations,
-        visemes: data.lipSync.visemes,
-        vtimes: data.lipSync.visemeTimes,
-        vdurations: data.lipSync.visemeDurations
+        words: lipSync.words || [],
+        wtimes: lipSync.wordTimes || [],
+        wdurations: lipSync.wordDurations || [],
+        visemes: lipSync.visemes || [],
+        vtimes: lipSync.visemeTimes || [],
+        vdurations: lipSync.visemeDurations || []
       };
     }
   }
@@ -366,21 +369,26 @@ export class TTSManager {
 
     // Show speech bubble with timing data
     if (this.speechBubbleManager) {
-      this.speechBubbleManager.showChunkedSpeechBubble(cleanText, data.lipSync.wordTimes, data.lipSync.words);
+      const lipSync = data.lipSync || {};
+      if (lipSync.wordTimes && lipSync.words) {
+        this.speechBubbleManager.showChunkedSpeechBubble(cleanText, lipSync.wordTimes, lipSync.words);
+      } else {
+        this.speechBubbleManager.showSpeechBubble(cleanText);
+      }
     }
 
     // Enhanced speech data logging for debugging
     const speechInfo = {
       duration: data.duration,
-      wordCount: data.lipSync.words.length,
-      visemeCount: data.lipSync.visemes?.length || 0,
+      wordCount: (data.lipSync?.words || []).length,
+      visemeCount: (data.lipSync?.visemes || []).length,
       hasOnComplete: typeof this.head.speakAudio === "function",
       streaming: data.streaming || false, // Should be true if streaming enabled
-      synchronized: data.lipSync.isSynchronized || false,
+      synchronized: data.lipSync?.isSynchronized || false,
       timingType: data.streaming ? 'estimated' : 'precise',
-      speedRate: data.lipSync.speedRate || 100,
+      speedRate: data.lipSync?.speedRate || 100,
       actualAudioDuration: data.duration,
-      estimatedDuration: data.lipSync.estimatedDuration
+      estimatedDuration: data.lipSync?.estimatedDuration || data.duration
     };
     
     console.log("🎤 Speech playback starting:", speechInfo);
@@ -389,15 +397,18 @@ export class TTSManager {
     }
     
     // Log lip sync timing details
-    if (data.lipSync.wordTimes && data.lipSync.wordTimes.length > 0) {
-      const firstWordTime = data.lipSync.wordTimes[0];
-      const lastWordTime = data.lipSync.wordTimes[data.lipSync.wordTimes.length - 1];
-      const lastWordDuration = data.lipSync.wordDurations[data.lipSync.wordDurations.length - 1] || 500;
+    const lipSync = data.lipSync || {};
+    if (lipSync.wordTimes && lipSync.wordTimes.length > 0) {
+      const firstWordTime = lipSync.wordTimes[0];
+      const lastWordTime = lipSync.wordTimes[lipSync.wordTimes.length - 1];
+      const lastWordDuration = (lipSync.wordDurations && lipSync.wordDurations.length > 0) 
+        ? lipSync.wordDurations[lipSync.wordDurations.length - 1] 
+        : 500;
       const totalLipSyncTime = lastWordTime + lastWordDuration;
       
       console.log("💋 Lip sync timing:", {
-        firstWord: `"${data.lipSync.words[0]}" at ${firstWordTime}ms`,
-        lastWord: `"${data.lipSync.words[data.lipSync.words.length - 1]}" at ${lastWordTime}ms`,
+        firstWord: lipSync.words && lipSync.words.length > 0 ? `"${lipSync.words[0]}" at ${firstWordTime}ms` : 'N/A',
+        lastWord: lipSync.words && lipSync.words.length > 0 ? `"${lipSync.words[lipSync.words.length - 1]}" at ${lastWordTime}ms` : 'N/A',
         totalLipSyncDuration: `${totalLipSyncTime}ms (${totalLipSyncTime/1000}s)`,
         audioDuration: `${data.duration * 1000}ms (${data.duration}s)`,
         timingDiff: `${Math.abs(totalLipSyncTime - (data.duration * 1000))}ms`
