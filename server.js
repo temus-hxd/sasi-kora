@@ -50,14 +50,20 @@ app.use('/api/emotional-state', emotionalStateRoutes);
 app.use('/api/config', configRoutes);
 app.use('/api/elevenlabs', elevenLabsRoutes);
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`🚀 SASI-KORA Server Started!`);
-  console.log(`📡 Server: http://localhost:${PORT}`);
-  console.log(`🎭 Chat UI: http://localhost:${PORT}`);
-  console.log(`🔊 Health: http://localhost:${PORT}/api/health`);
-  console.log(`💬 Emotion Engine: http://localhost:${PORT}/api/emotional-state/chat`);
-  console.log('');
-  console.log('✨ Emotion Engine Ready!');
-});
+// Export app for Vercel (serverless)
+export default app;
+
+// Start server locally (only if not in Vercel environment)
+if (process.env.VERCEL !== '1') {
+  app.listen(PORT, () => {
+    console.log(`🚀 SASI-KORA Server Started!`);
+    console.log(`📡 Server: http://localhost:${PORT}`);
+    console.log(`🎭 Avatar UI: http://localhost:${PORT}/`);
+    console.log(`💬 Chat UI: http://localhost:${PORT}/chat`);
+    console.log(`🔊 Health: http://localhost:${PORT}/api/health`);
+    console.log(`💬 Emotion Engine: http://localhost:${PORT}/api/emotional-state/chat`);
+    console.log('');
+    console.log('✨ Emotion Engine Ready!');
+  });
+}
 
