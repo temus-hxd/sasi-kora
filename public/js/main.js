@@ -43,7 +43,7 @@ async function sendMessage() {
   messageInput.disabled = true;
   sendButton.disabled = true;
 
-  // Add to history
+  // Add to history (store locally but don't send timestamp to API)
   conversationHistory.push({
     role: 'user',
     content: message,
@@ -51,6 +51,19 @@ async function sendMessage() {
   });
 
     try {
+    // Prepare history for API (remove timestamp field, only send role and content)
+    const historyForAPI = conversationHistory.slice(0, -1).map(msg => ({
+      role: msg.role,
+      content: msg.content
+    }));
+
+    // Debug: Log what we're sending
+    console.log('📤 Sending message:', message);
+    console.log('📜 Conversation history length:', historyForAPI.length);
+    if (historyForAPI.length > 0) {
+      console.log('📜 Last few messages:', historyForAPI.slice(-3).map(m => `${m.role}: ${m.content.substring(0, 50)}...`));
+    }
+
     // Call emotion engine API
     const response = await fetch('/api/emotional-state/chat', {
       method: 'POST',
@@ -60,7 +73,7 @@ async function sendMessage() {
       body: JSON.stringify({
         message: message,
         conversation_id: conversationId,
-        history: conversationHistory.slice(0, -1), // Exclude current message
+        history: historyForAPI, // Send clean history without timestamps
         emotion_state: emotionState // Send stored state for stateless serverless
       })
     });
@@ -71,16 +84,20 @@ async function sendMessage() {
 
     const data = await response.json();
 
+    // Debug: Log what we received
+    console.log('📥 Received response:', data.response.substring(0, 100) + '...');
+    console.log('🤖 Agent type:', data.agent_type);
+
     // Store emotion state from server (for stateless serverless)
     if (data.emotion_state) {
       emotionState = data.emotion_state;
     }
 
-    // Add assistant response to history
+    // Add assistant response to history (store timestamp locally)
     conversationHistory.push({
       role: 'assistant',
       content: data.response,
-      timestamp: data.timestamp
+      timestamp: data.timestamp || new Date().toISOString()
     });
 
     // Update UI with response

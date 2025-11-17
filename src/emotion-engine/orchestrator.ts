@@ -124,14 +124,25 @@ export class Orchestrator {
 
     // Step 4: Generate response and insights in parallel
     console.log(`⏱️  [TRACE] Starting agent response generation for: ${nextAgent}`);
+    console.log(`📜 Conversation history length: ${conversationHistory.length}`);
+    if (conversationHistory.length > 0) {
+      console.log(`📜 Last message in history: ${conversationHistory[conversationHistory.length - 1].role}: ${conversationHistory[conversationHistory.length - 1].content.substring(0, 50)}...`);
+    }
+    console.log(`💬 Current user message: ${message.substring(0, 50)}...`);
     const agentStart = Date.now();
 
     // Create enhanced history with universal instruction
+    // Add current user message to history before sending to agent
+    const historyWithCurrentMessage: ChatMessage[] = [
+      ...conversationHistory,
+      { role: 'user', content: message },
+    ];
+    
     const universalInstruction: ChatMessage = {
       role: 'system',
       content: 'You will use <t></t> tags',
     };
-    const enhancedHistory = [...conversationHistory, universalInstruction];
+    const enhancedHistory = [...historyWithCurrentMessage, universalInstruction];
 
     // Get agent response
     const agent = await this.agentFactory.getAgent(nextAgent);
