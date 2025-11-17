@@ -732,6 +732,18 @@ export class TTSManager {
   }
 
   getAudioContext() {
+    if (!this.audioContext) {
+      this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    return this.audioContext;
+  }
+  
+  // Pre-warm AudioContext (will be suspended until user interaction)
+  preWarmAudioContext() {
+    if (!this.audioContext) {
+      this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      console.log('🔥 AudioContext pre-warmed (state:', this.audioContext.state, ')');
+    }
     return this.audioContext;
   }
 

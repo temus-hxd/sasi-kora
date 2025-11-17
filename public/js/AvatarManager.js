@@ -43,6 +43,8 @@ export class AvatarManager {
     chatManager,
     animationManager
   }) {
+    // Store TTSManager reference for pre-warming
+    this.ttsManager = ttsManager;
     this.configManager = configManager;
     this.uiManager = uiManager;
     this.idleTimerManager = idleTimerManager;
@@ -385,8 +387,11 @@ export class AvatarManager {
     // Show loading screen
     loadingScreen.classList.remove('hidden');
     
-    let countdown = 3;
+    let countdown = 4;
     countdownElement.textContent = countdown;
+    
+    // Pre-warm ElevenLabs TTS during countdown
+    this.preWarmTTS();
     
     const countdownInterval = setInterval(() => {
       countdown--;
@@ -406,6 +411,56 @@ export class AvatarManager {
     
     // Store interval ID for cleanup
     this.countdownInterval = countdownInterval;
+  }
+  
+  // Pre-warm ElevenLabs TTS system
+  async preWarmTTS() {
+    try {
+      console.log('🔥 Pre-warming ElevenLabs TTS...');
+      
+      // Initialize AudioContext early (will be suspended until user interaction, but ready)
+      if (this.ttsManager && !this.ttsManager.audioContext) {
+        // Create AudioContext (will be suspended, but ready to resume on first user interaction)
+        this.ttsManager.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        console.log('✅ AudioContext initialized (suspended until user interaction)');
+      }
+      
+      // Make a small test API call to warm up the connection
+      // This helps reduce latency on the first real TTS call
+      if (this.configManager) {
+        const config = await this.configManager.loadConfig();
+        if (config && config.voiceId) {
+          // Make a minimal test call (just to warm up the API connection)
+          // Using a very short text to minimize cost
+          try {
+            const response = await fetch('/api/elevenlabs/tts', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                text: 'Hi',
+                voiceId: config.voiceId,
+                speed: 0.5,
+                stream: false, // Don't stream for warm-up
+              }),
+            });
+            
+            if (response.ok) {
+              console.log('✅ ElevenLabs API connection warmed up');
+            } else {
+              console.warn('⚠️ ElevenLabs warm-up call failed (non-critical)');
+            }
+          } catch (error) {
+            // Non-critical - warm-up failed, but TTS will still work
+            console.warn('⚠️ ElevenLabs warm-up error (non-critical):', error.message);
+          }
+        }
+      }
+    } catch (error) {
+      // Non-critical - warm-up failed, but TTS will still work
+      console.warn('⚠️ TTS pre-warming error (non-critical):', error.message);
+    }
   }
   
   hideAvatarLoadingScreen() {
