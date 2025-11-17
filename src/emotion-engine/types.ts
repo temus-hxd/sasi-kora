@@ -88,6 +88,7 @@ export interface ChatResponse {
   orchestrator_decision?: OrchestratorDecision;
   orchestrator_insights?: OrchestratorInsights;
   emotion_state?: EmotionState; // Returned state for client to store
+  avatar_emoji?: string; // Emoji for ReadyPlayerMe avatar control
 }
 
 export interface EmotionState {

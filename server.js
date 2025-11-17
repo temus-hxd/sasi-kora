@@ -5,6 +5,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import emotionalStateRoutes from './dist/api/emotional-state.js';
+import configRoutes from './dist/api/config.js';
+import elevenLabsRoutes from './dist/api/elevenlabs-tts.js';
 
 // Load environment variables
 dotenv.config();
@@ -24,9 +26,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/css', express.static(path.join(__dirname, 'public', 'css')));
 app.use('/js', express.static(path.join(__dirname, 'public', 'js')));
 
-// Serve chat-ui.html
+// Serve chat-ui.html (text-only testing)
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'chat-ui.html'));
+});
+
+// Serve avatar-ui.html (with ReadyPlayerMe avatar)
+app.get('/avatar', (req, res) => {
+  res.sendFile(path.join(__dirname, 'avatar-ui.html'));
 });
 
 // Health check
@@ -40,6 +47,8 @@ app.get('/api/health', (req, res) => {
 
 // Emotion engine API routes
 app.use('/api/emotional-state', emotionalStateRoutes);
+app.use('/api/config', configRoutes);
+app.use('/api/elevenlabs', elevenLabsRoutes);
 
 // Start server
 app.listen(PORT, () => {

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SASI-KORA - Emotion Engine with Avatar</title>
+  
+  <!-- Load Three.js and TalkingHead dependencies -->
+  <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+  <script type="importmap">
+  { "imports": {
+      "three": "https://unpkg.com/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.170.0/examples/jsm/",
+      "talkinghead": "https://cdn.jsdelivr.net/gh/met4citizen/TalkingHead@1.5/modules/talkinghead.mjs"
+    }
+  }
+  </script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      background: #101218;
+      font-family: 'Source Code Pro', monospace;
+      color: #7fd6ff;
+    }
+    
+    .container {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+    }
+    
+    .avatar-section {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    #avatar {
+      width: 100%;
+      height: 100%;
+    }
+    
+    .chat-section {
+      width: 400px;
+      background: #08090c;
+      border-left: 2px solid #1e90ff;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .chat-header {
+      padding: 1rem;
+      border-bottom: 2px solid #1e90ff;
+      background: #101218;
+    }
+    
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .message {
+      padding: 0.75rem;
+      border-radius: 8px;
+      border: 1px solid #1e3a5c;
+      max-width: 80%;
+    }
+    
+    .message.user {
+      align-self: flex-end;
+      background: #1e3a5c;
+    }
+    
+    .message.assistant {
+      align-self: flex-start;
+      background: #08090c;
+    }
+    
+    .chat-input {
+      padding: 1rem;
+      border-top: 2px solid #1e90ff;
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .chat-input input {
+      flex: 1;
+      background: #08090c;
+      border: 2px solid #1e90ff;
+      color: #7fd6ff;
+      padding: 0.5rem;
+      border-radius: 6px;
+    }
+    
+    .chat-input button {
+      background: #1e90ff;
+      color: #101218;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    
+    .status {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 0.5rem 1rem;
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid #1e90ff;
+      border-radius: 6px;
+      font-size: 0.875rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="avatar-section">
+      <div id="avatar"></div>
+      <div class="status" id="status">Initializing avatar...</div>
+    </div>
+    
+    <div class="chat-section">
+      <div class="chat-header">
+        <h2>Emotion Engine Chat</h2>
+        <div id="status-bar" style="font-size: 0.75rem; margin-top: 0.5rem;">Status: Loading...</div>
+      </div>
+      
+      <div class="chat-messages" id="chatMessages"></div>
+      
+      <div class="chat-input">
+        <input type="text" id="messageInput" placeholder="Type your message..." />
+        <button id="sendButton">Send</button>
+      </div>
+    </div>
+  </div>
+  
+  <script type="module">
+    import { TalkingHead } from "talkinghead";
+    import { ConfigManager } from "/js/avatar/ConfigManager.js";
+    import { EmojiManager } from "/js/avatar/EmojiManager.js";
+    import { TTSManager } from "/js/avatar/TTSManager.js";
+    
+    // Initialize managers
+    const configManager = new ConfigManager();
+    const avatarManager = new AvatarManager();
+    const emojiManager = new EmojiManager();
+    const ttsManager = new TTSManager();
+    
+    // Chat state
+    let conversationHistory = [];
+    let conversationId = 'default-' + Date.now();
+    let emotionState = null;
+    
+    // DOM elements
+    const avatarElement = document.getElementById('avatar');
+    const statusElement = document.getElementById('status');
+    const statusBar = document.getElementById('status-bar');
+    const chatMessages = document.getElementById('chatMessages');
+    const messageInput = document.getElementById('messageInput');
+    const sendButton = document.getElementById('sendButton');
+    
+    // Initialize avatar
+    async function initAvatar() {
+      try {
+        statusElement.textContent = 'Loading configuration...';
+        
+        // Load config
+        await configManager.loadConfig();
+        const avatarUrl = configManager.getAvatarUrl();
+        const voiceId = configManager.getVoiceId();
+        
+        if (!avatarUrl || !voiceId) {
+          throw new Error('Avatar URL or Voice ID not configured');
+        }
+        
+        statusElement.textContent = 'Initializing avatar...';
+        
+        // Initialize TalkingHead
+        const head = new TalkingHead(avatarElement, {
+          ttsEndpoint: "/api/dummy-tts",
+          lipsyncModules: ["en"],
+          cameraView: "upper",
+          cameraY: 0.15,
+          modelFPS: 120,
+          avatarMood: 'neutral',
+          avatarIdleEyeContact: 0.3,
+          avatarIdleHeadMove: 0.25,
+          avatarSpeakingEyeContact: 1.0,
+          avatarSpeakingHeadMove: 0.8,
+        });
+        
+        await head.showAvatar({
+          url: avatarUrl,
+          avatarMood: 'neutral',
+        });
+        
+        // Setup managers
+        const currentMoodRef = { current: 'neutral' };
+        emojiManager.setDependencies(head, currentMoodRef, () => {});
+        ttsManager.setDependencies(head, true, configManager, null, null, null, null, null);
+        
+        statusElement.textContent = 'Avatar ready!';
+        statusBar.textContent = 'Status: Online | Ready to chat';
+        
+        return { head, configManager, emojiManager, ttsManager };
+      } catch (error) {
+        console.error('Avatar initialization error:', error);
+        statusElement.textContent = `Error: ${error.message}`;
+        throw error;
+      }
+    }
+    
+    // Send message
+    async function sendMessage() {
+      const message = messageInput.value.trim();
+      if (!message) return;
+      
+      // Add user message to UI
+      addMessageToUI('user', message);
+      messageInput.value = '';
+      messageInput.disabled = true;
+      sendButton.disabled = true;
+      
+      // Add to history
+      conversationHistory.push({
+        role: 'user',
+        content: message,
+        timestamp: new Date().toISOString()
+      });
+      
+      try {
+        // Prepare history for API
+        const historyForAPI = conversationHistory.slice(0, -1).map(msg => ({
+          role: msg.role,
+          content: msg.content
+        }));
+        
+        // Call emotion engine API
+        const response = await fetch('/api/emotional-state/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: message,
+            conversation_id: conversationId,
+            history: historyForAPI,
+            emotion_state: emotionState
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`API error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // Store emotion state
+        if (data.emotion_state) {
+          emotionState = data.emotion_state;
+        }
+        
+        // Add assistant response to history
+        conversationHistory.push({
+          role: 'assistant',
+          content: data.response,
+          timestamp: data.timestamp
+        });
+        
+        // Update UI
+        addMessageToUI('assistant', data.response);
+        updateStatusBar(data);
+        
+        // Trigger avatar emoji if available
+        if (data.avatar_emoji && window.head && window.emojiManager) {
+          window.emojiManager.triggerEmojiAction(data.avatar_emoji);
+        }
+        
+        // Generate TTS
+        if (window.ttsManager && window.head) {
+          // TTSManager will clean the text itself
+          try {
+            await window.ttsManager.speakText(data.response, window.head);
+          } catch (ttsError) {
+            console.error('TTS error:', ttsError);
+          }
+        }
+        
+      } catch (error) {
+        console.error('Error sending message:', error);
+        addMessageToUI('assistant', `Error: ${error.message}`, true);
+      } finally {
+        messageInput.disabled = false;
+        sendButton.disabled = false;
+        messageInput.focus();
+      }
+    }
+    
+    function addMessageToUI(role, content, isError = false) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${role}`;
+      messageDiv.textContent = content;
+      if (isError) {
+        messageDiv.style.color = '#ef4444';
+      }
+      chatMessages.appendChild(messageDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    function updateStatusBar(data) {
+      const agent = data.agent_type || 'normal';
+      const intensity = data.sentiment_analysis?.intensity || 0;
+      statusBar.textContent = `Status: Online | Current: ${agent} | Intensity: ${intensity.toFixed(2)}/1.0`;
+    }
+    
+    // Event listeners
+    sendButton.addEventListener('click', sendMessage);
+    messageInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+    
+    // Initialize
+    initAvatar().then(({ head, emojiManager, ttsManager }) => {
+      window.head = head;
+      window.emojiManager = emojiManager;
+      window.ttsManager = ttsManager;
+      messageInput.focus();
+    }).catch(error => {
+      console.error('Failed to initialize avatar:', error);
+    });
+  </script>
+</body>
+</html>
+
