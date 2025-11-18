@@ -18,7 +18,21 @@ export class IdleTimerManager {
   // =====================================================
   setDependencies(head, isLoadedRef, currentMoodRef, currentMoodVar, chatManager = null, ttsManager = null) {
     this.head = head;
-    this.getIsLoaded = () => isLoadedRef;
+    // Handle both function and boolean for isLoaded
+    if (typeof isLoadedRef === 'function') {
+      this.getIsLoaded = isLoadedRef;
+    } else {
+      // If it's a boolean, create a getter function
+      // But we need to check the actual value from the head/avatar
+      this.getIsLoaded = () => {
+        // Check if head exists and has isLoaded property
+        if (head && typeof head.isLoaded !== 'undefined') {
+          return head.isLoaded;
+        }
+        // Fallback to the passed value
+        return isLoadedRef;
+      };
+    }
     this.currentMoodRef = currentMoodRef;
     this.getCurrentMood = () => currentMoodVar;
     this.setCurrentMood = (mood) => {
@@ -29,6 +43,13 @@ export class IdleTimerManager {
     };
     this.chatManager = chatManager;
     this.ttsManager = ttsManager;
+    
+    console.log('✅ IdleTimerManager dependencies set:', {
+      hasHead: !!this.head,
+      hasChatManager: !!this.chatManager,
+      hasTtsManager: !!this.ttsManager,
+      isLoaded: this.getIsLoaded()
+    });
   }
   
   // Set speaking state (called by TTSManager)
@@ -48,6 +69,8 @@ export class IdleTimerManager {
       clearTimeout(this.idleSpeechTimer);
     }
     
+    console.log(`⏱️ Starting idle timer - speech will trigger in ${this.idleSpeechTimeoutMs/1000} seconds`);
+    
     // Set timer to revert to neutral
     this.idleTimer = setTimeout(() => {
       if (this.head && this.getIsLoaded() && this.currentMoodRef && this.currentMoodRef.current !== 'neutral') {
@@ -60,6 +83,7 @@ export class IdleTimerManager {
     
     // Set timer for idle speech (15 seconds)
     this.idleSpeechTimer = setTimeout(() => {
+      console.log(`⏰ Idle speech timer fired after ${this.idleSpeechTimeoutMs/1000} seconds`);
       this.triggerIdleSpeech();
     }, this.idleSpeechTimeoutMs);
   }
@@ -72,9 +96,40 @@ export class IdleTimerManager {
   // IDLE SPEECH PROMPTS
   // =====================================================
   async triggerIdleSpeech() {
+    // Debug: Check each condition
+    const checks = {
+      isSpeaking: this.isSpeaking,
+      hasChatManager: !!this.chatManager,
+      hasTtsManager: !!this.ttsManager,
+      hasHead: !!this.head,
+      isLoaded: this.getIsLoaded ? this.getIsLoaded() : false
+    };
+    
+    console.log('🔍 Idle speech check:', checks);
+    
     // Don't trigger if already speaking or if avatar/chat manager not ready
-    if (this.isSpeaking || !this.chatManager || !this.ttsManager || !this.head || !this.getIsLoaded()) {
-      console.log('⏸️ Skipping idle speech - already speaking or not ready');
+    if (this.isSpeaking) {
+      console.log('⏸️ Skipping idle speech - avatar is already speaking');
+      return;
+    }
+    
+    if (!this.chatManager) {
+      console.log('⏸️ Skipping idle speech - chatManager not available');
+      return;
+    }
+    
+    if (!this.ttsManager) {
+      console.log('⏸️ Skipping idle speech - ttsManager not available');
+      return;
+    }
+    
+    if (!this.head) {
+      console.log('⏸️ Skipping idle speech - avatar head not available');
+      return;
+    }
+    
+    if (!this.getIsLoaded || !this.getIsLoaded()) {
+      console.log('⏸️ Skipping idle speech - avatar not loaded yet');
       return;
     }
     
