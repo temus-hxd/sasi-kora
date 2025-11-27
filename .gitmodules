@@ -1,3 +1,4 @@
 [submodule "prompts"]
 	path = prompts
 	url = https://github.com/temus-hxd/prompts
+	branch = main
