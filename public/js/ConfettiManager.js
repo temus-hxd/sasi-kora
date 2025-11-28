@@ -8,21 +8,46 @@
 
 class ConfettiManager {
   constructor() {
-    this.container = document.getElementById('confettiContainer');
+    this.container = document.getElementById("confettiContainer");
     this.isActive = true; // Set to false to disable confetti
     this.appreciationKeywords = [
       // Gratitude
-      'thank', 'thanks', 'grateful', 'appreciate', 'blessing',
-      // Love & Affection  
-      'love', 'adore', 'heart', 'sweet', 'wonderful', 'amazing',
+      "thank",
+      "thanks",
+      "grateful",
+      "appreciate",
+      "blessing",
+      // Love & Affection
+      "love",
+      "adore",
+      "heart",
+      "sweet",
+      "wonderful",
+      "amazing",
       // Compliments
-      'beautiful', 'gorgeous', 'pretty', 'handsome', 'good looking', 'stunning',
-      'awesome', 'fantastic', 'incredible', 'brilliant', 'perfect',
+      "beautiful",
+      "gorgeous",
+      "pretty",
+      "handsome",
+      "good looking",
+      "stunning",
+      "awesome",
+      "fantastic",
+      "incredible",
+      "brilliant",
+      "perfect",
       // Positive emotions
-      'happy', 'joy', 'smile', 'excellent', 'outstanding', 'superb'
+      "happy",
+      "joy",
+      "smile",
+      "excellent",
+      "outstanding",
+      "superb",
     ];
-    
-    console.log('🎊 ConfettiManager initialized - Appreciation detection active');
+
+    console.log(
+      "🎊 ConfettiManager initialized - Appreciation detection active"
+    );
   }
 
   /**
@@ -33,46 +58,46 @@ class ConfettiManager {
    */
   detectAppreciation(userText) {
     if (!this.isActive || !userText) return false;
-    
+
     const lowerText = userText.toLowerCase();
-    const detected = this.appreciationKeywords.some(keyword => 
+    const detected = this.appreciationKeywords.some((keyword) =>
       lowerText.includes(keyword)
     );
-    
+
     if (detected) {
       console.log(`🎊 Appreciation detected in: "${userText}"`);
-      this.triggerConfetti();
+      // this.triggerConfetti();
     }
-    
+
     return detected;
   }
 
-  /**
-   * ================================
-   * CONFETTI TRIGGER SYSTEM
-   * ================================
-   * Creates and animates falling hearts
-   */
-  triggerConfetti() {
-    if (!this.isActive) return;
-    
-    console.log('🎊 Triggering appreciation confetti!');
-    
-    // Clear any existing confetti
-    this.clearConfetti();
-    
-    // Create 10 hearts with staggered timing
-    for (let i = 0; i < 10; i++) {
-      setTimeout(() => {
-        this.createHeart();
-      }, i * 100); // 100ms delay between each heart
-    }
-    
-    // Auto-clear after animation completes
-    setTimeout(() => {
-      this.clearConfetti();
-    }, 5000); // 5 seconds (animation is 4s + buffer)
-  }
+  // /**
+  //  * ================================
+  //  * CONFETTI TRIGGER SYSTEM
+  //  * ================================
+  //  * Creates and animates falling hearts
+  //  */
+  // triggerConfetti() {
+  //   if (!this.isActive) return;
+
+  //   console.log('🎊 Triggering appreciation confetti!');
+
+  //   // Clear any existing confetti
+  //   this.clearConfetti();
+
+  //   // Create 10 hearts with staggered timing
+  //   for (let i = 0; i < 10; i++) {
+  //     setTimeout(() => {
+  //       this.createHeart();
+  //     }, i * 100); // 100ms delay between each heart
+  //   }
+
+  //   // Auto-clear after animation completes
+  //   setTimeout(() => {
+  //     this.clearConfetti();
+  //   }, 5000); // 5 seconds (animation is 4s + buffer)
+  // }
 
   /**
    * ================================
@@ -81,21 +106,21 @@ class ConfettiManager {
    * Generates individual animated hearts
    */
   createHeart() {
-    const heart = document.createElement('div');
-    heart.className = 'heart';
-    heart.innerHTML = '❤️'; // Heart emoji
-    
+    const heart = document.createElement("div");
+    heart.className = "heart";
+    heart.innerHTML = "❤️"; // Heart emoji
+
     // Random horizontal position
     const leftPosition = Math.random() * 95; // 0-95%
     heart.style.left = `${leftPosition}%`;
-    
+
     // Slight size variation
     const size = 1.5 + Math.random() * 1; // 1.5em to 2.5em
     heart.style.fontSize = `${size}em`;
-    
+
     // Add to container
     this.container.appendChild(heart);
-    
+
     // Remove heart after animation
     setTimeout(() => {
       if (heart.parentNode) {
@@ -109,30 +134,30 @@ class ConfettiManager {
    * CONFETTI CONTROL METHODS
    * ================================
    */
-  
+
   // Clear all active confetti
   clearConfetti() {
     if (this.container) {
-      this.container.innerHTML = '';
+      this.container.innerHTML = "";
     }
   }
-  
+
   // Enable/disable confetti system
   setActive(isActive) {
     this.isActive = isActive;
-    console.log(`🎊 ConfettiManager ${isActive ? 'ENABLED' : 'DISABLED'}`);
-    
+    console.log(`🎊 ConfettiManager ${isActive ? "ENABLED" : "DISABLED"}`);
+
     if (!isActive) {
       this.clearConfetti();
     }
   }
-  
+
   // Test confetti (for debugging)
   test() {
-    console.log('🎊 Testing confetti system...');
-    this.triggerConfetti();
+    console.log("🎊 Testing confetti system...");
+    // this.triggerConfetti();
   }
-  
+
   // Add custom appreciation keyword
   addKeyword(keyword) {
     if (!this.appreciationKeywords.includes(keyword.toLowerCase())) {
@@ -140,7 +165,7 @@ class ConfettiManager {
       console.log(`🎊 Added appreciation keyword: "${keyword}"`);
     }
   }
-  
+
   // Remove appreciation keyword
   removeKeyword(keyword) {
     const index = this.appreciationKeywords.indexOf(keyword.toLowerCase());
@@ -165,4 +190,6 @@ const CONFETTI_ENABLED = true; // Change to false to disable
 window.ConfettiManager = ConfettiManager;
 window.CONFETTI_ENABLED = CONFETTI_ENABLED;
 
-console.log('🎊 ConfettiManager class loaded - Ready for appreciation detection!'); 
+console.log(
+  "🎊 ConfettiManager class loaded - Ready for appreciation detection!"
+);

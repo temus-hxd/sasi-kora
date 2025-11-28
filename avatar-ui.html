@@ -1,179 +1,208 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ReadyPlayerMe Avatar with Claude AI Chatbot</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ReadyPlayerMe Avatar with Claude AI Chatbot</title>
+    <link rel="stylesheet" href="css/styles.css" />
 
-  <!-- Load Three.js and TalkingHead dependencies directly -->
-  <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
-  <script type="importmap">
-  { "imports": {
-      "three": "https://unpkg.com/three@0.170.0/build/three.module.js",
-      "three/addons/": "https://unpkg.com/three@0.170.0/examples/jsm/",
-      "talkinghead": "https://cdn.jsdelivr.net/gh/met4citizen/TalkingHead@1.5/modules/talkinghead.mjs"
-    }
-  }
-  </script>
-</head>
+    <!-- Load Three.js and TalkingHead dependencies directly -->
+    <script
+      async
+      src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"
+    ></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.170.0/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.170.0/examples/jsm/",
+          "talkinghead": "https://cdn.jsdelivr.net/gh/met4citizen/TalkingHead@1.5/modules/talkinghead.mjs"
+        }
+      }
+    </script>
+  </head>
 
-<body>
-  <!-- Avatar Loading Screen with Countdown -->
-  <div class="avatar-loading-screen" id="avatarLoadingScreen">
-    <div class="avatar-loading-backdrop"></div>
-    <div class="avatar-loading-content">
-      <div class="avatar-loading-title">Initializing Avatar</div>
-      <div class="avatar-loading-subtitle">Preparing your experience...</div>
-      <div class="avatar-loading-countdown-wrapper">
-        <div class="avatar-loading-countdown" id="avatarLoadingCountdown">4</div>
-        <div class="countdown-label">seconds</div>
-      </div>
-      <div class="avatar-loading-progress">
-        <div class="progress-bar" id="loadingProgressBar"></div>
-      </div>
-      <div class="avatar-loading-spinner">
-        <div class="spinner-ring"></div>
-        <div class="spinner-ring"></div>
-        <div class="spinner-ring"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="container">
-    <div class="avatar-section">
-      <div id="avatar"></div>
-      <div class="status" id="status">🚀 Initializing ReadyPlayerMe Avatar with Claude AI...</div>
-      
-      <!-- Speech Bubble -->
-      <div class="speech-bubble" id="speechBubble">
-        <div class="speech-bubble-content">
-          <div class="speech-bubble-tail"></div>
-          <div class="speech-bubble-tail-inner"></div>
-          <div id="speechBubbleText"></div>
+  <body>
+    <!-- Avatar Loading Screen with Countdown -->
+    <div class="avatar-loading-screen" id="avatarLoadingScreen">
+      <div class="avatar-loading-backdrop"></div>
+      <div class="avatar-loading-content">
+        <div class="avatar-loading-title">Initializing Avatar</div>
+        <div class="avatar-loading-subtitle">Preparing your experience...</div>
+        <div class="avatar-loading-countdown-wrapper">
+          <div class="avatar-loading-countdown" id="avatarLoadingCountdown">
+            4
+          </div>
+          <div class="countdown-label">seconds</div>
+        </div>
+        <div class="avatar-loading-progress">
+          <div class="progress-bar" id="loadingProgressBar"></div>
+        </div>
+        <div class="avatar-loading-spinner">
+          <div class="spinner-ring"></div>
+          <div class="spinner-ring"></div>
+          <div class="spinner-ring"></div>
         </div>
       </div>
-      
-      <!-- ================================ -->
-      <!-- CONFETTI APPRECIATION SYSTEM     -->
-      <!-- ================================ -->
-      <!-- Triggers when user shows appreciation like "Thanks", "I love you", "You look good" -->
-      <div class="confetti-container" id="confettiContainer" aria-hidden="true">
+    </div>
+
+    <div class="container">
+      <div class="avatar-section">
+        <div id="avatar"></div>
+        <div class="status" id="status">
+          🚀 Initializing ReadyPlayerMe Avatar with Claude AI...
+        </div>
+
+        <!-- Speech Bubble -->
+        <div class="speech-bubble" id="speechBubble">
+          <div class="speech-bubble-content">
+            <div class="speech-bubble-tail"></div>
+            <div class="speech-bubble-tail-inner"></div>
+            <div id="speechBubbleText"></div>
+          </div>
+        </div>
+
+        <!-- ================================ -->
+        <!-- CONFETTI APPRECIATION SYSTEM     -->
+        <!-- ================================ -->
+        <!-- Triggers when user shows appreciation like "Thanks", "I love you", "You look good" -->
+        <!-- <div
+          class="confetti-container"
+          id="confettiContainer"
+          aria-hidden="true"
+        > -->
         <!-- Hearts will be dynamically generated here -->
-      </div>
-      <!-- ================================ -->
-      <!-- END CONFETTI SYSTEM              -->
-      <!-- ================================ -->
+        <!-- </div> -->
+        <!-- ================================ -->
+        <!-- END CONFETTI SYSTEM              -->
+        <!-- ================================ -->
 
-      <!-- Knowledge Base Thinking Bubble -->
-      <div class="knowledge-base-thinking" id="knowledgeBaseThinking">
-        <div class="knowledge-base-thinking-content">
-          <div class="kb-thinking-icon">🧠</div>
-          <div class="kb-thinking-text">give me a moment while i check</div>
-          <div class="kb-thinking-dots">...</div>
-          <div class="knowledge-base-thinking-tail">
-            <div class="thinking-circle"></div>
-            <div class="thinking-circle"></div>
-            <div class="thinking-circle"></div>
+        <!-- Knowledge Base Thinking Bubble -->
+        <div class="knowledge-base-thinking" id="knowledgeBaseThinking">
+          <div class="knowledge-base-thinking-content">
+            <div class="kb-thinking-icon">🧠</div>
+            <div class="kb-thinking-text">give me a moment while i check</div>
+            <div class="kb-thinking-dots">...</div>
+            <div class="knowledge-base-thinking-tail">
+              <div class="thinking-circle"></div>
+              <div class="thinking-circle"></div>
+              <div class="thinking-circle"></div>
+            </div>
           </div>
         </div>
-      </div>
-      
 
-      <!-- Events Thinking Bubble -->
-      <div class="events-thinking" id="eventsThinking">
-        <div class="events-thinking-content">
-          <div class="events-thinking-icon">📅</div>
-          <div class="events-thinking-text">let me check the calendar</div>
-          <div class="events-thinking-dots">...</div>
-          <div class="events-thinking-tail">
-            <div class="thinking-circle"></div>
-            <div class="thinking-circle"></div>
-            <div class="thinking-circle"></div>
+        <!-- Events Thinking Bubble -->
+        <div class="events-thinking" id="eventsThinking">
+          <div class="events-thinking-content">
+            <div class="events-thinking-icon">📅</div>
+            <div class="events-thinking-text">let me check the calendar</div>
+            <div class="events-thinking-dots">...</div>
+            <div class="events-thinking-tail">
+              <div class="thinking-circle"></div>
+              <div class="thinking-circle"></div>
+              <div class="thinking-circle"></div>
+            </div>
           </div>
+        </div>
+
+        <!-- Link Buttons Container -->
+        <div class="link-buttons-container" id="linkButtonsContainer">
+          <!-- Buttons will be dynamically generated here -->
         </div>
       </div>
 
-
-
-      <!-- Link Buttons Container -->
-      <div class="link-buttons-container" id="linkButtonsContainer">
-        <!-- Buttons will be dynamically generated here -->
-      </div>
-    </div>
-
-    <!-- KORAV4-STYLE CHAT INPUT -->
-    <div class="chat-input-container">
-      <!-- Status Indicator -->
-      <div class="claude-status-indicator u-hidden" id="claudeStatusIndicator">
-        <div class="status-dot" id="statusDot"></div>
-        <span id="statusText">Ready</span>
-      </div>
-      
-      <div class="chat-input-form">
-        <!-- Mic Button -->
-        <button
-          id="micBtn"
-          onclick="toggleVoice()"
-          class="input-icon-button mic-button"
-          title="Voice input"
+      <!-- KORAV4-STYLE CHAT INPUT -->
+      <div class="chat-input-container">
+        <!-- Status Indicator -->
+        <div
+          class="claude-status-indicator u-hidden"
+          id="claudeStatusIndicator"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-            <line x1="12" y1="19" x2="12" y2="23"/>
-            <line x1="8" y1="23" x2="16" y2="23"/>
-          </svg>
-        </button>
-        
-        <!-- Text Input -->
-        <input
-          type="text"
-          id="messageInput"
-          class="main-text-input"
-          placeholder="Talk to me..."
-          maxlength="500"
-          onkeypress="handleKeyPress(event)"
-        />
-        
-        <!-- Send Button -->
-        <button
-          class="input-icon-button send-button"
-          id="sendBtn"
-          onclick="sendMessage()"
-          title="Send message"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="22" y1="2" x2="11" y2="13"/>
-            <polygon points="22,2 15,22 11,13 2,9"/>
-          </svg>
-        </button>
+          <div class="status-dot" id="statusDot"></div>
+          <span id="statusText">Ready</span>
+        </div>
+
+        <div class="chat-input-form">
+          <!-- Mic Button -->
+          <button
+            id="micBtn"
+            onclick="toggleVoice()"
+            class="input-icon-button mic-button"
+            title="Voice input"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+              <line x1="12" y1="19" x2="12" y2="23" />
+              <line x1="8" y1="23" x2="16" y2="23" />
+            </svg>
+          </button>
+
+          <!-- Text Input -->
+          <input
+            type="text"
+            id="messageInput"
+            class="main-text-input"
+            placeholder="Talk to me..."
+            maxlength="500"
+            onkeypress="handleKeyPress(event)"
+          />
+
+          <!-- Send Button -->
+          <button
+            class="input-icon-button send-button"
+            id="sendBtn"
+            onclick="sendMessage()"
+            title="Send message"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="22" y1="2" x2="11" y2="13" />
+              <polygon points="22,2 15,22 11,13 2,9" />
+            </svg>
+          </button>
+        </div>
       </div>
+
+      <!-- Debug buttons will be created by JavaScript -->
+
+      <!-- Hidden controls section -->
+      <div class="controls-section"></div>
     </div>
 
-    <!-- Debug buttons will be created by JavaScript -->
+    <!-- Load AnimationManager before app.js -->
+    <script src="js/AnimationManager.js"></script>
 
-    <!-- Hidden controls section -->
-    <div class="controls-section">
-    </div>
-  </div>
+    <!-- Load BrowserMemory for persistent conversation context -->
+    <script src="js/browser-memory.js"></script>
 
-  <!-- Load AnimationManager before app.js -->
-  <script src="js/AnimationManager.js"></script>
-  
-  <!-- Load BrowserMemory for persistent conversation context -->
-  <script src="js/browser-memory.js"></script>
-  
-  <!-- ================================ -->
-  <!-- CONFETTI APPRECIATION SYSTEM     -->
-  <!-- ================================ -->
-  <script src="js/ConfettiManager.js"></script>
-  <!-- ================================ -->
-  
-  <!-- Main app initialization -->
-  <!-- app.js imports all managers (LinkButtonManager, etc.) -->
-  <!-- No need to load them separately - ES modules handle dependencies automatically -->
-  <!-- Cache busting: Use timestamp to force fresh load -->
-  <script type="module" src="js/app.js?v=20250127-003"></script>
-</body>
+    <!-- ================================ -->
+    <!-- CONFETTI APPRECIATION SYSTEM     -->
+    <!-- ================================ -->
+    <script src="js/ConfettiManager.js"></script>
+    <!-- ================================ -->
+
+    <!-- Main app initialization -->
+    <!-- app.js imports all managers (LinkButtonManager, etc.) -->
+    <!-- No need to load them separately - ES modules handle dependencies automatically -->
+    <!-- Cache busting: Use timestamp to force fresh load -->
+    <script type="module" src="js/app.js?v=20250127-003"></script>
+  </body>
 </html>

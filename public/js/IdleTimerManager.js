@@ -7,7 +7,7 @@ export class IdleTimerManager {
     this.head = null;
     this.isLoaded = false;
     this.currentMoodRef = null;
-    this.currentMood = 'neutral';
+    this.currentMood = "neutral";
     this.chatManager = null;
     this.ttsManager = null;
     this.isSpeaking = false;
@@ -16,17 +16,24 @@ export class IdleTimerManager {
   // =====================================================
   // DEPENDENCY INJECTION
   // =====================================================
-  setDependencies(head, isLoadedRef, currentMoodRef, currentMoodVar, chatManager = null, ttsManager = null) {
+  setDependencies(
+    head,
+    isLoadedRef,
+    currentMoodRef,
+    currentMoodVar,
+    chatManager = null,
+    ttsManager = null
+  ) {
     this.head = head;
     // Handle both function and boolean for isLoaded
-    if (typeof isLoadedRef === 'function') {
+    if (typeof isLoadedRef === "function") {
       this.getIsLoaded = isLoadedRef;
     } else {
       // If it's a boolean, create a getter function
       // But we need to check the actual value from the head/avatar
       this.getIsLoaded = () => {
         // Check if head exists and has isLoaded property
-        if (head && typeof head.isLoaded !== 'undefined') {
+        if (head && typeof head.isLoaded !== "undefined") {
           return head.isLoaded;
         }
         // Fallback to the passed value
@@ -43,15 +50,15 @@ export class IdleTimerManager {
     };
     this.chatManager = chatManager;
     this.ttsManager = ttsManager;
-    
-    console.log('✅ IdleTimerManager dependencies set:', {
+
+    console.log("✅ IdleTimerManager dependencies set:", {
       hasHead: !!this.head,
       hasChatManager: !!this.chatManager,
       hasTtsManager: !!this.ttsManager,
-      isLoaded: this.getIsLoaded()
+      isLoaded: this.getIsLoaded(),
     });
   }
-  
+
   // Set speaking state (called by TTSManager)
   setSpeaking(isSpeaking) {
     this.isSpeaking = isSpeaking;
@@ -68,160 +75,180 @@ export class IdleTimerManager {
     if (this.idleSpeechTimer) {
       clearTimeout(this.idleSpeechTimer);
     }
-    
-    console.log(`⏱️ Starting idle timer - speech will trigger in ${this.idleSpeechTimeoutMs/1000} seconds`);
-    
+
+    console.log(
+      `⏱️ Starting idle timer - speech will trigger in ${
+        this.idleSpeechTimeoutMs / 1000
+      } seconds`
+    );
+
     // Set timer to revert to neutral
     this.idleTimer = setTimeout(() => {
-      if (this.head && this.getIsLoaded() && this.currentMoodRef && this.currentMoodRef.current !== 'neutral') {
-        console.log(`🕐 ${this.idleTimeoutMs/1000} seconds idle - reverting to neutral mood`);
-        this.head.setMood('neutral');
-        this.currentMoodRef.current = 'neutral';
-        this.currentMood = 'neutral';
+      if (
+        this.head &&
+        this.getIsLoaded() &&
+        this.currentMoodRef &&
+        this.currentMoodRef.current !== "neutral"
+      ) {
+        console.log(
+          `🕐 ${
+            this.idleTimeoutMs / 1000
+          } seconds idle - reverting to neutral mood`
+        );
+        this.head.setMood("neutral");
+        this.currentMoodRef.current = "neutral";
+        this.currentMood = "neutral";
       }
     }, this.idleTimeoutMs);
-    
+
     // Set timer for idle speech (15 seconds)
     this.idleSpeechTimer = setTimeout(() => {
-      console.log(`⏰ Idle speech timer fired after ${this.idleSpeechTimeoutMs/1000} seconds`);
-      this.triggerIdleSpeech();
+      console.log(
+        `⏰ Idle speech timer fired after ${
+          this.idleSpeechTimeoutMs / 1000
+        } seconds`
+      );
+      // this.triggerIdleSpeech();
     }, this.idleSpeechTimeoutMs);
   }
 
   resetIdleTimer() {
     this.startIdleTimer();
   }
-  
-  // =====================================================
-  // IDLE SPEECH PROMPTS
-  // =====================================================
-  async triggerIdleSpeech() {
-    // Debug: Check each condition
-    const checks = {
-      isSpeaking: this.isSpeaking,
-      hasChatManager: !!this.chatManager,
-      hasTtsManager: !!this.ttsManager,
-      hasHead: !!this.head,
-      isLoaded: this.getIsLoaded ? this.getIsLoaded() : false
-    };
-    
-    console.log('🔍 Idle speech check:', checks);
-    
-    // Don't trigger if already speaking or if avatar/chat manager not ready
-    if (this.isSpeaking) {
-      console.log('⏸️ Skipping idle speech - avatar is already speaking');
-      return;
-    }
-    
-    if (!this.chatManager) {
-      console.log('⏸️ Skipping idle speech - chatManager not available');
-      return;
-    }
-    
-    if (!this.ttsManager) {
-      console.log('⏸️ Skipping idle speech - ttsManager not available');
-      return;
-    }
-    
-    if (!this.head) {
-      console.log('⏸️ Skipping idle speech - avatar head not available');
-      return;
-    }
-    
-    if (!this.getIsLoaded || !this.getIsLoaded()) {
-      console.log('⏸️ Skipping idle speech - avatar not loaded yet');
-      return;
-    }
-    
-    // Idle speech prompts for Ah Meng (grumpy, old man)
-    const idlePrompts = [
-      "So are you just going to stare there and keep quiet?",
-      "Wah, you just going to sit there ah?",
-      "Hello? Anyone there?",
-      "You still there or not?",
-      "Eh, you sleeping is it?",
-      "Don't tell me you forgot how to talk already.",
-      "Wah, so quiet one. Nothing to say meh?",
-      "You waiting for me to start talking first ah?",
-      "Eh, you still there?",
-      "So quiet... you okay or not?"
-    ];
-    
-    // Pick a random prompt
-    const randomPrompt = idlePrompts[Math.floor(Math.random() * idlePrompts.length)];
-    
-    console.log(`💬 Triggering idle speech: "${randomPrompt}"`);
-    
-    try {
-      // Call emotion engine API with the idle prompt
-      // Use empty history to get a fresh response
-      const response = await fetch('/api/emotional-state/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          message: randomPrompt,
-          conversation_id: this.chatManager.conversationId,
-          history: this.chatManager.conversationHistory || [],
-          emotion_state: this.chatManager.emotionState || null
-        })
-      });
-      
-      if (!response.ok) {
-        console.warn('⚠️ Failed to get idle speech response');
-        return;
-      }
-      
-      const data = await response.json();
-      
-      // Update emotion state
-      if (data.emotion_state) {
-        this.chatManager.emotionState = data.emotion_state;
-      }
-      
-      // Add to conversation history
-      if (this.chatManager.conversationHistory) {
-        this.chatManager.conversationHistory.push({
-          role: 'user',
-          content: randomPrompt,
-          timestamp: new Date().toISOString()
-        });
-        this.chatManager.conversationHistory.push({
-          role: 'assistant',
-          content: data.response,
-          timestamp: data.timestamp
-        });
-      }
-      
-      // Speak the response
-      if (data.response && this.ttsManager) {
-        const avatarEmoji = data.avatar_emoji || '🤔';
-        
-        // Show speech bubble (access via global or dependency)
-        const speechBubbleManager = window.speechBubbleManager || (this.chatManager && this.chatManager.speechBubbleManager);
-        if (speechBubbleManager) {
-          speechBubbleManager.showSpeechBubble(data.response);
-        }
-        
-        // Mark as speaking before starting TTS
-        this.isSpeaking = true;
-        
-        // Speak the response
-        await this.ttsManager.speakText(data.response);
-        
-        // Mark as not speaking after TTS completes
-        this.isSpeaking = false;
-        
-        // Reset idle timer after speaking (so it doesn't immediately trigger again)
-        this.resetIdleTimer();
-        
-        console.log('✅ Idle speech completed');
-      }
-    } catch (error) {
-      console.error('❌ Error triggering idle speech:', error);
-    }
-  }
+
+  // // =====================================================
+  // // IDLE SPEECH PROMPTS
+  // // =====================================================
+  // async triggerIdleSpeech() {
+  //   // Debug: Check each condition
+  //   const checks = {
+  //     isSpeaking: this.isSpeaking,
+  //     hasChatManager: !!this.chatManager,
+  //     hasTtsManager: !!this.ttsManager,
+  //     hasHead: !!this.head,
+  //     isLoaded: this.getIsLoaded ? this.getIsLoaded() : false,
+  //   };
+
+  //   console.log("🔍 Idle speech check:", checks);
+
+  //   // Don't trigger if already speaking or if avatar/chat manager not ready
+  //   if (this.isSpeaking) {
+  //     console.log("⏸️ Skipping idle speech - avatar is already speaking");
+  //     return;
+  //   }
+
+  //   if (!this.chatManager) {
+  //     console.log("⏸️ Skipping idle speech - chatManager not available");
+  //     return;
+  //   }
+
+  //   if (!this.ttsManager) {
+  //     console.log("⏸️ Skipping idle speech - ttsManager not available");
+  //     return;
+  //   }
+
+  //   if (!this.head) {
+  //     console.log("⏸️ Skipping idle speech - avatar head not available");
+  //     return;
+  //   }
+
+  //   if (!this.getIsLoaded || !this.getIsLoaded()) {
+  //     console.log("⏸️ Skipping idle speech - avatar not loaded yet");
+  //     return;
+  //   }
+
+  //   // Idle speech prompts for Ah Meng (grumpy, old man)
+  //   const idlePrompts = [
+  //     "So are you just going to stare there and keep quiet?",
+  //     "Wah, you just going to sit there ah?",
+  //     "Hello? Anyone there?",
+  //     "You still there or not?",
+  //     "Eh, you sleeping is it?",
+  //     "Don't tell me you forgot how to talk already.",
+  //     "Wah, so quiet one. Nothing to say meh?",
+  //     "You waiting for me to start talking first ah?",
+  //     "Eh, you still there?",
+  //     "So quiet... you okay or not?",
+  //   ];
+
+  //   // Pick a random prompt
+  //   const randomPrompt =
+  //     idlePrompts[Math.floor(Math.random() * idlePrompts.length)];
+
+  //   console.log(`💬 Triggering idle speech: "${randomPrompt}"`);
+
+  //   try {
+  //     // Call emotion engine API with the idle prompt
+  //     // Use empty history to get a fresh response
+  //     const response = await fetch("/api/emotional-state/chat", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         message: randomPrompt,
+  //         conversation_id: this.chatManager.conversationId,
+  //         history: this.chatManager.conversationHistory || [],
+  //         emotion_state: this.chatManager.emotionState || null,
+  //       }),
+  //     });
+
+  //     if (!response.ok) {
+  //       console.warn("⚠️ Failed to get idle speech response");
+  //       return;
+  //     }
+
+  //     const data = await response.json();
+
+  //     // Update emotion state
+  //     if (data.emotion_state) {
+  //       this.chatManager.emotionState = data.emotion_state;
+  //     }
+
+  //     // Add to conversation history
+  //     if (this.chatManager.conversationHistory) {
+  //       this.chatManager.conversationHistory.push({
+  //         role: "user",
+  //         content: randomPrompt,
+  //         timestamp: new Date().toISOString(),
+  //       });
+  //       this.chatManager.conversationHistory.push({
+  //         role: "assistant",
+  //         content: data.response,
+  //         timestamp: data.timestamp,
+  //       });
+  //     }
+
+  //     // Speak the response
+  //     if (data.response && this.ttsManager) {
+  //       const avatarEmoji = data.avatar_emoji || "🤔";
+
+  //       // Show speech bubble (access via global or dependency)
+  //       const speechBubbleManager =
+  //         window.speechBubbleManager ||
+  //         (this.chatManager && this.chatManager.speechBubbleManager);
+  //       if (speechBubbleManager) {
+  //         speechBubbleManager.showSpeechBubble(data.response);
+  //       }
+
+  //       // Mark as speaking before starting TTS
+  //       this.isSpeaking = true;
+
+  //       // Speak the response
+  //       await this.ttsManager.speakText(data.response);
+
+  //       // Mark as not speaking after TTS completes
+  //       this.isSpeaking = false;
+
+  //       // Reset idle timer after speaking (so it doesn't immediately trigger again)
+  //       this.resetIdleTimer();
+
+  //       console.log("✅ Idle speech completed");
+  //     }
+  //   } catch (error) {
+  //     console.error("❌ Error triggering idle speech:", error);
+  //   }
+  // }
 
   // =====================================================
   // CONFIGURATION
@@ -247,14 +274,14 @@ export class IdleTimerManager {
       this.idleSpeechTimer = null;
     }
   }
-  
+
   // =====================================================
   // CONFIGURATION
   // =====================================================
   setIdleSpeechTimeout(milliseconds) {
     this.idleSpeechTimeoutMs = milliseconds;
   }
-  
+
   getIdleSpeechTimeout() {
     return this.idleSpeechTimeoutMs;
   }
@@ -265,4 +292,4 @@ export class IdleTimerManager {
   isTimerActive() {
     return this.idleTimer !== null;
   }
-} 
+}
