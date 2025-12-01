@@ -31,9 +31,20 @@ type AgentInstance = BaseAgent | SentimentAgent;
 export class AgentFactory {
   private agents: Map<string, AgentInstance> = new Map();
   private clientName?: string;
+  private language?: string; // 'en' or 'cn'
 
-  constructor(clientName?: string) {
+  constructor(clientName?: string, language?: string) {
     this.clientName = clientName || process.env.CLIENT_NAME || 'synapse';
+    this.language = language || 'en';
+  }
+
+  /**
+   * Set language for all agents
+   */
+  setLanguage(language: string): void {
+    this.language = language;
+    // Clear cache so agents are recreated with new language
+    this.clearCache();
   }
 
   /**
@@ -88,32 +99,32 @@ export class AgentFactory {
         return new SentimentAgent(this.clientName);
 
       case 'normal':
-        return new NormalAgent(this.clientName);
+        return new NormalAgent(this.clientName, this.language);
 
       case 'pleased':
-        return new HappyLevel1PleasedAgent(this.clientName);
+        return new HappyLevel1PleasedAgent(this.clientName, this.language);
       case 'cheerful':
-        return new HappyLevel2CheerfulAgent(this.clientName);
+        return new HappyLevel2CheerfulAgent(this.clientName, this.language);
       case 'ecstatic':
-        return new HappyLevel3EcstaticAgent(this.clientName);
+        return new HappyLevel3EcstaticAgent(this.clientName, this.language);
 
       case 'melancholy':
-        return new SadLevel1MelancholyAgent(this.clientName);
+        return new SadLevel1MelancholyAgent(this.clientName, this.language);
       case 'sorrowful':
-        return new SadLevel2SorrowfulAgent(this.clientName);
+        return new SadLevel2SorrowfulAgent(this.clientName, this.language);
       case 'depressed':
-        return new SadLevel3DepressedAgent(this.clientName);
+        return new SadLevel3DepressedAgent(this.clientName, this.language);
 
       case 'irritated':
-        return new AngryLevel1IrritatedAgent(this.clientName);
+        return new AngryLevel1IrritatedAgent(this.clientName, this.language);
       case 'agitated':
-        return new AngryLevel2AgitatedAgent(this.clientName);
+        return new AngryLevel2AgitatedAgent(this.clientName, this.language);
       case 'enraged':
-        return new AngryLevel3EnragedAgent(this.clientName);
+        return new AngryLevel3EnragedAgent(this.clientName, this.language);
 
       default:
         console.warn(`Unknown agent name: ${agentName}, defaulting to normal`);
-        return new NormalAgent(this.clientName);
+        return new NormalAgent(this.clientName, this.language);
     }
   }
 

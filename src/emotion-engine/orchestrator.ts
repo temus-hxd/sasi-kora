@@ -24,13 +24,25 @@ export class Orchestrator {
   private emotionalHistory: EmotionalState[] = [];
   private ended: boolean = false;
   private clientName?: string;
+  private language?: string; // 'en' or 'cn'
 
-  constructor(clientName?: string) {
+  constructor(clientName?: string, language?: string) {
     this.clientName = clientName || process.env.CLIENT_NAME || 'synapse';
+    this.language = language || 'en';
     // Anger meter and agents will be initialized asynchronously
     this.angerMeter = null as any; // Will be set in initialize()
-    this.agentFactory = new AgentFactory(this.clientName);
+    this.agentFactory = new AgentFactory(this.clientName, this.language);
     this.sentimentAgent = new SentimentAgent(this.clientName);
+  }
+
+  /**
+   * Set language and update agent factory
+   */
+  setLanguage(language: string): void {
+    this.language = language;
+    this.agentFactory.setLanguage(language);
+    // Clear agent cache to force reload with new language
+    this.agentFactory.clearCache();
   }
 
   /**

@@ -17,10 +17,13 @@ export class ConfigManager {
   // =====================================================
   // CONFIGURATION LOADING
   // =====================================================
-  async loadConfig() {
+  async loadConfig(language = null) {
     try {
-      console.log('📡 Loading configuration from /api/config...');
-      const response = await fetch('/api/config');
+      // Get language from parameter or localStorage
+      const lang = language || this.getLanguage() || 'en';
+      
+      console.log(`📡 Loading configuration from /api/config (language: ${lang})...`);
+      const response = await fetch(`/api/config?lang=${lang}`);
       
       if (!response.ok) {
         const errorText = await response.text();
@@ -37,9 +40,11 @@ export class ConfigManager {
       
       this.config.avatarUrl = serverConfig.avatarUrl;
       this.config.voiceId = serverConfig.voiceId;
+      this.config.language = serverConfig.language || lang;
       console.log('✅ Configuration loaded:', { 
         avatarUrl: this.config.avatarUrl?.substring(0, 50) + '...', 
-        voiceId: this.config.voiceId 
+        voiceId: this.config.voiceId,
+        language: this.config.language
       });
       return true;
     } catch (error) {
@@ -50,6 +55,19 @@ export class ConfigManager {
       }
       return false;
     }
+  }
+
+  // =====================================================
+  // LANGUAGE MANAGEMENT
+  // =====================================================
+  getLanguage() {
+    return localStorage.getItem('app_language') || 'en';
+  }
+
+  setLanguage(language) {
+    localStorage.setItem('app_language', language);
+    this.config.language = language;
+    console.log(`🌐 Language set to: ${language}`);
   }
 
   // =====================================================
@@ -112,12 +130,14 @@ export class ConfigManager {
   // =====================================================
   resetToDefaults() {
     // Reset and reload from server (.env) - no hardcoded values
+    const currentLanguage = this.getLanguage();
     this.config = {
       avatarUrl: null, // Will be loaded from server (.env)
       voiceId: null, // Will be loaded from server (.env)
-      ttsProvider: 'elevenlabs'
+      ttsProvider: 'elevenlabs',
+      language: currentLanguage
     };
     console.log('🔄 Configuration reset - reloading from server...');
-    this.loadConfig(); // Reload from server
+    this.loadConfig(currentLanguage); // Reload from server with current language
   }
 } 

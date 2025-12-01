@@ -8,11 +8,12 @@ import { BaseAgent } from './base-agent.js';
 import type { ChatMessage, AngerMeterInfo } from '../types.js';
 
 export class AngryLevel1IrritatedAgent extends BaseAgent {
-  constructor(clientName?: string) {
+  constructor(clientName?: string, language?: string) {
     super({
       promptFile: 'angry-1-irritated.md',
       modelEnvVar: 'MODEL_IRRITATED',
       clientName,
+      language,
     });
   }
 
@@ -23,11 +24,12 @@ export class AngryLevel1IrritatedAgent extends BaseAgent {
 }
 
 export class AngryLevel2AgitatedAgent extends BaseAgent {
-  constructor(clientName?: string) {
+  constructor(clientName?: string, language?: string) {
     super({
       promptFile: 'angry-2-agitated.md',
       modelEnvVar: 'MODEL_AGITATED',
       clientName,
+      language,
     });
   }
 
@@ -38,12 +40,13 @@ export class AngryLevel2AgitatedAgent extends BaseAgent {
 }
 
 export class AngryLevel3EnragedAgent extends BaseAgent {
-  constructor(clientName?: string) {
+  constructor(clientName?: string, language?: string) {
     super({
       promptFile: 'angry-3-enraged.md',
       skipPersonality: true, // Enraged uses different personality
       modelEnvVar: 'MODEL_ENRAGED',
       clientName,
+      language,
     });
   }
 

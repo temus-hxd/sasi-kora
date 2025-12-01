@@ -7,11 +7,12 @@ import { BaseAgent } from './base-agent.js';
 import type { ChatMessage } from '../types.js';
 
 export class SadLevel1MelancholyAgent extends BaseAgent {
-  constructor(clientName?: string) {
+  constructor(clientName?: string, language?: string) {
     super({
       promptFile: 'sad-1-melancholy.md',
       modelEnvVar: 'MODEL_MELANCHOLY',
       clientName,
+      language,
     });
   }
 
@@ -22,11 +23,12 @@ export class SadLevel1MelancholyAgent extends BaseAgent {
 }
 
 export class SadLevel2SorrowfulAgent extends BaseAgent {
-  constructor(clientName?: string) {
+  constructor(clientName?: string, language?: string) {
     super({
       promptFile: 'sad-2-sorrowful.md',
       modelEnvVar: 'MODEL_SORROWFUL',
       clientName,
+      language,
     });
   }
 
@@ -37,11 +39,12 @@ export class SadLevel2SorrowfulAgent extends BaseAgent {
 }
 
 export class SadLevel3DepressedAgent extends BaseAgent {
-  constructor(clientName?: string) {
+  constructor(clientName?: string, language?: string) {
     super({
       promptFile: 'sad-3-depressed.md',
       modelEnvVar: 'MODEL_DEPRESSED',
       clientName,
+      language,
     });
   }
 

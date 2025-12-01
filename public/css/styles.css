@@ -1,5 +1,9 @@
 @keyframes thinking-bounce {
-  0%, 20%, 50%, 80%, 100% {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
     transform: translateY(0);
   }
   40% {
@@ -8,7 +12,7 @@
   60% {
     transform: translateY(-3px);
   }
-}/* =============================================================================
+} /* =============================================================================
    SETTINGS - Global variables, config switches
    ============================================================================= */
 :root {
@@ -21,8 +25,16 @@
   --button-primary: rgba(59, 130, 246, 0.2);
   --button-primary-hover: rgba(59, 130, 246, 0.3);
   --button-danger: rgba(239, 68, 68, 0.2);
-  --button-gradient: linear-gradient(135deg, rgba(102, 126, 234, 0.4), rgba(118, 75, 162, 0.4));
-  --button-gradient-hover: linear-gradient(135deg, rgba(102, 126, 234, 0.6), rgba(118, 75, 162, 0.6));
+  --button-gradient: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.4),
+    rgba(118, 75, 162, 0.4)
+  );
+  --button-gradient-hover: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.6),
+    rgba(118, 75, 162, 0.6)
+  );
   --text-white: #ffffff;
   --text-white-secondary: rgba(255, 255, 255, 0.7);
   --text-dark: #333;
@@ -50,14 +62,14 @@
 /* =============================================================================
    ELEMENTS - Bare HTML elements (no classes)
    ============================================================================= */
-html, body {
+html,
+body {
   height: 100%;
   margin: 0;
   padding: 0;
   font-family: system-ui, -apple-system, sans-serif;
   /* Custom background image without overlay */
-  background: 
-    url('../images/background.png') center/cover no-repeat,
+  background: url("../images/background.png") center/cover no-repeat,
     var(--primary-gradient); /* Clean gradient fallback */
   background-attachment: fixed;
   overflow: hidden;
@@ -74,8 +86,8 @@ html, body {
 }
 
 .avatar-section {
-  width: 100%; 
-  height: 100%; 
+  width: 100%;
+  height: 100%;
   position: relative;
 }
 
@@ -88,8 +100,8 @@ html, body {
    ============================================================================= */
 
 /* Avatar Component */
-#avatar { 
-  width: 100%; 
+#avatar {
+  width: 100%;
   height: 100%;
   transform: scale(var(--avatar-scale)) translateY(var(--avatar-translate-y));
 }
@@ -130,7 +142,7 @@ html, body {
   font-size: 3rem;
   font-weight: 200;
   margin-bottom: 2rem;
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
 }
 
 .loading-progress {
@@ -215,7 +227,11 @@ html, body {
   font-weight: 600;
   margin-bottom: 0.5rem;
   letter-spacing: 0.05em;
-  background: linear-gradient(135deg, #ffffff 0%, rgba(255, 255, 255, 0.8) 100%);
+  background: linear-gradient(
+    135deg,
+    #ffffff 0%,
+    rgba(255, 255, 255, 0.8) 100%
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -241,12 +257,17 @@ html, body {
 .avatar-loading-countdown {
   font-size: 5.5rem;
   font-weight: 700;
-  font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Roboto", sans-serif;
   min-height: 6.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #ffffff 0%, rgba(255, 255, 255, 0.9) 100%);
+  background: linear-gradient(
+    135deg,
+    #ffffff 0%,
+    rgba(255, 255, 255, 0.9) 100%
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -264,7 +285,8 @@ html, body {
 }
 
 @keyframes countdownPulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     opacity: 1;
   }
@@ -286,7 +308,12 @@ html, body {
 
 .progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 1) 50%, rgba(255, 255, 255, 0.8) 100%);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.8) 0%,
+    rgba(255, 255, 255, 1) 50%,
+    rgba(255, 255, 255, 0.8) 100%
+  );
   background-size: 200% 100%;
   border-radius: 10px;
   width: 0%;
@@ -311,15 +338,15 @@ html, body {
     max-width: 90%;
     padding: 2rem 1.5rem;
   }
-  
+
   .avatar-loading-title {
     font-size: 1.5rem;
   }
-  
+
   .avatar-loading-subtitle {
     font-size: 0.85rem;
   }
-  
+
   .avatar-loading-countdown {
     font-size: 4.5rem;
     min-height: 5.5rem;
@@ -330,11 +357,11 @@ html, body {
   .avatar-loading-content {
     padding: 1.5rem 1rem;
   }
-  
+
   .avatar-loading-title {
     font-size: 1.25rem;
   }
-  
+
   .avatar-loading-countdown {
     font-size: 4rem;
     min-height: 5rem;
@@ -371,7 +398,8 @@ html, body {
 }
 
 @keyframes spinnerPulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(0.8);
     opacity: 0.5;
   }
@@ -397,6 +425,49 @@ html, body {
 }
 
 /* Chat Input Component */
+.language-toggle-container {
+  display: flex;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius-medium);
+  padding: 4px;
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  height: 44px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.language-option {
+  flex: 1;
+  height: 100%;
+  border: none;
+  border-radius: var(--border-radius-small);
+  background: transparent;
+  color: var(--text-white-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 50px;
+  padding: 0 12px;
+}
+
+.language-option:hover {
+  color: var(--text-white);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.language-option.active {
+  background: var(--text-white);
+  color: var(--text-dark);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
 .chat-input-container {
   position: absolute;
   bottom: 30px;
@@ -552,7 +623,6 @@ html, body {
   font-family: system-ui, -apple-system, sans-serif;
   animation: knowledge-fade-in 0.3s ease-out;
 }
-
 
 /* Events Thinking Bubble */
 .events-thinking {
@@ -1020,20 +1090,20 @@ html, body {
 }
 
 /* Scrollbar Components */
-.chat-messages::-webkit-scrollbar, 
+.chat-messages::-webkit-scrollbar,
 .controls-section::-webkit-scrollbar {
   width: 6px;
 }
 
-.chat-messages::-webkit-scrollbar-track, 
+.chat-messages::-webkit-scrollbar-track,
 .controls-section::-webkit-scrollbar-track {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 3px;
 }
 
-.chat-messages::-webkit-scrollbar-thumb, 
+.chat-messages::-webkit-scrollbar-thumb,
 .controls-section::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.3);
+  background: rgba(255, 255, 255, 0.3);
   border-radius: 3px;
 }
 
@@ -1067,25 +1137,27 @@ html, body {
 
 /* Animation utilities */
 @keyframes pulse {
-  0%, 100% { 
-    opacity: 1; 
+  0%,
+  100% {
+    opacity: 1;
   }
-  50% { 
-    opacity: 0.5; 
+  50% {
+    opacity: 0.5;
   }
 }
 
 @keyframes shimmer {
-  0% { 
-    background-position: -200% 0; 
+  0% {
+    background-position: -200% 0;
   }
-  100% { 
-    background-position: 200% 0; 
+  100% {
+    background-position: 200% 0;
   }
 }
 
 @keyframes kb-pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }
@@ -1105,17 +1177,19 @@ html, body {
 }
 
 @keyframes kb-dots {
-  0%, 20% {
-    content: '';
+  0%,
+  20% {
+    content: "";
   }
   40% {
-    content: '.';
+    content: ".";
   }
   60% {
-    content: '..';
+    content: "..";
   }
-  80%, 100% {
-    content: '...';
+  80%,
+  100% {
+    content: "...";
   }
 }
 
@@ -1138,156 +1212,153 @@ html, body {
     width: 95%;
     bottom: 20px;
   }
-  
+
   .chat-input-form {
     padding: 10px;
     gap: 10px;
   }
-  
+
   .main-text-input {
     font-size: 14px;
     padding: 10px 16px;
   }
-  
+
   .input-icon-button {
     width: 40px;
     height: 40px;
   }
-  
+
   .speech-bubble {
     max-width: 90%;
     top: 5px;
   }
-  
+
   .speech-bubble-content {
     font-size: 16px;
     padding: 15px 20px;
     min-height: 50px;
     max-height: 90px;
   }
-  
+
   .speech-bubble-content.speech-bubble-compact {
     font-size: 15px;
     padding: 14px 18px;
   }
-  
+
   .speech-bubble-content.speech-bubble-small {
     font-size: 14px;
     padding: 12px 16px;
     max-height: 75px;
   }
-  
+
   .book-cover-display {
     right: 20px;
     top: 40%;
   }
-  
+
   .book-cover-container {
     max-width: 150px;
     padding: 10px;
   }
-  
+
   .book-cover-image {
     max-height: 180px;
   }
-  
+
   .book-cover-title {
     font-size: 12px;
   }
-  
+
   .book-cover-author {
     font-size: 10px;
   }
-  
+
   .multiple-books-display {
     bottom: 80px;
     max-width: 95vw;
     padding: 15px;
   }
-  
+
   .books-header {
     font-size: 14px;
     margin-bottom: 12px;
   }
-  
+
   .books-grid {
     gap: 10px;
   }
-  
+
   .book-item {
     max-width: 100px;
   }
-  
+
   .book-item img {
     width: 80px;
     height: 110px;
   }
-  
+
   .book-item .title {
     font-size: 10px;
   }
-  
+
   .book-item .author {
     font-size: 9px;
   }
-  
+
   .knowledge-base-thinking {
     top: 10px;
     max-width: 280px;
     padding: 15px 20px;
   }
-  
+
   .knowledge-base-thinking-content {
     font-size: 14px;
     padding: 15px 18px;
   }
-  
-  
+
   .events-thinking {
     top: 10px;
     max-width: 280px;
     padding: 15px 20px;
   }
-  
+
   .events-thinking-content {
     font-size: 14px;
     padding: 15px 18px;
   }
-  
+
   .kb-thinking-icon {
     font-size: 16px;
   }
-  
-  
+
   .events-thinking-icon {
     font-size: 16px;
   }
-  
+
   .thinking-circle {
     width: 8px;
     height: 8px;
     border-width: 2px;
   }
-  
+
   .thinking-circle:nth-child(2) {
     width: 6px;
     height: 6px;
     border-width: 1px;
   }
-  
+
   .thinking-circle:nth-child(3) {
     width: 3px;
     height: 3px;
     border-width: 1px;
   }
-  
-  
+
   /* Link Buttons Mobile Styles */
   .link-buttons-container {
     bottom: 200px;
     max-width: 95vw;
   }
-  
+
   .link-button {
     padding: 14px 20px;
     font-size: 15px;
@@ -1325,14 +1396,23 @@ html, body {
 
 /* Heart falling animation */
 @keyframes hearts-fall {
-  0% { top: -10%; }
-  100% { top: 100%; }
+  0% {
+    top: -10%;
+  }
+  100% {
+    top: 100%;
+  }
 }
 
 /* Heart shaking animation */
 @keyframes hearts-shake {
-  0%, 100% { transform: translateX(0); }
-  50% { transform: translateX(80px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(80px);
+  }
 }
 
 /* Apply animations to hearts */
@@ -1345,16 +1425,46 @@ html, body {
 }
 
 /* Staggered positions and delays for natural effect */
-.heart:nth-of-type(1) { left: 5%; animation-delay: 0s, 0s; }
-.heart:nth-of-type(2) { left: 15%; animation-delay: 0.5s, 0.2s; }
-.heart:nth-of-type(3) { left: 25%; animation-delay: 1s, 0.4s; }
-.heart:nth-of-type(4) { left: 35%; animation-delay: 0.3s, 0.6s; }
-.heart:nth-of-type(5) { left: 45%; animation-delay: 0.8s, 0.8s; }
-.heart:nth-of-type(6) { left: 55%; animation-delay: 0.2s, 1s; }
-.heart:nth-of-type(7) { left: 65%; animation-delay: 0.6s, 0.3s; }
-.heart:nth-of-type(8) { left: 75%; animation-delay: 0.4s, 0.7s; }
-.heart:nth-of-type(9) { left: 85%; animation-delay: 0.9s, 0.1s; }
-.heart:nth-of-type(10) { left: 95%; animation-delay: 0.7s, 0.5s; }
+.heart:nth-of-type(1) {
+  left: 5%;
+  animation-delay: 0s, 0s;
+}
+.heart:nth-of-type(2) {
+  left: 15%;
+  animation-delay: 0.5s, 0.2s;
+}
+.heart:nth-of-type(3) {
+  left: 25%;
+  animation-delay: 1s, 0.4s;
+}
+.heart:nth-of-type(4) {
+  left: 35%;
+  animation-delay: 0.3s, 0.6s;
+}
+.heart:nth-of-type(5) {
+  left: 45%;
+  animation-delay: 0.8s, 0.8s;
+}
+.heart:nth-of-type(6) {
+  left: 55%;
+  animation-delay: 0.2s, 1s;
+}
+.heart:nth-of-type(7) {
+  left: 65%;
+  animation-delay: 0.6s, 0.3s;
+}
+.heart:nth-of-type(8) {
+  left: 75%;
+  animation-delay: 0.4s, 0.7s;
+}
+.heart:nth-of-type(9) {
+  left: 85%;
+  animation-delay: 0.9s, 0.1s;
+}
+.heart:nth-of-type(10) {
+  left: 95%;
+  animation-delay: 0.7s, 0.5s;
+}
 
 /* Alternative confetti styles (can switch between hearts, stars, etc.) */
 .confetti-star {
@@ -1370,4 +1480,3 @@ html, body {
 /* ================================ */
 /* END CONFETTI SYSTEM CSS          */
 /* ================================ */
-

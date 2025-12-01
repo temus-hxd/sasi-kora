@@ -11,20 +11,27 @@ import type { ChatRequest, ChatResponse } from '../emotion-engine/types.js';
 const router = Router();
 
 // Create orchestrator instance (singleton pattern for serverless)
-let orchestratorInstance: Orchestrator | null = null;
+// Store orchestrators by language to support language switching
+const orchestratorInstances: Map<string, Orchestrator> = new Map();
 
 /**
- * Get or create orchestrator instance
+ * Get or create orchestrator instance for a specific language
  */
-async function getOrchestrator(): Promise<Orchestrator> {
-  if (!orchestratorInstance) {
-    orchestratorInstance = new Orchestrator();
-    await orchestratorInstance.initialize();
+async function getOrchestrator(language: string = 'en'): Promise<Orchestrator> {
+  // Normalize language
+  const lang = language === 'cn' ? 'cn' : 'en';
+  
+  if (!orchestratorInstances.has(lang)) {
+    const orchestrator = new Orchestrator(undefined, lang);
+    await orchestrator.initialize();
+    orchestratorInstances.set(lang, orchestrator);
   }
-  if (!orchestratorInstance) {
+  
+  const instance = orchestratorInstances.get(lang);
+  if (!instance) {
     throw new Error('Failed to initialize orchestrator');
   }
-  return orchestratorInstance;
+  return instance;
 }
 
 /**
@@ -43,11 +50,14 @@ router.post('/chat', async (req, res) => {
       return;
     }
 
+    // Get language from request (default to 'en')
+    const language = request.language || 'en';
+
     // Get conversation history from client (or empty list for new conversation)
     const conversationHistory = request.history || [];
 
-    // Get orchestrator instance
-    const orchestrator = await getOrchestrator();
+    // Get orchestrator instance for the specified language
+    const orchestrator = await getOrchestrator(language);
 
     // Check if this is a new conversation
     if (StateManager.isNewConversation(conversationHistory)) {
@@ -139,7 +149,7 @@ router.post('/chat', async (req, res) => {
  */
 router.get('/health', async (_req, res) => {
   try {
-    const orchestrator = await getOrchestrator();
+    const orchestrator = await getOrchestrator('en'); // Default to 'en' for health check
     const state = orchestrator.getCurrentState();
 
     res.json({
@@ -170,9 +180,10 @@ router.get('/health', async (_req, res) => {
  * POST /api/emotional-state/reset
  * Reset orchestrator state
  */
-router.post('/reset', async (_req, res) => {
+router.post('/reset', async (req, res) => {
   try {
-    const orchestrator = await getOrchestrator();
+    const language = (req.body as any).language || 'en';
+    const orchestrator = await getOrchestrator(language);
     orchestrator.resetState();
     const state = orchestrator.getCurrentState();
 

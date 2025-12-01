@@ -77,6 +77,7 @@ export interface ChatRequest {
   conversation_id?: string;
   history?: ChatMessage[];
   emotion_state?: EmotionState; // For stateless serverless design
+  language?: string; // 'en' or 'cn'
 }
 
 export interface ChatResponse {

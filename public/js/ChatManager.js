@@ -107,6 +107,9 @@ export class ChatManager {
       content: msg.content
     }));
 
+    // Get language preference
+    const language = localStorage.getItem('app_language') || 'en';
+
     // Call emotion engine API
     const response = await fetch('/api/emotional-state/chat', {
       method: 'POST',
@@ -117,7 +120,8 @@ export class ChatManager {
         message: message,
         conversation_id: this.conversationId,
         history: historyForAPI,
-        emotion_state: this.emotionState || null
+        emotion_state: this.emotionState || null,
+        language: language
       })
     });
 

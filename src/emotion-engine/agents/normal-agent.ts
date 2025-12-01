@@ -7,11 +7,12 @@ import { BaseAgent } from './base-agent.js';
 import type { ChatMessage } from '../types.js';
 
 export class NormalAgent extends BaseAgent {
-  constructor(clientName?: string) {
+  constructor(clientName?: string, language?: string) {
     super({
       promptFile: 'normal_agent.md',
       modelEnvVar: 'MODEL_NORMAL',
       clientName,
+      language,
     });
   }
 

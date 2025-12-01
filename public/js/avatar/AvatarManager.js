@@ -64,7 +64,9 @@ export class AvatarManager {
     
     try {
       // Initialize ConfigManager and load configuration first
-      const configLoaded = await this.configManager?.loadConfig();
+      // Load with saved language preference
+      const savedLanguage = localStorage.getItem('app_language') || 'en';
+      const configLoaded = await this.configManager?.loadConfig(savedLanguage);
       if (!configLoaded) {
         console.error('❌ Failed to load configuration - check /api/config endpoint');
         this.uiManager?.updateLoadingScreen(0, 'Error: Failed to load configuration. Check browser console.');

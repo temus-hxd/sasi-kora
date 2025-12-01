@@ -13,6 +13,7 @@ export interface BaseAgentOptions {
   skipPersonality?: boolean;
   modelEnvVar?: string;
   clientName?: string;
+  language?: string; // 'en' or 'cn'
 }
 
 export abstract class BaseAgent {
@@ -22,11 +23,13 @@ export abstract class BaseAgent {
   protected groqAdapter!: GroqAdapter; // Initialized conditionally in constructor
   protected openRouterAdapter?: OpenRouterAdapter;
   protected clientName: string;
+  protected language: string; // 'en' or 'cn'
   private initialized: boolean = false;
   private useOpenRouter: boolean = false;
 
   constructor(options: BaseAgentOptions) {
     this.clientName = options.clientName || process.env.CLIENT_NAME || 'synapse';
+    this.language = options.language || 'en'; // Default to 'en'
     this.systemPrompt = ''; // Will be set by initialize()
     this.agentType = this.constructor.name.toLowerCase().replace('agent', '');
 
@@ -87,8 +90,13 @@ export abstract class BaseAgent {
       const promptFile = (this as any)._promptFile;
       const skipPersonality = (this as any)._skipPersonality;
 
-      // Load core personality and agent-specific prompt
-      const personalityPrompt = skipPersonality ? '' : await loadPrompt('sassi_personality.md', this.clientName);
+      // Load core personality based on language (en or cn)
+      // DO NOT use sassi_personality.md - use language-specific versions
+      let personalityPrompt = '';
+      if (!skipPersonality) {
+        const personalityFile = this.language === 'cn' ? 'sassi_personality_cn.md' : 'sassi_personality_en.md';
+        personalityPrompt = await loadPrompt(personalityFile, this.clientName);
+      }
       const agentPrompt = await loadPrompt(promptFile, this.clientName);
 
       // Load linguistic engine and false memory prompts

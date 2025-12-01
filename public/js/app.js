@@ -133,6 +133,7 @@ async function initializeApp() {
   // Make managers available globally for interruption after initialization
   window.ttsManager = ttsManager;
   window.chatManager = chatManager;
+  window.configManager = configManager;
   window.linkButtonManager = linkButtonManager;
   window.speechRecognitionManager = speechRecognitionManager;
   window.speechBubbleManager = speechBubbleManager;
@@ -229,7 +230,53 @@ window.toggleConfetti = () => {
 };
 
 
+// =====================================================
+// LANGUAGE TOGGLE HANDLER
+// =====================================================
+function initializeLanguageToggle() {
+  // Load saved language preference
+  const savedLanguage = localStorage.getItem('app_language') || 'en';
+  updateLanguageToggleUI(savedLanguage);
+}
+
+// Global function called from onclick handlers
+window.setLanguage = function(language) {
+  console.log(`🌐 Switching language to: ${language}`);
+  
+  // Save language preference
+  localStorage.setItem('app_language', language);
+  
+  // Update UI
+  updateLanguageToggleUI(language);
+  
+  // Reload config with new language (to get correct voice ID)
+  if (window.configManager) {
+    window.configManager.setLanguage(language);
+    window.configManager.loadConfig(language).then(() => {
+      console.log(`✅ Config reloaded for language: ${language}`);
+    });
+  }
+};
+
+function updateLanguageToggleUI(language) {
+  const languageEN = document.getElementById('languageEN');
+  const languageCN = document.getElementById('languageCN');
+  
+  if (!languageEN || !languageCN) {
+    return;
+  }
+  
+  if (language === 'cn') {
+    languageEN.classList.remove('active');
+    languageCN.classList.add('active');
+  } else {
+    languageEN.classList.add('active');
+    languageCN.classList.remove('active');
+  }
+}
+
 // Initialize everything when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
+  initializeLanguageToggle();
   initializeApp();
 });
