@@ -7,4 +7,5 @@ coverage
 .vercel
 .env
 .env.local
-
+*.md
+prompts/
