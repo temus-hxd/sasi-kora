@@ -8,7 +8,7 @@ export class EmotionChatManager {
     this.conversationId = 'default-' + Date.now();
     this.conversationHistory = [];
     this.emotionState = null;
-    
+
     // Dependencies
     this.ttsManager = null;
     this.emojiManager = null;
@@ -18,7 +18,14 @@ export class EmotionChatManager {
     this.head = null;
   }
 
-  setDependencies({ ttsManager, emojiManager, speechBubbleManager, uiManager, idleTimerManager, head }) {
+  setDependencies({
+    ttsManager,
+    emojiManager,
+    speechBubbleManager,
+    uiManager,
+    idleTimerManager,
+    head,
+  }) {
     this.ttsManager = ttsManager;
     this.emojiManager = emojiManager;
     this.speechBubbleManager = speechBubbleManager;
@@ -52,28 +59,30 @@ export class EmotionChatManager {
     this.conversationHistory.push({
       role: 'user',
       content: message,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     try {
       // Prepare history for API (remove timestamp field)
-      const historyForAPI = this.conversationHistory.slice(0, -1).map(msg => ({
-        role: msg.role,
-        content: msg.content
-      }));
+      const historyForAPI = this.conversationHistory
+        .slice(0, -1)
+        .map((msg) => ({
+          role: msg.role,
+          content: msg.content,
+        }));
 
       // Call emotion engine API
       const response = await fetch('/api/emotional-state/chat', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           message: message,
           conversation_id: this.conversationId,
           history: historyForAPI,
-          emotion_state: this.emotionState
-        })
+          emotion_state: this.emotionState,
+        }),
       });
 
       if (!response.ok) {
@@ -91,12 +100,11 @@ export class EmotionChatManager {
       this.conversationHistory.push({
         role: 'assistant',
         content: data.response,
-        timestamp: data.timestamp
+        timestamp: data.timestamp,
       });
 
       // Handle response
       await this.handleEmotionResponse(data);
-
     } catch (error) {
       console.error('Error sending message:', error);
       this.uiManager?.updateStatus('❌ Error: ' + error.message);
@@ -119,7 +127,10 @@ export class EmotionChatManager {
       // Remove thinking tags and emojis for speech bubble
       const cleanText = response
         .replace(/<t>[\s\S]*?<\/t>/gi, '')
-        .replace(/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]/gu, '')
+        .replace(
+          /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]/gu,
+          ''
+        )
         .trim();
       this.speechBubbleManager.showSpeechBubble(cleanText);
     }
@@ -154,7 +165,8 @@ export class EmotionChatManager {
     this.conversationId = 'default-' + Date.now();
     this.emotionState = null;
     // Call reset API
-    fetch('/api/emotional-state/reset', { method: 'POST' }).catch(console.error);
+    fetch('/api/emotional-state/reset', { method: 'POST' }).catch(
+      console.error
+    );
   }
 }
-

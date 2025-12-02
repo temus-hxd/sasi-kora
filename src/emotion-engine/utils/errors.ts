@@ -52,4 +52,3 @@ export class SentimentAnalysisError extends EmotionEngineError {
     this.name = 'SentimentAnalysisError';
   }
 }
-

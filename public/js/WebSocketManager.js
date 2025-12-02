@@ -8,12 +8,12 @@ export class WebSocketManager {
     this.url = `${protocol}//${window.location.host}`;
     this.isConnected = false;
     this.environment = this.detectEnvironment();
-    
+
     if (this.environment.httpOnly) {
       this.useWebSocket = false;
       console.log('🌐 HTTP-only mode enabled:', this.environment.reason);
     }
-    
+
     // Callback functions
     this.onStatusUpdate = null;
     this.onMessage = null;
@@ -30,14 +30,21 @@ export class WebSocketManager {
     this.url = url;
   }
 
-  setCallbacks({ onStatusUpdate, onMessage, onClaudeResponse, onLoading, onKnowledgeBaseThinking, onEventsThinking }) {
+  setCallbacks({
+    onStatusUpdate,
+    onMessage,
+    onClaudeResponse,
+    onLoading,
+    onKnowledgeBaseThinking,
+    onEventsThinking,
+  }) {
     this.onStatusUpdate = onStatusUpdate;
     this.onMessage = onMessage;
     this.onClaudeResponse = onClaudeResponse;
     this.onLoading = onLoading;
     this.onKnowledgeBaseThinking = onKnowledgeBaseThinking;
     this.onEventsThinking = onEventsThinking;
-    
+
     // Debug logging for Vercel
     console.log('🔌 WebSocket callbacks set:', {
       onStatusUpdate: !!onStatusUpdate,
@@ -45,7 +52,7 @@ export class WebSocketManager {
       onClaudeResponse: !!onClaudeResponse,
       onLoading: !!onLoading,
       onKnowledgeBaseThinking: !!onKnowledgeBaseThinking,
-      onEventsThinking: !!onEventsThinking
+      onEventsThinking: !!onEventsThinking,
     });
   }
 
@@ -59,7 +66,7 @@ export class WebSocketManager {
     }
     try {
       this.ws = new WebSocket(this.url);
-      
+
       this.ws.onopen = () => {
         console.log('✅ WebSocket connected');
         this.isConnected = true;
@@ -67,12 +74,12 @@ export class WebSocketManager {
           this.onStatusUpdate('Connected', 'success');
         }
       };
-      
+
       this.ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
         this.handleWebSocketMessage(data);
       };
-      
+
       this.ws.onclose = () => {
         console.log('🔌 WebSocket disconnected');
         this.isConnected = false;
@@ -80,7 +87,7 @@ export class WebSocketManager {
           this.onStatusUpdate('Disconnected', 'error');
         }
         this.useWebSocket = false;
-        
+
         // Try to reconnect after 3 seconds
         this.reconnectTimeout = setTimeout(() => {
           if (!this.useWebSocket) {
@@ -88,7 +95,7 @@ export class WebSocketManager {
           }
         }, 3000);
       };
-      
+
       this.ws.onerror = (error) => {
         console.error('❌ WebSocket error:', error);
         this.isConnected = false;
@@ -97,7 +104,6 @@ export class WebSocketManager {
           this.onStatusUpdate('Error', 'error');
         }
       };
-      
     } catch (error) {
       console.error('❌ WebSocket init error:', error);
       this.isConnected = false;
@@ -119,23 +125,25 @@ export class WebSocketManager {
           this.onStatusUpdate('Ready', 'success');
         }
         break;
-        
+
       case 'typing':
         if (data.status && this.onStatusUpdate) {
           this.onStatusUpdate('Thinking...', 'thinking');
         }
         break;
-        
+
       case 'knowledge_base_thinking':
         if (data.status) {
           // Show knowledge base thinking bubble
           if (this.onKnowledgeBaseThinking) {
             this.onKnowledgeBaseThinking(true, data.message);
           }
-          
+
           // Trigger Checking 💡 animation simultaneously
           if (window.triggerExpression) {
-            console.log('💡 Triggering Checking animation for knowledge base search');
+            console.log(
+              '💡 Triggering Checking animation for knowledge base search'
+            );
             window.triggerExpression('💡');
           }
         } else {
@@ -145,14 +153,14 @@ export class WebSocketManager {
           }
         }
         break;
-        
+
       case 'events_thinking':
         if (data.status) {
           // Show events thinking bubble
           if (this.onEventsThinking) {
             this.onEventsThinking(true, data.message);
           }
-          
+
           // Trigger Checking 💡 animation simultaneously
           if (window.triggerExpression) {
             console.log('💡 Triggering Checking animation for events search');
@@ -165,7 +173,7 @@ export class WebSocketManager {
           }
         }
         break;
-        
+
       case 'response':
         // Only hide knowledge base thinking with delay if it was actually used
         if (this.onKnowledgeBaseThinking && data.usedKnowledgeBase) {
@@ -174,7 +182,7 @@ export class WebSocketManager {
           // If no knowledge base was used, hide immediately
           this.onKnowledgeBaseThinking(false, 'immediate');
         }
-        
+
         // Only hide events thinking with delay if it was actually used
         if (this.onEventsThinking && data.usedEvents) {
           this.onEventsThinking(false, 'delayed');
@@ -182,18 +190,27 @@ export class WebSocketManager {
           // If no events was used, hide immediately
           this.onEventsThinking(false, 'immediate');
         }
-        
+
         if (this.onClaudeResponse) {
-          this.onClaudeResponse(data.response, data.avatarEmoji, data.usedKnowledgeBase, data.usedEvents, data.timing);
+          this.onClaudeResponse(
+            data.response,
+            data.avatarEmoji,
+            data.usedKnowledgeBase,
+            data.usedEvents,
+            data.timing
+          );
         }
-        
+
         // Store messages in browser memory
         if (typeof BrowserMemory !== 'undefined' && BrowserMemory.initialized) {
           try {
             BrowserMemory.storeMessage('user', data.originalMessage);
             BrowserMemory.storeMessage('assistant', data.response);
           } catch (error) {
-            console.warn('⚠️ Failed to store messages in browser memory:', error);
+            console.warn(
+              '⚠️ Failed to store messages in browser memory:',
+              error
+            );
           }
         }
         if (this.onStatusUpdate) {
@@ -203,18 +220,18 @@ export class WebSocketManager {
           this.onLoading(false);
         }
         break;
-        
+
       case 'error':
         // Hide knowledge base thinking if shown
         if (this.onKnowledgeBaseThinking) {
           this.onKnowledgeBaseThinking(false);
         }
-        
+
         // Hide events thinking if shown
         if (this.onEventsThinking) {
           this.onEventsThinking(false);
         }
-        
+
         console.error('❌ Error: ' + data.error);
         if (this.onMessage) {
           this.onMessage('❌ Error: ' + data.error);
@@ -260,14 +277,14 @@ export class WebSocketManager {
       type: 'chat',
       message: message,
       conversationId: conversationId,
-      memoryContext: memoryContext
+      memoryContext: memoryContext,
     });
   }
 
   sendClearChat(conversationId) {
     return this.sendMessage({
       type: 'clear',
-      conversationId: conversationId
+      conversationId: conversationId,
     });
   }
 
@@ -277,38 +294,79 @@ export class WebSocketManager {
   async sendChatHTTP(message, conversationId) {
     try {
       // Check if this might trigger knowledge base search (same logic as server)
-      const libraryKeywords = ['library', 'membership', 'card', 'hours', 'services', 'database', 'fine', 'borrow', 'reserve', 'renew', 'print'];
-      const containsLibraryKeywords = libraryKeywords.some(keyword => 
+      const libraryKeywords = [
+        'library',
+        'membership',
+        'card',
+        'hours',
+        'services',
+        'database',
+        'fine',
+        'borrow',
+        'reserve',
+        'renew',
+        'print',
+      ];
+      const containsLibraryKeywords = libraryKeywords.some((keyword) =>
         message.toLowerCase().includes(keyword)
       );
-      
+
       // Check if this might trigger events search
-      const eventsKeywords = ['event', 'events', 'program', 'programs', 'programme', 'programmes', 'workshop', 'workshops', 'activity', 'activities', 'storytelling', 'storytime', 'reading program', 'what happening', 'what\'s happening', 'upcoming', 'schedule', 'session', 'sessions', 'class', 'classes', 'calendar'];
-      const containsEventsKeywords = eventsKeywords.some(keyword => 
+      const eventsKeywords = [
+        'event',
+        'events',
+        'program',
+        'programs',
+        'programme',
+        'programmes',
+        'workshop',
+        'workshops',
+        'activity',
+        'activities',
+        'storytelling',
+        'storytime',
+        'reading program',
+        'what happening',
+        "what's happening",
+        'upcoming',
+        'schedule',
+        'session',
+        'sessions',
+        'class',
+        'classes',
+        'calendar',
+      ];
+      const containsEventsKeywords = eventsKeywords.some((keyword) =>
         message.toLowerCase().includes(keyword)
       );
-      
+
       // Show knowledge base thinking bubble if library keywords detected
       if (containsLibraryKeywords && this.onKnowledgeBaseThinking) {
-        console.log('🧠 HTTP: Detected library keywords, showing thinking bubble');
+        console.log(
+          '🧠 HTTP: Detected library keywords, showing thinking bubble'
+        );
         this.onKnowledgeBaseThinking(true, 'give me a moment while i check');
-        
+
         // Trigger Checking 💡 animation simultaneously
         if (window.triggerExpression) {
-          console.log('💡 HTTP: Triggering Checking animation for knowledge base search');
+          console.log(
+            '💡 HTTP: Triggering Checking animation for knowledge base search'
+          );
           window.triggerExpression('💡');
         }
       }
-      
+
       // Show events thinking bubble if events keywords detected
       if (containsEventsKeywords && this.onEventsThinking) {
         console.log('📅 HTTP: Detected events keywords in message:', message);
         console.log('📅 HTTP: Showing events thinking bubble');
         this.onEventsThinking(true, 'let me check the calendar');
-        
+
         // Trigger Checking 💡 animation simultaneously
         if (window.triggerExpression) {
-          console.log('💡 HTTP: Triggering Checking animation for events search');
+          console.log(
+            '💡 HTTP: Triggering Checking animation for events search'
+          );
           window.triggerExpression('💡');
         }
       }
@@ -331,12 +389,12 @@ export class WebSocketManager {
         body: JSON.stringify({
           message: message,
           conversationId: conversationId,
-          memoryContext: memoryContext
-        })
+          memoryContext: memoryContext,
+        }),
       });
 
       const data = await response.json();
-      
+
       // Hide knowledge base thinking bubble after response (with delay if knowledge base was used)
       if (containsLibraryKeywords && this.onKnowledgeBaseThinking) {
         if (data.usedKnowledgeBase) {
@@ -347,18 +405,18 @@ export class WebSocketManager {
           this.onKnowledgeBaseThinking(false, 'immediate');
         }
       }
-      
+
       // Hide events thinking bubble after response (with delay if events was used)
       if (containsEventsKeywords && this.onEventsThinking) {
         // Check if events was actually used (either from API flag or response content)
-        const eventsWasUsed = data.usedEvents || 
-          (data.response && (
-            data.response.toLowerCase().includes('event') || 
-            data.response.toLowerCase().includes('program') ||
-            data.response.toLowerCase().includes('workshop') ||
-            data.response.toLowerCase().includes('activity')
-          ));
-          
+        const eventsWasUsed =
+          data.usedEvents ||
+          (data.response &&
+            (data.response.toLowerCase().includes('event') ||
+              data.response.toLowerCase().includes('program') ||
+              data.response.toLowerCase().includes('workshop') ||
+              data.response.toLowerCase().includes('activity')));
+
         if (eventsWasUsed) {
           console.log('📅 HTTP: Events was used, hiding with delay');
           this.onEventsThinking(false, 'delayed');
@@ -367,7 +425,7 @@ export class WebSocketManager {
           this.onEventsThinking(false, 'immediate');
         }
       }
-      
+
       return data;
     } catch (error) {
       console.error('HTTP chat error:', error);
@@ -385,7 +443,7 @@ export class WebSocketManager {
   async clearChatHTTP(conversationId) {
     try {
       await fetch(`/api/conversation/${conversationId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
       });
       return true;
     } catch (error) {
@@ -405,17 +463,30 @@ export class WebSocketManager {
       // HTTP fallback
       try {
         const data = await this.sendChatHTTP(message, conversationId);
-        
+
         if (data.success && this.onClaudeResponse) {
-          this.onClaudeResponse(data.response, data.avatarEmoji, data.usedKnowledgeBase, data.catalogueData, data.usedEvents, data.timing);
-          
+          this.onClaudeResponse(
+            data.response,
+            data.avatarEmoji,
+            data.usedKnowledgeBase,
+            data.catalogueData,
+            data.usedEvents,
+            data.timing
+          );
+
           // Store messages in browser memory after successful response
-          if (typeof BrowserMemory !== 'undefined' && BrowserMemory.initialized) {
+          if (
+            typeof BrowserMemory !== 'undefined' &&
+            BrowserMemory.initialized
+          ) {
             try {
               BrowserMemory.storeMessage('user', message);
               BrowserMemory.storeMessage('assistant', data.response);
             } catch (error) {
-              console.warn('⚠️ Failed to store messages in browser memory:', error);
+              console.warn(
+                '⚠️ Failed to store messages in browser memory:',
+                error
+              );
             }
           }
         } else if (!data.success) {
@@ -424,14 +495,14 @@ export class WebSocketManager {
             this.onMessage('❌ Error: ' + (data.error || 'Unknown error'));
           }
         }
-        
+
         if (this.onStatusUpdate) {
           this.onStatusUpdate('Ready', 'success');
         }
         if (this.onLoading) {
           this.onLoading(false);
         }
-        
+
         return true;
       } catch (error) {
         console.error('Error:', error);
@@ -467,7 +538,9 @@ export class WebSocketManager {
   // STATUS AND GETTERS
   // =====================================================
   isAvailable() {
-    return this.useWebSocket && this.ws && this.ws.readyState === WebSocket.OPEN;
+    return (
+      this.useWebSocket && this.ws && this.ws.readyState === WebSocket.OPEN
+    );
   }
 
   getConnectionState() {
@@ -475,7 +548,7 @@ export class WebSocketManager {
       isConnected: this.isConnected,
       useWebSocket: this.useWebSocket,
       readyState: this.ws ? this.ws.readyState : -1,
-      isAvailable: this.isAvailable()
+      isAvailable: this.isAvailable(),
     };
   }
 
@@ -513,12 +586,12 @@ export class WebSocketManager {
       clearTimeout(this.reconnectTimeout);
       this.reconnectTimeout = null;
     }
-    
+
     if (this.ws) {
       this.ws.close();
       this.ws = null;
     }
-    
+
     this.isConnected = false;
     this.useWebSocket = false;
   }
@@ -534,7 +607,9 @@ export class WebSocketManager {
     if (forceHTTP || isVercel) {
       return {
         httpOnly: true,
-        reason: forceHTTP ? 'Forced via query parameter' : 'WebSockets unsupported on Vercel serverless'
+        reason: forceHTTP
+          ? 'Forced via query parameter'
+          : 'WebSockets unsupported on Vercel serverless',
       };
     }
     return { httpOnly: false, reason: '' };
@@ -566,4 +641,4 @@ export class WebSocketManager {
     this.onKnowledgeBaseThinking = null;
     this.onEventsThinking = null;
   }
-} 
+}

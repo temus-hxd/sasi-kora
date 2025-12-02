@@ -62,7 +62,8 @@ export class StateManager {
       escalation_cooldown_remaining: state.escalation_cooldown_remaining ?? 0,
       apology_count: state.apology_count ?? 0,
       recent_apologies: state.recent_apologies || [],
-      enraged_de_escalation_blocked: state.enraged_de_escalation_blocked ?? false,
+      enraged_de_escalation_blocked:
+        state.enraged_de_escalation_blocked ?? false,
     };
   }
 
@@ -123,4 +124,3 @@ export class StateManager {
     return trajectory;
   }
 }
-

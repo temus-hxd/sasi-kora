@@ -23,13 +23,13 @@ function getProjectRoot(): string {
   // In local dev, if running from dist/, we need to go up
   const cwd = process.cwd();
   const fromCompiled = join(__dirname, '..', '..', '..');
-  
+
   // Default to cwd (works in Vercel and local when running from root)
   // If we're in a dist/ directory, use the compiled location path
   if (__dirname.includes('dist')) {
     return fromCompiled;
   }
-  
+
   return cwd;
 }
 
@@ -57,23 +57,46 @@ export async function loadPrompt(
   try {
     // Build path: prompts/{client}/emotional-state-engine-prompts/{promptFile}
     const projectRoot = getProjectRoot();
-    
+
     // Try multiple possible paths (for different deployment scenarios)
     const possiblePaths = [
-      join(projectRoot, 'prompts', client, 'emotional-state-engine-prompts', promptFile),
-      join(process.cwd(), 'prompts', client, 'emotional-state-engine-prompts', promptFile),
-      join(__dirname, '..', '..', '..', 'prompts', client, 'emotional-state-engine-prompts', promptFile),
+      join(
+        projectRoot,
+        'prompts',
+        client,
+        'emotional-state-engine-prompts',
+        promptFile
+      ),
+      join(
+        process.cwd(),
+        'prompts',
+        client,
+        'emotional-state-engine-prompts',
+        promptFile
+      ),
+      join(
+        __dirname,
+        '..',
+        '..',
+        '..',
+        'prompts',
+        client,
+        'emotional-state-engine-prompts',
+        promptFile
+      ),
     ];
-    
+
     let content: string | null = null;
     let successfulPath: string | null = null;
-    
+
     // Try each path until one works
     for (const promptPath of possiblePaths) {
       try {
-        console.log(`📄 Trying to load prompt: ${promptFile} (client: ${client})`);
+        console.log(
+          `📄 Trying to load prompt: ${promptFile} (client: ${client})`
+        );
         console.log(`   Attempting path: ${promptPath}`);
-        
+
         content = await readFile(promptPath, 'utf-8');
         successfulPath = promptPath;
         break;
@@ -82,13 +105,17 @@ export async function loadPrompt(
         continue;
       }
     }
-    
+
     if (!content) {
-      throw new Error(`Prompt file not found in any of the attempted paths: ${possiblePaths.join(', ')}`);
+      throw new Error(
+        `Prompt file not found in any of the attempted paths: ${possiblePaths.join(', ')}`
+      );
     }
-    
+
     const trimmedContent = content.trim();
-    console.log(`✅ Loaded prompt: ${promptFile} (${trimmedContent.length} chars) from ${successfulPath}`);
+    console.log(
+      `✅ Loaded prompt: ${promptFile} (${trimmedContent.length} chars) from ${successfulPath}`
+    );
 
     // Cache it
     promptCache.set(cacheKey, trimmedContent);
@@ -109,7 +136,7 @@ export async function loadPrompt(
     console.error(`   Attempted path: ${attemptedPath}`);
     console.error(`   Project root: ${projectRoot}`);
     console.error(`   Error: ${err.message} (code: ${err.code})`);
-    
+
     if (err.code === 'ENOENT') {
       throw new PromptLoadError(promptFile, client, err);
     }
@@ -131,8 +158,5 @@ export async function preloadPrompts(
   promptFiles: string[],
   clientName?: string
 ): Promise<void> {
-  await Promise.all(
-    promptFiles.map((file) => loadPrompt(file, clientName))
-  );
+  await Promise.all(promptFiles.map((file) => loadPrompt(file, clientName)));
 }
-

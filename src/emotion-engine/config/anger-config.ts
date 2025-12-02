@@ -70,7 +70,9 @@ export async function loadAngerConfig(
     // Default path: src/emotion-engine/config/anger_config.yaml
     // Go up from dist/emotion-engine/config to src/emotion-engine/config
     const projectRoot = join(__dirname, '..', '..', '..');
-    const defaultPath = configPath || join(projectRoot, 'src', 'emotion-engine', 'config', 'anger_config.yaml');
+    const defaultPath =
+      configPath ||
+      join(projectRoot, 'src', 'emotion-engine', 'config', 'anger_config.yaml');
 
     // Read and parse YAML
     const fileContent = await readFile(defaultPath, 'utf-8');
@@ -79,42 +81,76 @@ export async function loadAngerConfig(
     // Merge with defaults to ensure all fields are present
     const defaultConfig = getDefaultConfig();
     const mergedConfig: AngerConfig = {
-      anger_multiplier: config.anger_multiplier ?? defaultConfig.anger_multiplier,
+      anger_multiplier:
+        config.anger_multiplier ?? defaultConfig.anger_multiplier,
       thresholds: {
-        irritated: config.thresholds?.irritated ?? defaultConfig.thresholds.irritated,
-        agitated: config.thresholds?.agitated ?? defaultConfig.thresholds.agitated,
+        irritated:
+          config.thresholds?.irritated ?? defaultConfig.thresholds.irritated,
+        agitated:
+          config.thresholds?.agitated ?? defaultConfig.thresholds.agitated,
         enraged: config.thresholds?.enraged ?? defaultConfig.thresholds.enraged,
       },
       decay: {
         idle_rate: config.decay?.idle_rate ?? defaultConfig.decay.idle_rate,
-        time_decay_enabled: config.decay?.time_decay_enabled ?? defaultConfig.decay.time_decay_enabled,
+        time_decay_enabled:
+          config.decay?.time_decay_enabled ??
+          defaultConfig.decay.time_decay_enabled,
         time_rate: config.decay?.time_rate ?? defaultConfig.decay.time_rate,
-        minimum_floor: config.decay?.minimum_floor ?? defaultConfig.decay.minimum_floor,
+        minimum_floor:
+          config.decay?.minimum_floor ?? defaultConfig.decay.minimum_floor,
       },
       bonuses: {
-        consecutive_anger: config.bonuses?.consecutive_anger ?? defaultConfig.bonuses.consecutive_anger,
-        rapid_escalation: config.bonuses?.rapid_escalation ?? defaultConfig.bonuses.rapid_escalation,
-        vulgar_language: config.bonuses?.vulgar_language ?? defaultConfig.bonuses.vulgar_language,
-        direct_insults: config.bonuses?.direct_insults ?? defaultConfig.bonuses.direct_insults,
+        consecutive_anger:
+          config.bonuses?.consecutive_anger ??
+          defaultConfig.bonuses.consecutive_anger,
+        rapid_escalation:
+          config.bonuses?.rapid_escalation ??
+          defaultConfig.bonuses.rapid_escalation,
+        vulgar_language:
+          config.bonuses?.vulgar_language ??
+          defaultConfig.bonuses.vulgar_language,
+        direct_insults:
+          config.bonuses?.direct_insults ??
+          defaultConfig.bonuses.direct_insults,
       },
       penalties: {
-        apology_reduction: config.penalties?.apology_reduction ?? defaultConfig.penalties.apology_reduction,
-        calm_language: config.penalties?.calm_language ?? defaultConfig.penalties.calm_language,
-        positive_emotion: config.penalties?.positive_emotion ?? defaultConfig.penalties.positive_emotion,
+        apology_reduction:
+          config.penalties?.apology_reduction ??
+          defaultConfig.penalties.apology_reduction,
+        calm_language:
+          config.penalties?.calm_language ??
+          defaultConfig.penalties.calm_language,
+        positive_emotion:
+          config.penalties?.positive_emotion ??
+          defaultConfig.penalties.positive_emotion,
       },
       meter: {
         max_points: config.meter?.max_points ?? defaultConfig.meter.max_points,
-        escalation_cooldown: config.meter?.escalation_cooldown ?? defaultConfig.meter.escalation_cooldown,
-        de_escalation_immediate: config.meter?.de_escalation_immediate ?? defaultConfig.meter.de_escalation_immediate,
+        escalation_cooldown:
+          config.meter?.escalation_cooldown ??
+          defaultConfig.meter.escalation_cooldown,
+        de_escalation_immediate:
+          config.meter?.de_escalation_immediate ??
+          defaultConfig.meter.de_escalation_immediate,
       },
       de_escalation: {
-        enraged_apology_requirement: config.de_escalation?.enraged_apology_requirement ?? defaultConfig.de_escalation.enraged_apology_requirement,
-        apology_memory_limit: config.de_escalation?.apology_memory_limit ?? defaultConfig.de_escalation.apology_memory_limit,
-        reset_apology_count_on_anger: config.de_escalation?.reset_apology_count_on_anger ?? defaultConfig.de_escalation.reset_apology_count_on_anger,
+        enraged_apology_requirement:
+          config.de_escalation?.enraged_apology_requirement ??
+          defaultConfig.de_escalation.enraged_apology_requirement,
+        apology_memory_limit:
+          config.de_escalation?.apology_memory_limit ??
+          defaultConfig.de_escalation.apology_memory_limit,
+        reset_apology_count_on_anger:
+          config.de_escalation?.reset_apology_count_on_anger ??
+          defaultConfig.de_escalation.reset_apology_count_on_anger,
       },
       debug: {
-        show_meter_in_response: config.debug?.show_meter_in_response ?? defaultConfig.debug.show_meter_in_response,
-        log_point_changes: config.debug?.log_point_changes ?? defaultConfig.debug.log_point_changes,
+        show_meter_in_response:
+          config.debug?.show_meter_in_response ??
+          defaultConfig.debug.show_meter_in_response,
+        log_point_changes:
+          config.debug?.log_point_changes ??
+          defaultConfig.debug.log_point_changes,
       },
     };
 
@@ -136,4 +172,3 @@ export async function loadAngerConfig(
 export function getDefaultAngerConfig(): AngerConfig {
   return getDefaultConfig();
 }
-

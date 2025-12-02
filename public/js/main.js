@@ -20,16 +20,16 @@ const aiInsightsStrategy = document.getElementById('ai-insights-strategy');
 
 // Agent list items
 const agentItems = {
-  'normal': document.getElementById('agent-normal'),
-  'pleased': document.getElementById('agent-happy-level1-pleased'),
-  'cheerful': document.getElementById('agent-happy-level2-cheerful'),
-  'ecstatic': document.getElementById('agent-happy-level3-ecstatic'),
-  'melancholy': document.getElementById('agent-sad-level1-melancholy'),
-  'sorrowful': document.getElementById('agent-sad-level2-sorrowful'),
-  'depressed': document.getElementById('agent-sad-level3-depressed'),
-  'irritated': document.getElementById('agent-angry-level1-irritated'),
-  'agitated': document.getElementById('agent-angry-level2-agitated'),
-  'enraged': document.getElementById('agent-angry-level3-enraged')
+  normal: document.getElementById('agent-normal'),
+  pleased: document.getElementById('agent-happy-level1-pleased'),
+  cheerful: document.getElementById('agent-happy-level2-cheerful'),
+  ecstatic: document.getElementById('agent-happy-level3-ecstatic'),
+  melancholy: document.getElementById('agent-sad-level1-melancholy'),
+  sorrowful: document.getElementById('agent-sad-level2-sorrowful'),
+  depressed: document.getElementById('agent-sad-level3-depressed'),
+  irritated: document.getElementById('agent-angry-level1-irritated'),
+  agitated: document.getElementById('agent-angry-level2-agitated'),
+  enraged: document.getElementById('agent-angry-level3-enraged'),
 };
 
 // Send message
@@ -47,35 +47,40 @@ async function sendMessage() {
   conversationHistory.push({
     role: 'user',
     content: message,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 
-    try {
+  try {
     // Prepare history for API (remove timestamp field, only send role and content)
-    const historyForAPI = conversationHistory.slice(0, -1).map(msg => ({
+    const historyForAPI = conversationHistory.slice(0, -1).map((msg) => ({
       role: msg.role,
-      content: msg.content
+      content: msg.content,
     }));
 
     // Debug: Log what we're sending
     console.log('📤 Sending message:', message);
     console.log('📜 Conversation history length:', historyForAPI.length);
     if (historyForAPI.length > 0) {
-      console.log('📜 Last few messages:', historyForAPI.slice(-3).map(m => `${m.role}: ${m.content.substring(0, 50)}...`));
+      console.log(
+        '📜 Last few messages:',
+        historyForAPI
+          .slice(-3)
+          .map((m) => `${m.role}: ${m.content.substring(0, 50)}...`)
+      );
     }
 
     // Call emotion engine API
     const response = await fetch('/api/emotional-state/chat', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         message: message,
         conversation_id: conversationId,
         history: historyForAPI, // Send clean history without timestamps
-        emotion_state: emotionState // Send stored state for stateless serverless
-      })
+        emotion_state: emotionState, // Send stored state for stateless serverless
+      }),
     });
 
     if (!response.ok) {
@@ -85,7 +90,10 @@ async function sendMessage() {
     const data = await response.json();
 
     // Debug: Log what we received
-    console.log('📥 Received response:', data.response.substring(0, 100) + '...');
+    console.log(
+      '📥 Received response:',
+      data.response.substring(0, 100) + '...'
+    );
     console.log('🤖 Agent type:', data.agent_type);
 
     // Store emotion state from server (for stateless serverless)
@@ -97,7 +105,7 @@ async function sendMessage() {
     conversationHistory.push({
       role: 'assistant',
       content: data.response,
-      timestamp: data.timestamp || new Date().toISOString()
+      timestamp: data.timestamp || new Date().toISOString(),
     });
 
     // Update UI with response
@@ -105,15 +113,16 @@ async function sendMessage() {
 
     // Update indicators
     updateIndicators(data);
-
   } catch (error) {
     console.error('Error sending message:', error);
     const errorMsg = error.message || 'Unknown error occurred';
     addMessageToUI('assistant', `Error: ${errorMsg}`, true);
-    
+
     // Show more details in console for debugging
     if (error.message.includes('API error: 500')) {
-      console.error('Server returned 500 error. Check server logs for details.');
+      console.error(
+        'Server returned 500 error. Check server logs for details.'
+      );
       console.error('This might be due to:');
       console.error('1. Invalid Groq model name in .env');
       console.error('2. Missing GROQ_API_KEY');
@@ -130,16 +139,16 @@ async function sendMessage() {
 function addMessageToUI(role, content, isError = false) {
   const messageDiv = document.createElement('div');
   messageDiv.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'} mb-4`;
-  
+
   const bubble = document.createElement('div');
   bubble.className = `max-w-2xl px-4 py-2 rounded-lg ${
-    role === 'user' 
-      ? 'bg-blue-500 text-white' 
+    role === 'user'
+      ? 'bg-blue-500 text-white'
       : isError
-      ? 'bg-red-100 text-red-800 border border-red-300'
-      : 'bg-gray-200 text-gray-800'
+        ? 'bg-red-100 text-red-800 border border-red-300'
+        : 'bg-gray-200 text-gray-800'
   }`;
-  
+
   bubble.textContent = content;
   messageDiv.appendChild(bubble);
   chatMessages.appendChild(messageDiv);
@@ -158,7 +167,8 @@ function updateIndicators(data) {
 
   // Update anger meter
   const angerPoints = data.orchestrator_insights?.anger_points || 0;
-  const maxPoints = data.orchestrator_insights?.anger_thresholds?.max_points || 100;
+  const maxPoints =
+    data.orchestrator_insights?.anger_thresholds?.max_points || 100;
   const percentage = Math.min((angerPoints / maxPoints) * 100, 100);
   angerMeterBar.style.width = `${percentage}%`;
   angerMeterPoints.textContent = `${Math.round(angerPoints)}/${maxPoints} pts`;
@@ -169,13 +179,14 @@ function updateIndicators(data) {
 
   // Update trajectory
   if (data.orchestrator_insights?.conversation_trajectory) {
-    trajectoryIndicator.textContent = data.orchestrator_insights.conversation_trajectory;
+    trajectoryIndicator.textContent =
+      data.orchestrator_insights.conversation_trajectory;
   }
 
   // Update triggers
   if (data.sentiment_analysis?.emotional_indicators) {
     triggersIndicator.innerHTML = '';
-    data.sentiment_analysis.emotional_indicators.forEach(trigger => {
+    data.sentiment_analysis.emotional_indicators.forEach((trigger) => {
       const tag = document.createElement('span');
       tag.className = 'bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded';
       tag.textContent = trigger;
@@ -195,7 +206,7 @@ function updateIndicators(data) {
 // Update active agent indicator
 function updateActiveAgent(agentType) {
   // Remove active class from all
-  Object.values(agentItems).forEach(item => {
+  Object.values(agentItems).forEach((item) => {
     if (item) {
       item.classList.remove('active-agent');
     }
@@ -203,16 +214,16 @@ function updateActiveAgent(agentType) {
 
   // Map agent type to element ID
   const agentMap = {
-    'normal': 'agent-normal',
-    'pleased': 'agent-happy-level1-pleased',
-    'cheerful': 'agent-happy-level2-cheerful',
-    'ecstatic': 'agent-happy-level3-ecstatic',
-    'melancholy': 'agent-sad-level1-melancholy',
-    'sorrowful': 'agent-sad-level2-sorrowful',
-    'depressed': 'agent-sad-level3-depressed',
-    'irritated': 'agent-angry-level1-irritated',
-    'agitated': 'agent-angry-level2-agitated',
-    'enraged': 'agent-angry-level3-enraged'
+    normal: 'agent-normal',
+    pleased: 'agent-happy-level1-pleased',
+    cheerful: 'agent-happy-level2-cheerful',
+    ecstatic: 'agent-happy-level3-ecstatic',
+    melancholy: 'agent-sad-level1-melancholy',
+    sorrowful: 'agent-sad-level2-sorrowful',
+    depressed: 'agent-sad-level3-depressed',
+    irritated: 'agent-angry-level1-irritated',
+    agitated: 'agent-angry-level2-agitated',
+    enraged: 'agent-angry-level3-enraged',
   };
 
   const elementId = agentMap[agentType];
@@ -243,14 +254,15 @@ async function resetConversation() {
 
   try {
     await fetch('/api/emotional-state/reset', {
-      method: 'POST'
+      method: 'POST',
     });
   } catch (error) {
     console.error('Error resetting:', error);
   }
 
   // Reset indicators
-  statusBar.textContent = 'Status: Online | Current: Normal | Intensity: 0.0/1.0';
+  statusBar.textContent =
+    'Status: Online | Current: Normal | Intensity: 0.0/1.0';
   updateActiveAgent('normal');
   angerMeterBar.style.width = '0%';
   angerMeterPoints.textContent = '0/100 pts';
@@ -274,4 +286,3 @@ messageInput.addEventListener('keypress', (e) => {
 // Initialize
 updateActiveAgent('normal');
 messageInput.focus();
-

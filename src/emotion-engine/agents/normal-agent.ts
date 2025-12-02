@@ -24,4 +24,3 @@ export class NormalAgent extends BaseAgent {
     return await this.callGroq(messages);
   }
 }
-

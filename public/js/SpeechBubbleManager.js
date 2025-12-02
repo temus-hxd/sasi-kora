@@ -11,12 +11,12 @@ export class SpeechBubbleManager {
   // TEXT CHUNKING
   // =====================================================
   createTextChunks(text, maxWordsPerChunk = 16) {
-    const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+    const sentences = text.split(/[.!?]+/).filter((s) => s.trim().length > 0);
     const chunks = [];
-    
+
     for (let sentence of sentences) {
       const words = sentence.trim().split(/\s+/);
-      
+
       if (words.length <= maxWordsPerChunk) {
         // If sentence fits in one chunk, add it
         chunks.push(sentence.trim());
@@ -26,14 +26,14 @@ export class SpeechBubbleManager {
           const endIndex = Math.min(i + maxWordsPerChunk, words.length);
           const chunk = words.slice(i, endIndex).join(' ');
           chunks.push(chunk);
-          
+
           // If we've reached the end, break to avoid empty chunks
           if (endIndex >= words.length) break;
         }
       }
     }
-    
-    return chunks.filter(chunk => chunk.length > 0);
+
+    return chunks.filter((chunk) => chunk.length > 0);
   }
 
   // =====================================================
@@ -42,30 +42,33 @@ export class SpeechBubbleManager {
   showSpeechBubble(text) {
     const speechBubble = document.getElementById('speechBubble');
     const speechBubbleText = document.getElementById('speechBubbleText');
-    const speechBubbleContent = document.querySelector('.speech-bubble-content');
+    const speechBubbleContent = document.querySelector(
+      '.speech-bubble-content'
+    );
     const arrow1 = document.querySelector('.speech-bubble-tail');
     const arrow2 = document.querySelector('.speech-bubble-tail-inner');
-    
+
     this.currentSpeechText = text;
-    
+
     // Generate random arrow position based on text content (korav4 style)
     const textHash = text.split('').reduce((a, b) => {
-      a = ((a << 5) - a) + b.charCodeAt(0);
+      a = (a << 5) - a + b.charCodeAt(0);
       return a & a;
     }, 0);
-    
+
     const arrowPositions = ['25%', '50%', '75%']; // left, center, right
-    const randomArrowPosition = arrowPositions[Math.abs(textHash) % arrowPositions.length];
-    
+    const randomArrowPosition =
+      arrowPositions[Math.abs(textHash) % arrowPositions.length];
+
     // Update arrow positions
     arrow1.style.left = randomArrowPosition;
     arrow2.style.left = randomArrowPosition;
-    
+
     // Apply smart text sizing and line limiting
     this.applySpeechBubbleSizing(text, speechBubbleText, speechBubbleContent);
-    
+
     speechBubble.style.display = 'block';
-    
+
     // Clear any existing timeout
     if (this.speechBubbleTimeout) {
       clearTimeout(this.speechBubbleTimeout);
@@ -78,14 +81,17 @@ export class SpeechBubbleManager {
   applySpeechBubbleSizing(text, textElement, contentElement) {
     // Set the text first
     textElement.textContent = text;
-    
+
     // Calculate text metrics
     const wordCount = text.split(/\s+/).length;
     const charCount = text.length;
-    
+
     // Reset classes
-    contentElement.classList.remove('speech-bubble-small', 'speech-bubble-compact');
-    
+    contentElement.classList.remove(
+      'speech-bubble-small',
+      'speech-bubble-compact'
+    );
+
     // Apply sizing based on content length
     if (wordCount > 20 || charCount > 100) {
       // Long text: use smaller font and limit to 3 lines
@@ -102,21 +108,21 @@ export class SpeechBubbleManager {
     // Start with the full text
     let text = originalText;
     textElement.textContent = text;
-    
+
     // Check if we need to truncate
     const maxHeight = 78; // Approximate height for 3 lines (26px per line)
-    
+
     if (textElement.scrollHeight > maxHeight) {
       // Binary search for the right text length
       let left = 0;
       let right = text.length;
       let bestFit = text;
-      
+
       while (left <= right) {
         const mid = Math.floor((left + right) / 2);
         const truncated = text.substring(0, mid) + '...';
         textElement.textContent = truncated;
-        
+
         if (textElement.scrollHeight <= maxHeight) {
           bestFit = truncated;
           left = mid + 1;
@@ -124,13 +130,15 @@ export class SpeechBubbleManager {
           right = mid - 1;
         }
       }
-      
+
       // Apply the best fit - make sure we end properly
       textElement.textContent = bestFit;
-      
+
       // Log truncation for debugging
       if (bestFit !== originalText) {
-        console.log(`💬 Speech bubble text truncated: ${originalText.length} -> ${bestFit.length} chars`);
+        console.log(
+          `💬 Speech bubble text truncated: ${originalText.length} -> ${bestFit.length} chars`
+        );
       }
     }
   }
@@ -141,9 +149,9 @@ export class SpeechBubbleManager {
     this.currentSpeechText = '';
     this.currentChunks = [];
     this.currentChunkIndex = 0;
-    
+
     // Clear chunk timers
-    this.chunkTimers.forEach(timer => clearTimeout(timer));
+    this.chunkTimers.forEach((timer) => clearTimeout(timer));
     this.chunkTimers = [];
   }
 
@@ -158,48 +166,52 @@ export class SpeechBubbleManager {
   // =====================================================
   showChunkedSpeechBubble(fullText, wordTimes, words) {
     // Clear any existing chunk timers
-    this.chunkTimers.forEach(timer => clearTimeout(timer));
+    this.chunkTimers.forEach((timer) => clearTimeout(timer));
     this.chunkTimers = [];
-    
+
     // Create chunks from the full text
     this.currentChunks = this.createTextChunks(fullText);
     this.currentChunkIndex = 0;
-    
+
     if (this.currentChunks.length === 0) {
       this.showSpeechBubble(fullText);
       return;
     }
-    
+
     // Show first chunk immediately
     this.showSpeechBubble(this.currentChunks[0]);
-    
+
     if (this.currentChunks.length > 1) {
       // Calculate timing for chunk transitions with improved synchronization
       let cumulativeWordCount = 0;
-      
+
       for (let i = 1; i < this.currentChunks.length; i++) {
         // Count words in previous chunks to find our position in the word array
-        const prevChunkWords = this.currentChunks[i-1].split(/\s+/).length;
+        const prevChunkWords = this.currentChunks[i - 1].split(/\s+/).length;
         cumulativeWordCount += prevChunkWords;
-        
+
         // Find the timing for this word position
         const wordIndex = Math.min(cumulativeWordCount, wordTimes.length - 1);
-        let timing = wordTimes[wordIndex] || (cumulativeWordCount * 500); // 500ms per word fallback
-        
+        let timing = wordTimes[wordIndex] || cumulativeWordCount * 500; // 500ms per word fallback
+
         // Ensure minimum duration between chunks (2.5 seconds)
         const minTiming = i * 2500;
         timing = Math.max(timing, minTiming);
-        
-        console.log(`Chunk ${i}: Will show at ${timing}ms (word index: ${wordIndex})`);
-        
+
+        console.log(
+          `Chunk ${i}: Will show at ${timing}ms (word index: ${wordIndex})`
+        );
+
         const timer = setTimeout(() => {
           if (this.currentChunkIndex < this.currentChunks.length - 1) {
             this.currentChunkIndex++;
-            console.log(`Showing chunk ${this.currentChunkIndex}: "${this.currentChunks[this.currentChunkIndex]}"`);
+            console.log(
+              `Showing chunk ${this.currentChunkIndex}: "${this.currentChunks[this.currentChunkIndex]}"`
+            );
             this.showSpeechBubble(this.currentChunks[this.currentChunkIndex]);
           }
         }, timing);
-        
+
         this.chunkTimers.push(timer);
       }
     }
@@ -223,8 +235,8 @@ export class SpeechBubbleManager {
       clearTimeout(this.speechBubbleTimeout);
       this.speechBubbleTimeout = null;
     }
-    
-    this.chunkTimers.forEach(timer => clearTimeout(timer));
+
+    this.chunkTimers.forEach((timer) => clearTimeout(timer));
     this.chunkTimers = [];
   }
 
@@ -243,7 +255,7 @@ export class SpeechBubbleManager {
     return {
       chunks: this.currentChunks,
       currentIndex: this.currentChunkIndex,
-      totalChunks: this.currentChunks.length
+      totalChunks: this.currentChunks.length,
     };
   }
-} 
+}

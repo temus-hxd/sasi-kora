@@ -8,29 +8,29 @@ class AnimationManager {
     this.currentAnimation = null;
     this.isLoading = false;
     this.head = null; // Will be set by AvatarManager
-    
+
     // Animation library configuration
     this.animationConfig = {
       talking: {
         file: '/animations/F_Talking_Variations_001.fbx',
         duration: 5000, // 5 seconds
         loop: true,
-        triggers: ['speaking', 'conversation', 'chat']
+        triggers: ['speaking', 'conversation', 'chat'],
       },
       idle: {
         file: '/animations/F_Standing_Idle_Variations_001.fbx',
         duration: 8000, // 8 seconds
         loop: true,
-        triggers: ['idle', 'waiting', 'default']
+        triggers: ['idle', 'waiting', 'default'],
       },
       dance: {
         file: '/animations/F_Dances_001.fbx',
         duration: 10000, // 10 seconds
         loop: false,
-        triggers: ['dance', 'music', 'celebration', 'party', 'fun']
-      }
+        triggers: ['dance', 'music', 'celebration', 'party', 'fun'],
+      },
     };
-    
+
     console.log('🎭 AnimationManager initialized');
   }
 
@@ -40,7 +40,7 @@ class AnimationManager {
   initialize(talkingHeadInstance) {
     this.head = talkingHeadInstance;
     console.log('🎭 AnimationManager connected to TalkingHead');
-    
+
     // Start with idle animation
     this.triggerAnimation('idle');
   }
@@ -68,12 +68,12 @@ class AnimationManager {
       const animationData = {
         name: animationName,
         config: config,
-        loaded: true
+        loaded: true,
       };
 
       this.animations.set(animationName, animationData);
       console.log(`✅ Animation "${animationName}" loaded successfully`);
-      
+
       return animationData;
     } catch (error) {
       console.error(`❌ Failed to load animation "${animationName}":`, error);
@@ -113,13 +113,13 @@ class AnimationManager {
           this.head.setMood('happy');
           this.head.speakText(''); // Trigger speaking animation
           break;
-          
+
         case 'dance':
           this.head.setMood('excited');
           // Could trigger a sequence of poses for dance effect
           this.danceSequence();
           break;
-          
+
         case 'idle':
         default:
           this.head.setMood('neutral');
@@ -134,7 +134,6 @@ class AnimationManager {
           }
         }, animation.config.duration);
       }
-
     } catch (error) {
       console.error(`❌ Error triggering animation "${animationName}":`, error);
     }
@@ -148,28 +147,44 @@ class AnimationManager {
 
     console.log(`🎭 AnimationManager analyzing text: "${text}"`);
     const lowerText = text.toLowerCase();
-    
+
     // Check for dance emojis first
-    if (text.includes('💃') || text.includes('🕺') || text.includes('🎵') || text.includes('🎉')) {
+    if (
+      text.includes('💃') ||
+      text.includes('🕺') ||
+      text.includes('🎵') ||
+      text.includes('🎉')
+    ) {
       console.log('🎭 Dance emoji detected, triggering dance animation');
       this.triggerAnimation('dance');
       return;
     }
-    
+
     // Check for dance/music keywords
-    if (lowerText.includes('dance') || lowerText.includes('dancing') || 
-        lowerText.includes('music') || lowerText.includes('party') || 
-        lowerText.includes('celebration') || lowerText.includes('boogie') ||
-        lowerText.includes('shuffle') || lowerText.includes('moves') ||
-        lowerText.includes('shimmy') || lowerText.includes('bust out')) {
+    if (
+      lowerText.includes('dance') ||
+      lowerText.includes('dancing') ||
+      lowerText.includes('music') ||
+      lowerText.includes('party') ||
+      lowerText.includes('celebration') ||
+      lowerText.includes('boogie') ||
+      lowerText.includes('shuffle') ||
+      lowerText.includes('moves') ||
+      lowerText.includes('shimmy') ||
+      lowerText.includes('bust out')
+    ) {
       console.log('🎭 Dance keyword detected, triggering dance animation');
       this.triggerAnimation('dance');
       return;
     }
 
     // Check for greeting keywords
-    if (lowerText.includes('hello') || lowerText.includes('hi') || 
-        lowerText.includes('welcome') || lowerText.includes('greet')) {
+    if (
+      lowerText.includes('hello') ||
+      lowerText.includes('hi') ||
+      lowerText.includes('welcome') ||
+      lowerText.includes('greet')
+    ) {
       console.log('🎭 Greeting detected, triggering talking animation');
       this.triggerAnimation('talking');
       return;
@@ -189,10 +204,10 @@ class AnimationManager {
     if (!this.head) return;
 
     console.log('🎭 Starting dance sequence!');
-    
+
     // Set excited mood for dancing
     this.head.setMood('excited');
-    
+
     const poses = ['hip', 'side', 'turn', 'bend', 'straight'];
     let currentPose = 0;
 
@@ -248,7 +263,7 @@ class AnimationManager {
     return {
       currentAnimation: this.currentAnimation,
       isLoading: this.isLoading,
-      loadedAnimations: Array.from(this.animations.keys())
+      loadedAnimations: Array.from(this.animations.keys()),
     };
   }
 
@@ -257,14 +272,14 @@ class AnimationManager {
    */
   async preloadAnimations() {
     console.log('🎭 Preloading animations...');
-    
+
     const animationNames = Object.keys(this.animationConfig);
-    const loadPromises = animationNames.map(name => this.loadAnimation(name));
-    
+    const loadPromises = animationNames.map((name) => this.loadAnimation(name));
+
     await Promise.all(loadPromises);
     console.log('✅ All animations preloaded');
   }
 }
 
 // Export for use in other modules
-window.AnimationManager = AnimationManager; 
+window.AnimationManager = AnimationManager;

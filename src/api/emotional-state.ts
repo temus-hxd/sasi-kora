@@ -20,13 +20,13 @@ const orchestratorInstances: Map<string, Orchestrator> = new Map();
 async function getOrchestrator(language: string = 'en'): Promise<Orchestrator> {
   // Normalize language
   const lang = language === 'cn' ? 'cn' : 'en';
-  
+
   if (!orchestratorInstances.has(lang)) {
     const orchestrator = new Orchestrator(undefined, lang);
     await orchestrator.initialize();
     orchestratorInstances.set(lang, orchestrator);
   }
-  
+
   const instance = orchestratorInstances.get(lang);
   if (!instance) {
     throw new Error('Failed to initialize orchestrator');
@@ -61,7 +61,9 @@ router.post('/chat', async (req, res) => {
 
     // Check if this is a new conversation
     if (StateManager.isNewConversation(conversationHistory)) {
-      console.log(`🆕 New conversation ${request.conversation_id?.substring(0, 8) || 'default'}... - resetting orchestrator state`);
+      console.log(
+        `🆕 New conversation ${request.conversation_id?.substring(0, 8) || 'default'}... - resetting orchestrator state`
+      );
       orchestrator.resetState();
     }
 
@@ -72,34 +74,36 @@ router.post('/chat', async (req, res) => {
 
     // Process message through orchestrator
     console.log('⏱️  [TRACE] Starting orchestrator.processMessage()');
-    const [responseContent, agentType, analysisData, updatedState] = await orchestrator.processMessage(
-      request.message,
-      conversationHistory,
-      emotionState
-    );
+    const [responseContent, agentType, analysisData, updatedState] =
+      await orchestrator.processMessage(
+        request.message,
+        conversationHistory,
+        emotionState
+      );
 
     // Generate conversation ID if not provided
     const conversationId = request.conversation_id || `conv-${Date.now()}`;
 
     // Extract emoji for avatar control from response
     // Emoji should be the first emoji after </t> tag (thinking tag)
-    const emojiRegex = /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F900}-\u{1F9FF}]|[\u{1FA70}-\u{1FAFF}]/gu;
+    const emojiRegex =
+      /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F900}-\u{1F9FF}]|[\u{1FA70}-\u{1FAFF}]/gu;
     const emojis = responseContent.match(emojiRegex) || [];
     let avatarEmoji = emojis[0] || null;
 
     // Map agent types to emoji if no emoji found in response
     if (!avatarEmoji) {
       const agentEmojiMap: Record<string, string> = {
-        'normal': '😐',
-        'pleased': '😊',
-        'cheerful': '😄',
-        'ecstatic': '😍',
-        'melancholy': '😔',
-        'sorrowful': '😢',
-        'depressed': '😞',
-        'irritated': '😤',
-        'agitated': '😠',
-        'enraged': '😡',
+        normal: '😐',
+        pleased: '😊',
+        cheerful: '😄',
+        ecstatic: '😍',
+        melancholy: '😔',
+        sorrowful: '😢',
+        depressed: '😞',
+        irritated: '😤',
+        agitated: '😠',
+        enraged: '😡',
       };
       avatarEmoji = agentEmojiMap[agentType] || '😐';
     }
@@ -122,19 +126,22 @@ router.post('/chat', async (req, res) => {
     const err = error as Error;
     console.error('❌ Error in /api/emotional-state/chat:', err);
     console.error('Stack:', err.stack);
-    
+
     // Provide more helpful error messages
     let errorMessage = err.message;
     let statusCode = 500;
-    
-    if (err.message.includes('model_not_found') || err.message.includes('does not exist')) {
+
+    if (
+      err.message.includes('model_not_found') ||
+      err.message.includes('does not exist')
+    ) {
       statusCode = 400;
       errorMessage = `Invalid Groq model name. Please check your .env file. Error: ${err.message}`;
     } else if (err.message.includes('GROQ_API_KEY')) {
       statusCode = 500;
       errorMessage = 'GROQ_API_KEY is not set. Please check your .env file.';
     }
-    
+
     res.status(statusCode).json({
       error: 'Error processing chat',
       message: errorMessage,
@@ -204,4 +211,3 @@ router.post('/reset', async (req, res) => {
 });
 
 export default router;
-

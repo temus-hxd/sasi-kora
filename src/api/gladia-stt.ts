@@ -1,23 +1,23 @@
-import { Router } from "express";
-import dotenv from "dotenv";
+import { Router } from 'express';
+import dotenv from 'dotenv';
 
 dotenv.config();
 
 const router = Router();
 
 const GLADIA_API_KEY = process.env.GLADIA_API_KEY;
-const GLADIA_API_URL = process.env.GLADIA_API_URL || "https://api.gladia.io";
+const GLADIA_API_URL = process.env.GLADIA_API_URL || 'https://api.gladia.io';
 
 /**
  * GET /api/gladia/config
  * Returns Gladia configuration for frontend (API key is kept server-side)
  */
-router.get("/config", (_req, res) => {
+router.get('/config', (_req, res) => {
   if (!GLADIA_API_KEY) {
     res.status(503).json({
-      error: "Gladia API key not configured",
+      error: 'Gladia API key not configured',
       success: false,
-      message: "Please set GLADIA_API_KEY in your .env file",
+      message: 'Please set GLADIA_API_KEY in your .env file',
     });
     return;
   }
@@ -28,7 +28,7 @@ router.get("/config", (_req, res) => {
     success: true,
     apiUrl: GLADIA_API_URL,
     // For multilingual support (Ah Meng: English, Chinese, Singlish)
-    defaultLanguages: ["en", "zh"],
+    defaultLanguages: ['en', 'zh'],
     codeSwitching: true,
     hasApiKey: !!GLADIA_API_KEY,
   });
@@ -39,20 +39,20 @@ router.get("/config", (_req, res) => {
  * Creates a new Gladia session and returns session token
  * This keeps the API key secure on the server
  */
-router.post("/session", async (req, res) => {
+router.post('/session', async (req, res) => {
   try {
     if (!GLADIA_API_KEY) {
       res.status(503).json({
-        error: "Gladia API key not configured",
+        error: 'Gladia API key not configured',
         success: false,
       });
       return;
     }
 
     const {
-      languages = ["en", "zh"], // Default: English, Chinese
+      languages = ['en', 'zh'], // Default: English, Chinese
       codeSwitching = true,
-      model = "solaria-1",
+      model = 'solaria-1',
     } = req.body;
 
     const sessionConfig = {
@@ -61,7 +61,7 @@ router.post("/session", async (req, res) => {
         languages,
         code_switching: codeSwitching,
       },
-      encoding: "wav/pcm",
+      encoding: 'wav/pcm',
       sample_rate: 16000,
       bit_depth: 16,
       channels: 1,
@@ -69,10 +69,10 @@ router.post("/session", async (req, res) => {
 
     // Start a Gladia live session
     const sessionResponse = await fetch(`${GLADIA_API_URL}/v2/live`, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "x-gladia-key": GLADIA_API_KEY,
-        "Content-Type": "application/json",
+        'x-gladia-key': GLADIA_API_KEY,
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify(sessionConfig),
     });
@@ -86,7 +86,7 @@ router.post("/session", async (req, res) => {
         errorData = { raw: errorText };
       }
 
-      console.error("❌ [GLADIA] API error response:", {
+      console.error('❌ [GLADIA] API error response:', {
         status: sessionResponse.status,
         statusText: sessionResponse.statusText,
         errorData,
@@ -117,9 +117,9 @@ router.post("/session", async (req, res) => {
     const websocketUrl = sessionData.url || sessionData.websocket_url;
 
     if (!sessionId || !websocketUrl) {
-      console.error("❌ [GLADIA] Invalid session response:", sessionData);
+      console.error('❌ [GLADIA] Invalid session response:', sessionData);
       throw new Error(
-        "Invalid session response from Gladia API - missing id/session_id or url/websocket_url"
+        'Invalid session response from Gladia API - missing id/session_id or url/websocket_url'
       );
     }
 
@@ -136,9 +136,9 @@ router.post("/session", async (req, res) => {
     });
   } catch (error: unknown) {
     const err = error as Error;
-    console.error("❌ Gladia Session Error:", err);
+    console.error('❌ Gladia Session Error:', err);
     res.status(500).json({
-      error: "Failed to create Gladia session",
+      error: 'Failed to create Gladia session',
       details: err.message,
       success: false,
     });
@@ -149,10 +149,10 @@ router.post("/session", async (req, res) => {
  * GET /api/gladia/health
  * Health check endpoint
  */
-router.get("/health", (_req, res) => {
+router.get('/health', (_req, res) => {
   res.json({
     success: true,
-    message: "Gladia STT API Running!",
+    message: 'Gladia STT API Running!',
     hasApiKey: !!GLADIA_API_KEY,
     timestamp: new Date().toISOString(),
   });

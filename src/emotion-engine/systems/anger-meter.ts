@@ -3,24 +3,30 @@
  * Tracks cumulative anger points over conversation with escalation/de-escalation logic
  */
 
-import type { AngerMeterInfo, AngerConfig, SentimentAnalysis, EmotionState } from '../types.js';
+import type {
+  AngerMeterInfo,
+  AngerConfig,
+  SentimentAnalysis,
+  EmotionState,
+} from '../types.js';
 import { loadAngerConfig } from '../config/anger-config.js';
 
 export class AngerMeter {
   private config: AngerConfig;
   private angerPoints: number = 0.0;
-  private currentLevel: 'normal' | 'irritated' | 'agitated' | 'enraged' = 'normal';
+  private currentLevel: 'normal' | 'irritated' | 'agitated' | 'enraged' =
+    'normal';
   private lastMessageTime: number = Date.now();
   private messageCount: number = 0;
   private consecutiveAngerCount: number = 0;
   private lastEmotion: string | null = null;
   private escalationCooldownRemaining: number = 0;
-  
+
   // De-escalation tracking (for enraged state)
   private apologyCount: number = 0;
   private recentApologies: number[] = [];
   private enragedDeEscalationBlocked: boolean = false;
-  
+
   // History for debugging
   private pointHistory: Array<{
     timestamp: number;
@@ -51,12 +57,34 @@ export class AngerMeter {
     return {
       anger_multiplier: 15.0,
       thresholds: { irritated: 12, agitated: 25, enraged: 50 },
-      decay: { idle_rate: 0.3, time_decay_enabled: false, time_rate: 0.5, minimum_floor: 0 },
-      bonuses: { consecutive_anger: 5, rapid_escalation: 3, vulgar_language: 8, direct_insults: 12 },
-      penalties: { apology_reduction: -15, calm_language: -3, positive_emotion: -8 },
-      meter: { max_points: 100, escalation_cooldown: 2, de_escalation_immediate: true },
-      de_escalation: { enraged_apology_requirement: 2, apology_memory_limit: 5, reset_apology_count_on_anger: true },
-      debug: { show_meter_in_response: true, log_point_changes: true }
+      decay: {
+        idle_rate: 0.3,
+        time_decay_enabled: false,
+        time_rate: 0.5,
+        minimum_floor: 0,
+      },
+      bonuses: {
+        consecutive_anger: 5,
+        rapid_escalation: 3,
+        vulgar_language: 8,
+        direct_insults: 12,
+      },
+      penalties: {
+        apology_reduction: -15,
+        calm_language: -3,
+        positive_emotion: -8,
+      },
+      meter: {
+        max_points: 100,
+        escalation_cooldown: 2,
+        de_escalation_immediate: true,
+      },
+      de_escalation: {
+        enraged_apology_requirement: 2,
+        apology_memory_limit: 5,
+        reset_apology_count_on_anger: true,
+      },
+      debug: { show_meter_in_response: true, log_point_changes: true },
     };
   }
 
@@ -85,7 +113,13 @@ export class AngerMeter {
     const changeReasons: string[] = [];
 
     // Check if this is an anger-related emotion OR contains vulgar/insulting language
-    const angerEmotions = ['anger', 'frustration', 'irritation', 'rage', 'annoyance'];
+    const angerEmotions = [
+      'anger',
+      'frustration',
+      'irritation',
+      'rage',
+      'annoyance',
+    ];
     let isAngry = angerEmotions.includes(emotion);
     const hasVulgarLanguage = this.containsVulgarLanguage(message);
     const hasDirectInsults = this.containsDirectInsults(message);
@@ -177,7 +211,10 @@ export class AngerMeter {
     if (this.enragedDeEscalationBlocked && this.currentLevel === 'enraged') {
       deEscalationNote = `de_escalation_blocked: need ${this.getApologiesNeeded()} more apologies`;
       changeReasons.push(deEscalationNote);
-    } else if (this.currentLevel !== 'enraged' && this.apologyCount >= this.config.de_escalation.enraged_apology_requirement) {
+    } else if (
+      this.currentLevel !== 'enraged' &&
+      this.apologyCount >= this.config.de_escalation.enraged_apology_requirement
+    ) {
       deEscalationNote = `de_escalation_forced: ${this.apologyCount} apologies received`;
       changeReasons.push(deEscalationNote);
     }
@@ -210,7 +247,8 @@ export class AngerMeter {
         escalation_cooldown: this.escalationCooldownRemaining,
         point_history: this.pointHistory.slice(-5), // Last 5 changes
         apology_count: this.apologyCount,
-        apologies_needed: this.currentLevel === 'enraged' ? this.getApologiesNeeded() : 0,
+        apologies_needed:
+          this.currentLevel === 'enraged' ? this.getApologiesNeeded() : 0,
         de_escalation_blocked: this.enragedDeEscalationBlocked,
       };
     }
@@ -228,7 +266,10 @@ export class AngerMeter {
     // Apply bounds
     const maxPoints = this.config.meter.max_points;
     const minPoints = this.config.decay.minimum_floor;
-    this.angerPoints = Math.max(minPoints, Math.min(maxPoints, this.angerPoints));
+    this.angerPoints = Math.max(
+      minPoints,
+      Math.min(maxPoints, this.angerPoints)
+    );
 
     // Log change if enabled
     if (this.config.debug.log_point_changes) {
@@ -335,7 +376,12 @@ export class AngerMeter {
    * Get numeric rank for anger level (higher = more angry)
    */
   private getLevelRank(level: string): number {
-    const ranks: Record<string, number> = { normal: 0, irritated: 1, agitated: 2, enraged: 3 };
+    const ranks: Record<string, number> = {
+      normal: 0,
+      irritated: 1,
+      agitated: 2,
+      enraged: 3,
+    };
     return ranks[level] || 0;
   }
 
@@ -351,7 +397,9 @@ export class AngerMeter {
     ];
 
     const messageLower = message.toLowerCase();
-    return vulgarPatterns.some((pattern) => pattern.test(messageLower) || pattern.test(message));
+    return vulgarPatterns.some(
+      (pattern) => pattern.test(messageLower) || pattern.test(message)
+    );
   }
 
   /**
@@ -369,7 +417,9 @@ export class AngerMeter {
     ];
 
     const messageLower = message.toLowerCase();
-    return insultPatterns.some((pattern) => pattern.test(messageLower) || pattern.test(message));
+    return insultPatterns.some(
+      (pattern) => pattern.test(messageLower) || pattern.test(message)
+    );
   }
 
   /**
@@ -409,7 +459,9 @@ export class AngerMeter {
     // Clean up old apologies beyond memory limit
     const memoryLimit = this.config.de_escalation.apology_memory_limit;
     const cutoffMessage = this.messageCount - memoryLimit;
-    this.recentApologies = this.recentApologies.filter((msgNum) => msgNum > cutoffMessage);
+    this.recentApologies = this.recentApologies.filter(
+      (msgNum) => msgNum > cutoffMessage
+    );
 
     // Update apology count based on recent apologies
     this.apologyCount = this.recentApologies.length;
@@ -423,7 +475,8 @@ export class AngerMeter {
       return true; // Not enraged, can always de-escalate
     }
 
-    const requiredApologies = this.config.de_escalation.enraged_apology_requirement;
+    const requiredApologies =
+      this.config.de_escalation.enraged_apology_requirement;
     return this.apologyCount >= requiredApologies;
   }
 
@@ -435,7 +488,8 @@ export class AngerMeter {
       return 0;
     }
 
-    const requiredApologies = this.config.de_escalation.enraged_apology_requirement;
+    const requiredApologies =
+      this.config.de_escalation.enraged_apology_requirement;
     return Math.max(0, requiredApologies - this.apologyCount);
   }
 
@@ -489,7 +543,8 @@ export class AngerMeter {
       message_count: this.messageCount,
       thresholds: this.config.thresholds,
       apology_count: this.apologyCount,
-      apologies_needed: this.currentLevel === 'enraged' ? this.getApologiesNeeded() : 0,
+      apologies_needed:
+        this.currentLevel === 'enraged' ? this.getApologiesNeeded() : 0,
     };
   }
 
@@ -516,7 +571,11 @@ export class AngerMeter {
    */
   deserializeState(state: EmotionState): void {
     this.angerPoints = state.anger_points;
-    this.currentLevel = state.current_agent as 'normal' | 'irritated' | 'agitated' | 'enraged';
+    this.currentLevel = state.current_agent as
+      | 'normal'
+      | 'irritated'
+      | 'agitated'
+      | 'enraged';
     this.consecutiveAngerCount = state.consecutive_anger_count;
     this.lastEmotion = state.last_emotion || null;
     this.escalationCooldownRemaining = state.escalation_cooldown_remaining;
@@ -525,4 +584,3 @@ export class AngerMeter {
     this.enragedDeEscalationBlocked = state.enraged_de_escalation_blocked;
   }
 }
-

@@ -53,4 +53,3 @@ export class SadLevel3DepressedAgent extends BaseAgent {
     return await this.callGroq(messages);
   }
 }
-

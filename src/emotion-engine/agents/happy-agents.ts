@@ -53,4 +53,3 @@ export class HappyLevel3EcstaticAgent extends BaseAgent {
     return await this.callGroq(messages);
   }
 }
-

@@ -8,45 +8,45 @@
 
 class ConfettiManager {
   constructor() {
-    this.container = document.getElementById("confettiContainer");
+    this.container = document.getElementById('confettiContainer');
     this.isActive = true; // Set to false to disable confetti
     this.appreciationKeywords = [
       // Gratitude
-      "thank",
-      "thanks",
-      "grateful",
-      "appreciate",
-      "blessing",
+      'thank',
+      'thanks',
+      'grateful',
+      'appreciate',
+      'blessing',
       // Love & Affection
-      "love",
-      "adore",
-      "heart",
-      "sweet",
-      "wonderful",
-      "amazing",
+      'love',
+      'adore',
+      'heart',
+      'sweet',
+      'wonderful',
+      'amazing',
       // Compliments
-      "beautiful",
-      "gorgeous",
-      "pretty",
-      "handsome",
-      "good looking",
-      "stunning",
-      "awesome",
-      "fantastic",
-      "incredible",
-      "brilliant",
-      "perfect",
+      'beautiful',
+      'gorgeous',
+      'pretty',
+      'handsome',
+      'good looking',
+      'stunning',
+      'awesome',
+      'fantastic',
+      'incredible',
+      'brilliant',
+      'perfect',
       // Positive emotions
-      "happy",
-      "joy",
-      "smile",
-      "excellent",
-      "outstanding",
-      "superb",
+      'happy',
+      'joy',
+      'smile',
+      'excellent',
+      'outstanding',
+      'superb',
     ];
 
     console.log(
-      "🎊 ConfettiManager initialized - Appreciation detection active"
+      '🎊 ConfettiManager initialized - Appreciation detection active'
     );
   }
 
@@ -106,9 +106,9 @@ class ConfettiManager {
    * Generates individual animated hearts
    */
   createHeart() {
-    const heart = document.createElement("div");
-    heart.className = "heart";
-    heart.innerHTML = "❤️"; // Heart emoji
+    const heart = document.createElement('div');
+    heart.className = 'heart';
+    heart.innerHTML = '❤️'; // Heart emoji
 
     // Random horizontal position
     const leftPosition = Math.random() * 95; // 0-95%
@@ -138,14 +138,14 @@ class ConfettiManager {
   // Clear all active confetti
   clearConfetti() {
     if (this.container) {
-      this.container.innerHTML = "";
+      this.container.innerHTML = '';
     }
   }
 
   // Enable/disable confetti system
   setActive(isActive) {
     this.isActive = isActive;
-    console.log(`🎊 ConfettiManager ${isActive ? "ENABLED" : "DISABLED"}`);
+    console.log(`🎊 ConfettiManager ${isActive ? 'ENABLED' : 'DISABLED'}`);
 
     if (!isActive) {
       this.clearConfetti();
@@ -154,7 +154,7 @@ class ConfettiManager {
 
   // Test confetti (for debugging)
   test() {
-    console.log("🎊 Testing confetti system...");
+    console.log('🎊 Testing confetti system...');
     // this.triggerConfetti();
   }
 
@@ -191,5 +191,5 @@ window.ConfettiManager = ConfettiManager;
 window.CONFETTI_ENABLED = CONFETTI_ENABLED;
 
 console.log(
-  "🎊 ConfettiManager class loaded - Ready for appreciation detection!"
+  '🎊 ConfettiManager class loaded - Ready for appreciation detection!'
 );

@@ -19,8 +19,15 @@ export type {
 } from './types.js';
 
 // Export utilities
-export { loadPrompt, clearPromptCache, preloadPrompts } from './utils/prompt-loader.js';
-export { loadAngerConfig, getDefaultAngerConfig } from './config/anger-config.js';
+export {
+  loadPrompt,
+  clearPromptCache,
+  preloadPrompts,
+} from './utils/prompt-loader.js';
+export {
+  loadAngerConfig,
+  getDefaultAngerConfig,
+} from './config/anger-config.js';
 
 // Export errors
 export {
@@ -61,4 +68,3 @@ export { AgentFactory } from './agents/agent-factory.js';
 // Phase 4 exports
 export { Orchestrator } from './orchestrator.js';
 export { StateManager } from './utils/state-manager.js';
-

@@ -57,36 +57,43 @@ export class OpenRouterAdapter {
 
     try {
       // Create a promise with timeout
-      const fetchPromise = fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': process.env.VERCEL_URL || 'http://localhost:8888',
-          'X-Title': 'SASI-KORA Emotion Engine',
-        },
-        body: JSON.stringify({
-          model,
-          messages: openRouterMessages,
-          max_tokens: maxTokens,
-          temperature,
-        }),
-      });
+      const fetchPromise = fetch(
+        'https://openrouter.ai/api/v1/chat/completions',
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${this.apiKey}`,
+            'Content-Type': 'application/json',
+            'HTTP-Referer': process.env.VERCEL_URL || 'http://localhost:8888',
+            'X-Title': 'SASI-KORA Emotion Engine',
+          },
+          body: JSON.stringify({
+            model,
+            messages: openRouterMessages,
+            max_tokens: maxTokens,
+            temperature,
+          }),
+        }
+      );
 
       const timeoutPromise = new Promise<never>((_, reject) => {
         setTimeout(() => {
-          reject(new Error(`OpenRouter API call timed out after ${this.timeout}ms`));
+          reject(
+            new Error(`OpenRouter API call timed out after ${this.timeout}ms`)
+          );
         }, this.timeout);
       });
 
       const response = await Promise.race([fetchPromise, timeoutPromise]);
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: { message: response.statusText } }));
+        const errorData = await response
+          .json()
+          .catch(() => ({ error: { message: response.statusText } }));
         throw new Error(JSON.stringify(errorData));
       }
 
-      const data = await response.json() as any;
+      const data = (await response.json()) as any;
       const content = data.choices?.[0]?.message?.content;
 
       if (!content) {
@@ -102,7 +109,11 @@ export class OpenRouterAdapter {
       const errorMessage = err.message || String(error);
 
       // Check for specific error types
-      if (errorMessage.includes('safety') || errorMessage.includes('content') || errorMessage.includes('moderation')) {
+      if (
+        errorMessage.includes('safety') ||
+        errorMessage.includes('content') ||
+        errorMessage.includes('moderation')
+      ) {
         throw new GroqAPIError(
           'Content was rejected by safety filters. Please rephrase your message.',
           { model, originalError: errorMessage }
@@ -110,10 +121,13 @@ export class OpenRouterAdapter {
       }
 
       if (errorMessage.includes('rate limit') || errorMessage.includes('429')) {
-        throw new GroqAPIError('Rate limit exceeded. Please try again in a moment.', {
-          model,
-          originalError: errorMessage,
-        });
+        throw new GroqAPIError(
+          'Rate limit exceeded. Please try again in a moment.',
+          {
+            model,
+            originalError: errorMessage,
+          }
+        );
       }
 
       // Generic error
@@ -131,7 +145,7 @@ export class OpenRouterAdapter {
     try {
       const response = await fetch('https://openrouter.ai/api/v1/models', {
         headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
+          Authorization: `Bearer ${this.apiKey}`,
         },
       });
 
@@ -139,16 +153,17 @@ export class OpenRouterAdapter {
         return [];
       }
 
-      const data = await response.json() as any;
+      const data = (await response.json()) as any;
       if (!data.data) {
         return [];
       }
 
-      return data.data.map((m: any) => m.id).filter((id: any): id is string => id !== undefined);
+      return data.data
+        .map((m: any) => m.id)
+        .filter((id: any): id is string => id !== undefined);
     } catch (error) {
       console.warn('Failed to fetch OpenRouter models:', error);
       return [];
     }
   }
 }
-

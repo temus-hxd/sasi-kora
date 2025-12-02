@@ -1,4 +1,4 @@
-import { TalkingHead } from "talkinghead";
+import { TalkingHead } from 'talkinghead';
 
 export class AvatarManager {
   constructor() {
@@ -6,7 +6,7 @@ export class AvatarManager {
     this.isLoaded = false;
     this.currentMood = 'neutral';
     this.currentMoodRef = { current: 'neutral' };
-    
+
     // Dependencies (set via dependency injection)
     this.configManager = null;
     this.uiManager = null;
@@ -20,7 +20,7 @@ export class AvatarManager {
     this.webSocketManager = null;
     this.chatManager = null;
     this.animationManager = null;
-    
+
     // Page visibility event handler bound to this instance
     this.handleVisibilityChange = this.handleVisibilityChange.bind(this);
   }
@@ -28,7 +28,7 @@ export class AvatarManager {
   // =====================================================
   // SETUP AND CONFIGURATION
   // =====================================================
-  setDependencies({ 
+  setDependencies({
     configManager,
     uiManager,
     idleTimerManager,
@@ -40,7 +40,7 @@ export class AvatarManager {
     ttsManager,
     webSocketManager,
     chatManager,
-    animationManager
+    animationManager,
   }) {
     this.configManager = configManager;
     this.uiManager = uiManager;
@@ -60,28 +60,39 @@ export class AvatarManager {
   // AVATAR INITIALIZATION
   // =====================================================
   async initAvatar() {
-    this.uiManager?.updateLoadingScreen(0, 'Initializing TalkingHead system...');
-    
+    this.uiManager?.updateLoadingScreen(
+      0,
+      'Initializing TalkingHead system...'
+    );
+
     try {
       // Initialize ConfigManager and load configuration first
       // Load with saved language preference
       const savedLanguage = localStorage.getItem('app_language') || 'en';
       const configLoaded = await this.configManager?.loadConfig(savedLanguage);
       if (!configLoaded) {
-        console.error('❌ Failed to load configuration - check /api/config endpoint');
-        this.uiManager?.updateLoadingScreen(0, 'Error: Failed to load configuration. Check browser console.');
+        console.error(
+          '❌ Failed to load configuration - check /api/config endpoint'
+        );
+        this.uiManager?.updateLoadingScreen(
+          0,
+          'Error: Failed to load configuration. Check browser console.'
+        );
         // Don't proceed if config fails - avatar needs URL and voice ID
         return;
       }
-      
+
       const nodeAvatar = document.getElementById('avatar');
-      
-      this.uiManager?.updateLoadingScreen(10, 'Setting up avatar configuration...');
-      
+
+      this.uiManager?.updateLoadingScreen(
+        10,
+        'Setting up avatar configuration...'
+      );
+
       this.head = new TalkingHead(nodeAvatar, {
-        ttsEndpoint: "/api/dummy-tts",
-        lipsyncModules: ["en"],
-        cameraView: "upper",
+        ttsEndpoint: '/api/dummy-tts',
+        lipsyncModules: ['en'],
+        cameraView: 'upper',
         cameraY: 0.15,
         modelFPS: 120, // Increased for high refresh rate displays
         avatarMood: 'neutral',
@@ -94,53 +105,66 @@ export class AvatarManager {
         lipsyncLang: 'en',
         avatarMouthOpenClamp: 0.6, // Moderate mouth opening (0.0-1.0, default ~0.8) - increased for better visibility
         avatarMouthSmooth: 12, // Very high smoothing for slow, smooth mouth movements (higher = smoother/slower)
-        avatarVisemeThreshold: 0.2 // Higher threshold to filter out minor movements
+        avatarVisemeThreshold: 0.2, // Higher threshold to filter out minor movements
       });
 
-      this.uiManager?.updateLoadingScreen(25, 'Loading ReadyPlayerMe avatar...');
-      
-      await this.head.showAvatar({
-        url: this.configManager?.getAvatarUrl(),
-        body: 'F',
-        avatarMood: 'neutral',
-        lipsyncLang: 'en'
-      }, (progress) => {
-        if (progress.lengthComputable) {
-          const percent = Math.round((progress.loaded / progress.total) * 100);
-          const loadingPercent = 25 + (percent * 0.65); // 25% to 90%
-          this.uiManager?.updateLoadingScreen(loadingPercent, `Loading avatar model... ${percent}%`);
+      this.uiManager?.updateLoadingScreen(
+        25,
+        'Loading ReadyPlayerMe avatar...'
+      );
+
+      await this.head.showAvatar(
+        {
+          url: this.configManager?.getAvatarUrl(),
+          body: 'F',
+          avatarMood: 'neutral',
+          lipsyncLang: 'en',
+        },
+        (progress) => {
+          if (progress.lengthComputable) {
+            const percent = Math.round(
+              (progress.loaded / progress.total) * 100
+            );
+            const loadingPercent = 25 + percent * 0.65; // 25% to 90%
+            this.uiManager?.updateLoadingScreen(
+              loadingPercent,
+              `Loading avatar model... ${percent}%`
+            );
+          }
         }
-      });
+      );
 
       this.uiManager?.updateLoadingScreen(95, 'Finalizing setup...');
-    
+
       // Zero all lights
       if (this.head.scene) {
         this.zeroAllLights(this.head.scene);
       }
-      
+
       // Simulate final loading steps
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
       this.uiManager?.updateLoadingScreen(100, 'Ready!');
-      
+
       // Wait a moment before hiding
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
+      await new Promise((resolve) => setTimeout(resolve, 800));
+
       this.isLoaded = true;
       this.uiManager?.hideLoadingScreen();
-      
+
       // Initialize other managers with avatar dependencies
       await this.initializeOtherManagers();
-      
+
       // Set up page visibility handling
       this.setupPageVisibilityHandling();
-
     } catch (error) {
       console.error('❌ Avatar initialization error:', error);
-      this.uiManager?.updateLoadingScreen(0, 'Error loading avatar: ' + error.message);
+      this.uiManager?.updateLoadingScreen(
+        0,
+        'Error loading avatar: ' + error.message
+      );
       this.uiManager?.updateClaudeStatus('Avatar Error', 'error');
-      
+
       // Hide loading screen even on error
       setTimeout(() => this.uiManager?.hideLoadingScreen(), 2000);
     }
@@ -151,22 +175,40 @@ export class AvatarManager {
   // =====================================================
   async initializeOtherManagers() {
     // Initialize managers that depend on avatar
-    this.idleTimerManager?.setDependencies(this.head, this.isLoaded, this.currentMoodRef, this.currentMood);
-    
-    this.voiceStateManager?.setUpdateStatusFunction(this.uiManager?.updateStatus.bind(this.uiManager));
-    
-    this.emojiManager?.setDependencies(this.head, this.currentMoodRef, () => this.idleTimerManager?.resetIdleTimer());
-    
+    this.idleTimerManager?.setDependencies(
+      this.head,
+      this.isLoaded,
+      this.currentMoodRef,
+      this.currentMood
+    );
+
+    this.voiceStateManager?.setUpdateStatusFunction(
+      this.uiManager?.updateStatus.bind(this.uiManager)
+    );
+
+    this.emojiManager?.setDependencies(this.head, this.currentMoodRef, () =>
+      this.idleTimerManager?.resetIdleTimer()
+    );
+
     // Initialize AnimationManager with TalkingHead instance
     if (this.animationManager && this.head) {
       this.animationManager.initialize(this.head);
       await this.animationManager.preloadAnimations();
       console.log('🎭 AnimationManager initialized with avatar');
     }
-    
+
     // Initialize TTS manager with dependencies
-    this.ttsManager?.setDependencies(this.head, this.isLoaded, this.configManager, this.voiceStateManager, this.idleTimerManager, this.speechBubbleManager, this.animationManager, this.uiManager);
-    
+    this.ttsManager?.setDependencies(
+      this.head,
+      this.isLoaded,
+      this.configManager,
+      this.voiceStateManager,
+      this.idleTimerManager,
+      this.speechBubbleManager,
+      this.animationManager,
+      this.uiManager
+    );
+
     // Initialize ChatManager with all dependencies including avatar
     this.chatManager?.setDependencies({
       webSocketManager: this.webSocketManager,
@@ -177,15 +219,28 @@ export class AvatarManager {
       linkButtonManager: this.linkButtonManager,
       head: this.head,
       isLoaded: this.isLoaded,
-      animationManager: this.animationManager // Pass AnimationManager to ChatManager
+      animationManager: this.animationManager, // Pass AnimationManager to ChatManager
     });
-    
+
     // Set up WebSocket callbacks including ChatManager's response handler
     this.webSocketManager?.setCallbacks({
-      onStatusUpdate: (status, type) => this.uiManager?.updateClaudeStatus(status, type),
+      onStatusUpdate: (status, type) =>
+        this.uiManager?.updateClaudeStatus(status, type),
       onMessage: (message) => this.uiManager?.updateStatus(message),
-      onClaudeResponse: (response, avatarEmoji, usedKnowledgeBase, usedEvents, timing) => {
-        this.chatManager?.handleClaudeResponse(response, avatarEmoji, usedKnowledgeBase, usedEvents, timing);
+      onClaudeResponse: (
+        response,
+        avatarEmoji,
+        usedKnowledgeBase,
+        usedEvents,
+        timing
+      ) => {
+        this.chatManager?.handleClaudeResponse(
+          response,
+          avatarEmoji,
+          usedKnowledgeBase,
+          usedEvents,
+          timing
+        );
         if (usedKnowledgeBase) {
           console.log('🧠 Response included knowledge base information');
         }
@@ -217,22 +272,27 @@ export class AvatarManager {
             this.uiManager?.hideEventsThinkingImmediate();
           }
         }
-      }
+      },
     });
-    
+
     // Connect WebSocket (skip on serverless/HTTP-only mode)
-    if (this.webSocketManager?.environment?.httpOnly || !this.webSocketManager?.useWebSocket) {
-      this.webSocketManager?.disableWebSocket('Serverless environment detected - using HTTP-only mode');
+    if (
+      this.webSocketManager?.environment?.httpOnly ||
+      !this.webSocketManager?.useWebSocket
+    ) {
+      this.webSocketManager?.disableWebSocket(
+        'Serverless environment detected - using HTTP-only mode'
+      );
     } else {
       this.webSocketManager?.connect();
     }
-    
+
     // Initialize ChatManager
     this.chatManager?.init();
-    
+
     // Start idle timer for mood management
     this.idleTimerManager?.startIdleTimer();
-    
+
     // Initialize voice state
     this.voiceStateManager?.getVoiceState();
   }
@@ -248,7 +308,7 @@ export class AvatarManager {
         this.head.speakEmoji(emoji);
       }
       this.uiManager?.updateStatus(`Avatar expression: ${emoji}`);
-      
+
       // Show a brief speech bubble for expressions
       this.speechBubbleManager?.showTimedSpeechBubble(`*${emoji}*`, 2000);
     }
@@ -258,7 +318,9 @@ export class AvatarManager {
     if (this.head && this.isLoaded) {
       this.head.setView(view);
       this.uiManager?.updateStatus(`🎥 Avatar view: ${view}`);
-      document.querySelectorAll('.section:last-of-type .btn').forEach(btn => btn.classList.remove('active'));
+      document
+        .querySelectorAll('.section:last-of-type .btn')
+        .forEach((btn) => btn.classList.remove('active'));
       if (event && event.target) {
         event.target.classList.add('active');
       }
@@ -320,7 +382,7 @@ export class AvatarManager {
   // =====================================================
   zeroAllLights(scene) {
     console.log('🌑 ZEROING ALL LIGHTS');
-    
+
     scene.traverse((child) => {
       if (child.isLight && child.intensity !== undefined) {
         const original = child.intensity;
@@ -328,7 +390,7 @@ export class AvatarManager {
         console.log(`💡 ${child.type}: ${original} → 0`);
       }
     });
-    
+
     console.log('🌑 ALL LIGHTS ZEROED');
   }
 
@@ -336,12 +398,12 @@ export class AvatarManager {
   // PAGE VISIBILITY HANDLING
   // =====================================================
   setupPageVisibilityHandling() {
-    document.addEventListener("visibilitychange", this.handleVisibilityChange);
+    document.addEventListener('visibilitychange', this.handleVisibilityChange);
   }
 
   handleVisibilityChange() {
     if (this.head) {
-      if (document.visibilityState === "visible") {
+      if (document.visibilityState === 'visible') {
         this.head.start();
       } else {
         this.head.stop();
@@ -393,22 +455,22 @@ export class AvatarManager {
   sendAutomaticGreeting() {
     if (this.chatManager && this.webSocketManager) {
       // Send the greeting message automatically
-      const greetingMessage = "Hi there Nigel! Anything I can help you with?";
-      
+      const greetingMessage = 'Hi there Nigel! Anything I can help you with?';
+
       // Use the TTS system to speak the greeting directly
       if (this.ttsManager && this.head && this.isLoaded) {
         this.ttsManager.speakText(greetingMessage);
-        
+
         // Also show it in the speech bubble
         if (this.speechBubbleManager) {
           this.speechBubbleManager.showTimedSpeechBubble(greetingMessage, 4000);
         }
-        
+
         // Add to chat history if needed
         if (window.BrowserMemory) {
           window.BrowserMemory.storeMessage('assistant', greetingMessage);
         }
-        
+
         console.log('🤝 Automatic greeting sent:', greetingMessage);
       }
     }
@@ -419,22 +481,25 @@ export class AvatarManager {
   // =====================================================
   cleanup() {
     // Remove page visibility handler
-    document.removeEventListener("visibilitychange", this.handleVisibilityChange);
-    
+    document.removeEventListener(
+      'visibilitychange',
+      this.handleVisibilityChange
+    );
+
     // Stop avatar
     this.stopAvatar();
-    
+
     // Clean up avatar instance
     if (this.head) {
       // Note: TalkingHead may have its own cleanup methods
       this.head = null;
     }
-    
+
     // Reset state
     this.isLoaded = false;
     this.currentMood = 'neutral';
     this.currentMoodRef.current = 'neutral';
-    
+
     // Reset dependencies
     this.configManager = null;
     this.uiManager = null;
@@ -448,4 +513,4 @@ export class AvatarManager {
     this.chatManager = null;
     this.animationManager = null;
   }
-} 
+}

@@ -10,7 +10,7 @@ export class TTSManager {
     this.uiManager = null;
     this.head = null;
     this.isLoaded = false;
-    this.lastUserMessage = "";
+    this.lastUserMessage = '';
 
     // Interruption support
     this.currentAudioSource = null;
@@ -56,21 +56,21 @@ export class TTSManager {
     // Remove emojis from text before sending to TTS (comprehensive emoji removal)
     const cleanText = text
       // Remove thinking tags <t>...</t> (including multiline content)
-      .replace(/<t>[\s\S]*?<\/t>/gi, "") // Remove <t>...</t> tags and their content
+      .replace(/<t>[\s\S]*?<\/t>/gi, '') // Remove <t>...</t> tags and their content
       // Remove all emoji ranges
-      .replace(/[\u{1F600}-\u{1F64F}]/gu, "") // Emoticons
-      .replace(/[\u{1F300}-\u{1F5FF}]/gu, "") // Misc Symbols and Pictographs
-      .replace(/[\u{1F680}-\u{1F6FF}]/gu, "") // Transport and Map
-      .replace(/[\u{1F1E0}-\u{1F1FF}]/gu, "") // Regional country flags
-      .replace(/[\u{2600}-\u{26FF}]/gu, "") // Misc symbols
-      .replace(/[\u{2700}-\u{27BF}]/gu, "") // Dingbats
-      .replace(/[\u{1F900}-\u{1F9FF}]/gu, "") // Supplemental Symbols and Pictographs
-      .replace(/[\u{1FA70}-\u{1FAFF}]/gu, "") // Symbols and Pictographs Extended-A
-      .replace(/[\u{2000}-\u{206F}]/gu, "") // General Punctuation (includes some emoji modifiers)
-      .replace(/[\u{2190}-\u{21FF}]/gu, "") // Arrows
-      .replace(/[\u{2B50}\u{2B55}]/gu, "") // Star and heavy large circle
+      .replace(/[\u{1F600}-\u{1F64F}]/gu, '') // Emoticons
+      .replace(/[\u{1F300}-\u{1F5FF}]/gu, '') // Misc Symbols and Pictographs
+      .replace(/[\u{1F680}-\u{1F6FF}]/gu, '') // Transport and Map
+      .replace(/[\u{1F1E0}-\u{1F1FF}]/gu, '') // Regional country flags
+      .replace(/[\u{2600}-\u{26FF}]/gu, '') // Misc symbols
+      .replace(/[\u{2700}-\u{27BF}]/gu, '') // Dingbats
+      .replace(/[\u{1F900}-\u{1F9FF}]/gu, '') // Supplemental Symbols and Pictographs
+      .replace(/[\u{1FA70}-\u{1FAFF}]/gu, '') // Symbols and Pictographs Extended-A
+      .replace(/[\u{2000}-\u{206F}]/gu, '') // General Punctuation (includes some emoji modifiers)
+      .replace(/[\u{2190}-\u{21FF}]/gu, '') // Arrows
+      .replace(/[\u{2B50}\u{2B55}]/gu, '') // Star and heavy large circle
       // Clean up extra whitespace
-      .replace(/\s+/g, " ")
+      .replace(/\s+/g, ' ')
       .trim();
 
     return cleanText;
@@ -87,8 +87,9 @@ export class TTSManager {
     }
 
     if (!this.audioContext) {
-      this.audioContext = new (window.AudioContext ||
-        window.webkitAudioContext)();
+      this.audioContext = new (
+        window.AudioContext || window.webkitAudioContext
+      )();
     }
 
     const audioBuffer = await this.audioContext.decodeAudioData(bytes.buffer);
@@ -98,8 +99,9 @@ export class TTSManager {
   // Boost audio buffer volume for better audibility
   boostAudioVolume(audioBuffer, gainMultiplier = 2.0) {
     if (!this.audioContext) {
-      this.audioContext = new (window.AudioContext ||
-        window.webkitAudioContext)();
+      this.audioContext = new (
+        window.AudioContext || window.webkitAudioContext
+      )();
     }
 
     // Create a new buffer with the same properties
@@ -133,7 +135,7 @@ export class TTSManager {
   async callTTSAPI(cleanText, useStreaming = false) {
     const ttsProvider = this.configManager
       ? this.configManager.getTTSProvider()
-      : "elevenlabs";
+      : 'elevenlabs';
 
     // Get voiceId from config (loaded from server/.env)
     const voiceId = this.configManager ? this.configManager.getVoiceId() : null;
@@ -141,21 +143,21 @@ export class TTSManager {
     // Ensure voiceId is loaded from server (.env)
     if (!voiceId) {
       console.error(
-        "❌ Voice ID not loaded from server (.env). Please ensure ConfigManager.loadConfig() has been called."
+        '❌ Voice ID not loaded from server (.env). Please ensure ConfigManager.loadConfig() has been called.'
       );
       throw new Error(
-        "Voice ID not configured. Please check your .env file and server configuration."
+        'Voice ID not configured. Please check your .env file and server configuration.'
       );
     }
 
     // ElevenLabs provider
-    if (ttsProvider === "elevenlabs") {
-      const endpoint = "/api/elevenlabs/tts";
+    if (ttsProvider === 'elevenlabs') {
+      const endpoint = '/api/elevenlabs/tts';
       const requestBody = {
         text: cleanText,
         voiceId: voiceId, // From server (.env) - no hardcoded fallback
         stream: true, // Enable streaming for faster response
-        modelId: "eleven_multilingual_v2", // Multilingual model for Chinese/English mix
+        modelId: 'eleven_multilingual_v2', // Multilingual model for Chinese/English mix
         speed: 0.8, // Adjusted speed for Uncle Teo (70-year-old man)
         style: 0.0, // Less energetic (0.0 = calm, 1.0 = very energetic)
       };
@@ -170,8 +172,8 @@ export class TTSManager {
         const apiStartTime = Date.now();
 
         const response = await fetch(endpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(requestBody),
         });
 
@@ -188,19 +190,19 @@ export class TTSManager {
         console.log(`⚡ Full API response received in ${totalApiTime}ms`);
 
         if (!data.success) {
-          throw new Error(data.error || "ElevenLabs TTS API call failed");
+          throw new Error(data.error || 'ElevenLabs TTS API call failed');
         }
 
         // Mark as streaming if server indicates it
         data.streaming = requestBody.stream || false;
         console.log(
           `🎵 ElevenLabs Response: ${
-            data.streaming ? "STREAMING" : "standard"
+            data.streaming ? 'STREAMING' : 'standard'
           }, ${data.duration}s duration`
         );
         return data;
       } catch (error) {
-        console.error("❌ ElevenLabs TTS error:", error);
+        console.error('❌ ElevenLabs TTS error:', error);
         throw error;
       }
     }
@@ -209,14 +211,14 @@ export class TTSManager {
     else {
       // Prefer enhanced endpoint with real speech marks for better accuracy
       // Only use streaming as fallback for performance when needed
-      const endpoint = useStreaming ? "/api/tts-stream" : "/api/tts-enhanced";
+      const endpoint = useStreaming ? '/api/tts-stream' : '/api/tts-enhanced';
       const requestBody = {
         text: cleanText,
         voice: this.configManager ? this.configManager.getVoiceId() : null,
         sessionId: this.voiceStateManager
           ? this.voiceStateManager.getSessionId()
-          : "fallback-session",
-        userMessage: this.lastUserMessage || "",
+          : 'fallback-session',
+        userMessage: this.lastUserMessage || '',
       };
 
       try {
@@ -228,8 +230,8 @@ export class TTSManager {
         );
 
         const response = await fetch(endpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(requestBody),
         });
 
@@ -239,20 +241,20 @@ export class TTSManager {
         if (!data.success) {
           if (!useStreaming) {
             console.warn(
-              "🎤 Enhanced TTS failed, falling back to streaming TTS"
+              '🎤 Enhanced TTS failed, falling back to streaming TTS'
             );
             return this.callTTSAPI(cleanText, true);
           } else {
-            throw new Error(data.error || "TTS API call failed");
+            throw new Error(data.error || 'TTS API call failed');
           }
         }
 
         // Log timing accuracy info
         if (data.lipSync) {
-          const timingType = data.streaming ? "estimated" : "precise";
+          const timingType = data.streaming ? 'estimated' : 'precise';
           const syncInfo = data.lipSync.isSynchronized
-            ? "synchronized"
-            : "basic";
+            ? 'synchronized'
+            : 'basic';
           console.log(
             `🎵 TTS Response: ${timingType} timing, ${syncInfo} lip sync, ${data.duration}s duration`
           );
@@ -267,7 +269,7 @@ export class TTSManager {
         // Only fallback to streaming if we weren't already using it
         if (!useStreaming) {
           console.warn(
-            "🎤 Enhanced TTS error, falling back to streaming TTS:",
+            '🎤 Enhanced TTS error, falling back to streaming TTS:',
             error.message
           );
           return this.callTTSAPI(cleanText, true);
@@ -286,14 +288,15 @@ export class TTSManager {
 
     // OPTIMIZATION: Pre-warm audio context if not ready
     if (!this.audioContext) {
-      this.audioContext = new (window.AudioContext ||
-        window.webkitAudioContext)();
+      this.audioContext = new (
+        window.AudioContext || window.webkitAudioContext
+      )();
     }
 
     // OPTIMIZATION: Resume audio context if suspended (browser autoplay policy)
-    if (this.audioContext.state === "suspended") {
+    if (this.audioContext.state === 'suspended') {
       await this.audioContext.resume();
-      console.log("⚡ Audio context resumed");
+      console.log('⚡ Audio context resumed');
     }
 
     let audioBuffer = await this.base64ToAudioBuffer(data.audio);
@@ -319,23 +322,23 @@ export class TTSManager {
       lipSync.visemes.length > 0;
     const isAudioDriven =
       (data.audioDriven && !hasServerVisemes) ||
-      (data.provider === "elevenlabs" && !hasServerVisemes) ||
+      (data.provider === 'elevenlabs' && !hasServerVisemes) ||
       !data.lipSync;
 
     if (hasServerVisemes) {
       const uniqueVisemes = [...new Set(lipSync.visemes)];
       console.log(
-        "🎤 Using server-generated phonetic visemes (better control, smoother lip sync)"
+        '🎤 Using server-generated phonetic visemes (better control, smoother lip sync)'
       );
       console.log(
         `💋 Viseme variety: ${
           uniqueVisemes.length
-        } unique visemes [${uniqueVisemes.join(", ")}]`
+        } unique visemes [${uniqueVisemes.join(', ')}]`
       );
       console.log(
         `💋 Total visemes: ${
           lipSync.visemes.length
-        }, First 5: [${lipSync.visemes.slice(0, 5).join(", ")}]`
+        }, First 5: [${lipSync.visemes.slice(0, 5).join(', ')}]`
       );
 
       // CRITICAL FIX: Rescale visemes to match ACTUAL audio duration
@@ -396,7 +399,7 @@ export class TTSManager {
       };
     } else if (isAudioDriven || !data.lipSync) {
       console.log(
-        "🎤 Using audio-driven lip sync (TalkingHead will analyze audio)"
+        '🎤 Using audio-driven lip sync (TalkingHead will analyze audio)'
       );
       // Fallback: let TalkingHead analyze audio (less ideal)
       // Handle case where lipSync is missing or undefined
@@ -408,7 +411,7 @@ export class TTSManager {
         // NO viseme properties - TalkingHead will generate from audio
       };
     } else {
-      console.log("🎤 Using viseme-based lip sync (Polly data)");
+      console.log('🎤 Using viseme-based lip sync (Polly data)');
       return {
         audio: audioBuffer,
         words: lipSync.words || [],
@@ -426,27 +429,28 @@ export class TTSManager {
   // =====================================================
   playSpeechWithLipSync(audioObject, cleanText, data) {
     if (!this.head || !this.isLoaded) {
-      console.warn("Head or avatar not ready for speech");
+      console.warn('Head or avatar not ready for speech');
       return;
     }
 
     // CRITICAL: Ensure AudioContext is resumed before playback
     if (!this.audioContext) {
-      this.audioContext = new (window.AudioContext ||
-        window.webkitAudioContext)();
+      this.audioContext = new (
+        window.AudioContext || window.webkitAudioContext
+      )();
     }
 
     // Force resume AudioContext - this is critical for audio playback
-    if (this.audioContext.state === "suspended") {
+    if (this.audioContext.state === 'suspended') {
       this.audioContext
         .resume()
         .then(() => {
-          console.log("✅ Audio context resumed in playSpeechWithLipSync");
+          console.log('✅ Audio context resumed in playSpeechWithLipSync');
           this.actuallyPlayAudio(audioObject, cleanText, data);
         })
         .catch((error) => {
           console.error(
-            "❌ CRITICAL: Failed to resume audio context in playSpeechWithLipSync:",
+            '❌ CRITICAL: Failed to resume audio context in playSpeechWithLipSync:',
             error
           );
           // Try to create new context
@@ -455,9 +459,10 @@ export class TTSManager {
           } catch (closeError) {
             // Ignore
           }
-          this.audioContext = new (window.AudioContext ||
-            window.webkitAudioContext)();
-          console.log("✅ Created new audio context, retrying playback");
+          this.audioContext = new (
+            window.AudioContext || window.webkitAudioContext
+          )();
+          console.log('✅ Created new audio context, retrying playback');
           this.actuallyPlayAudio(audioObject, cleanText, data);
         });
       return;
@@ -469,7 +474,7 @@ export class TTSManager {
 
   actuallyPlayAudio(audioObject, cleanText, data) {
     if (!this.head || !this.isLoaded) {
-      console.warn("Head or avatar not ready for speech");
+      console.warn('Head or avatar not ready for speech');
       return;
     }
 
@@ -499,7 +504,7 @@ export class TTSManager {
     // Notify idle timer manager that we're speaking
     if (
       this.idleTimerManager &&
-      typeof this.idleTimerManager.setSpeaking === "function"
+      typeof this.idleTimerManager.setSpeaking === 'function'
     ) {
       this.idleTimerManager.setSpeaking(true);
     }
@@ -519,7 +524,7 @@ export class TTSManager {
       window.speechRecognitionManager &&
       window.speechRecognitionManager.isRecording
     ) {
-      console.log("🎤 Stopping voice recognition during TTS playback");
+      console.log('🎤 Stopping voice recognition during TTS playback');
       window.speechRecognitionManager.stopVoiceRecognition();
     }
 
@@ -542,19 +547,19 @@ export class TTSManager {
       duration: data.duration,
       wordCount: (data.lipSync?.words || []).length,
       visemeCount: (data.lipSync?.visemes || []).length,
-      hasOnComplete: typeof this.head.speakAudio === "function",
+      hasOnComplete: typeof this.head.speakAudio === 'function',
       streaming: data.streaming || false, // Should be true if streaming enabled
       synchronized: data.lipSync?.isSynchronized || false,
-      timingType: data.streaming ? "estimated" : "precise",
+      timingType: data.streaming ? 'estimated' : 'precise',
       speedRate: data.lipSync?.speedRate || 100,
       actualAudioDuration: data.duration,
       estimatedDuration: data.lipSync?.estimatedDuration || data.duration,
     };
 
-    console.log("🎤 Speech playback starting:", speechInfo);
+    console.log('🎤 Speech playback starting:', speechInfo);
     if (!data.streaming) {
       console.warn(
-        "⚠️ Streaming is disabled - audio will wait for full buffer"
+        '⚠️ Streaming is disabled - audio will wait for full buffer'
       );
     }
 
@@ -569,17 +574,17 @@ export class TTSManager {
           : 500;
       const totalLipSyncTime = lastWordTime + lastWordDuration;
 
-      console.log("💋 Lip sync timing:", {
+      console.log('💋 Lip sync timing:', {
         firstWord:
           lipSync.words && lipSync.words.length > 0
             ? `"${lipSync.words[0]}" at ${firstWordTime}ms`
-            : "N/A",
+            : 'N/A',
         lastWord:
           lipSync.words && lipSync.words.length > 0
             ? `"${
                 lipSync.words[lipSync.words.length - 1]
               }" at ${lastWordTime}ms`
-            : "N/A",
+            : 'N/A',
         totalLipSyncDuration: `${totalLipSyncTime}ms (${
           totalLipSyncTime / 1000
         }s)`,
@@ -592,17 +597,17 @@ export class TTSManager {
     const speechStartTime = Date.now();
 
     // Debug: Log what we're sending to TalkingHead
-    console.log("🎤 TalkingHead Input Debug:", {
+    console.log('🎤 TalkingHead Input Debug:', {
       hasVisemes: !!audioObject.visemes,
       visemeCount: audioObject.visemes?.length || 0,
       hasVtimes: !!audioObject.vtimes,
       hasVdurations: !!audioObject.vdurations,
-      first5Visemes: audioObject.visemes?.slice(0, 5) || "N/A",
-      first5Times: audioObject.vtimes?.slice(0, 5) || "N/A",
-      first5Durations: audioObject.vdurations?.slice(0, 5) || "N/A",
+      first5Visemes: audioObject.visemes?.slice(0, 5) || 'N/A',
+      first5Times: audioObject.vtimes?.slice(0, 5) || 'N/A',
+      first5Durations: audioObject.vdurations?.slice(0, 5) || 'N/A',
       uniqueVisemes: audioObject.visemes
         ? [...new Set(audioObject.visemes)].slice(0, 10)
-        : "N/A",
+        : 'N/A',
       wordCount: audioObject.words?.length || 0,
       audioBufferLength: audioObject.audio?.length || 0,
     });
@@ -610,7 +615,7 @@ export class TTSManager {
     // Primary method: Use TalkingHead's onComplete callback (most reliable)
     // For audio-driven lip sync, TalkingHead will analyze the audio automatically
     const speakOptions = {
-      lipsyncLang: "en",
+      lipsyncLang: 'en',
       onComplete: () => {
         const actualDuration = Date.now() - speechStartTime;
         console.log(
@@ -626,7 +631,7 @@ export class TTSManager {
         // Notify idle timer manager that we're done speaking
         if (
           this.idleTimerManager &&
-          typeof this.idleTimerManager.setSpeaking === "function"
+          typeof this.idleTimerManager.setSpeaking === 'function'
         ) {
           this.idleTimerManager.setSpeaking(false);
         }
@@ -643,7 +648,7 @@ export class TTSManager {
           !window.speechRecognitionManager.isRecording
         ) {
           setTimeout(() => {
-            console.log("🎤 Restarting voice recognition after TTS");
+            console.log('🎤 Restarting voice recognition after TTS');
             window.speechRecognitionManager.startVoiceRecognition();
           }, 500); // Small delay to ensure TTS is fully stopped
         }
@@ -660,7 +665,7 @@ export class TTSManager {
         }
       },
       onError: (error) => {
-        console.error("🎤 Speech error:", error);
+        console.error('🎤 Speech error:', error);
 
         // Mark as not speaking
         this.isSpeaking = false;
@@ -669,7 +674,7 @@ export class TTSManager {
         // Notify idle timer manager that we're done speaking
         if (
           this.idleTimerManager &&
-          typeof this.idleTimerManager.setSpeaking === "function"
+          typeof this.idleTimerManager.setSpeaking === 'function'
         ) {
           this.idleTimerManager.setSpeaking(false);
         }
@@ -686,7 +691,7 @@ export class TTSManager {
           !window.speechRecognitionManager.isRecording
         ) {
           setTimeout(() => {
-            console.log("🎤 Restarting voice recognition after TTS error");
+            console.log('🎤 Restarting voice recognition after TTS error');
             window.speechRecognitionManager.startVoiceRecognition();
           }, 500);
         }
@@ -705,24 +710,24 @@ export class TTSManager {
     };
 
     // CRITICAL: Verify AudioContext state before calling speakAudio
-    if (this.audioContext && this.audioContext.state === "suspended") {
+    if (this.audioContext && this.audioContext.state === 'suspended') {
       console.error(
-        "❌ CRITICAL: AudioContext is suspended - audio will not play!"
+        '❌ CRITICAL: AudioContext is suspended - audio will not play!'
       );
-      console.error("Attempting to resume AudioContext...");
+      console.error('Attempting to resume AudioContext...');
       this.audioContext
         .resume()
         .then(() => {
-          console.log("✅ AudioContext resumed, calling speakAudio");
+          console.log('✅ AudioContext resumed, calling speakAudio');
           this.head.speakAudio(audioObject, speakOptions);
         })
         .catch((error) => {
-          console.error("❌ Failed to resume AudioContext:", error);
+          console.error('❌ Failed to resume AudioContext:', error);
           // Still try to play - might work in some browsers
           try {
             this.head.speakAudio(audioObject, speakOptions);
           } catch (playError) {
-            console.error("❌ speakAudio failed:", playError);
+            console.error('❌ speakAudio failed:', playError);
             // Trigger error callback
             if (speakOptions.onError) {
               speakOptions.onError(playError);
@@ -734,13 +739,13 @@ export class TTSManager {
       try {
         console.log(
           `🔊 Calling speakAudio (AudioContext state: ${
-            this.audioContext?.state || "unknown"
+            this.audioContext?.state || 'unknown'
           })`
         );
         this.head.speakAudio(audioObject, speakOptions);
-        console.log("✅ speakAudio called successfully");
+        console.log('✅ speakAudio called successfully');
       } catch (error) {
-        console.error("❌ speakAudio threw error:", error);
+        console.error('❌ speakAudio threw error:', error);
         if (speakOptions.onError) {
           speakOptions.onError(error);
         }
@@ -776,7 +781,7 @@ export class TTSManager {
         !window.speechRecognitionManager.isRecording
       ) {
         setTimeout(() => {
-          console.log("🎤 Restarting voice recognition after TTS timeout");
+          console.log('🎤 Restarting voice recognition after TTS timeout');
           window.speechRecognitionManager.startVoiceRecognition();
         }, 500);
       }
@@ -848,11 +853,11 @@ export class TTSManager {
   // =====================================================
   interruptSpeech() {
     if (!this.isSpeaking) {
-      console.log("🔇 No speech to interrupt");
+      console.log('🔇 No speech to interrupt');
       return false;
     }
 
-    console.log("🛑 Interrupting current speech");
+    console.log('🛑 Interrupting current speech');
 
     // Stop TalkingHead speech if possible
     if (this.head && this.head.stopSpeaking) {
@@ -863,9 +868,9 @@ export class TTSManager {
     if (this.currentAudioSource) {
       try {
         this.currentAudioSource.stop();
-        console.log("🔇 Audio source stopped");
+        console.log('🔇 Audio source stopped');
       } catch (error) {
-        console.warn("⚠️ Could not stop audio source:", error);
+        console.warn('⚠️ Could not stop audio source:', error);
       }
       this.currentAudioSource = null;
     }
@@ -889,7 +894,7 @@ export class TTSManager {
     // Reset speaking state
     this.isSpeaking = false;
 
-    console.log("✅ Speech interrupted successfully");
+    console.log('✅ Speech interrupted successfully');
     return true;
   }
 
@@ -898,7 +903,7 @@ export class TTSManager {
   // =====================================================
   async speakText(text) {
     if (!this.head || !this.isLoaded) {
-      console.warn("Avatar not ready for speech");
+      console.warn('Avatar not ready for speech');
       return false;
     }
 
@@ -912,7 +917,7 @@ export class TTSManager {
 
     // Don't speak if only emojis were in the text
     if (!cleanText) {
-      console.warn("No clean text to speak after emoji removal");
+      console.warn('No clean text to speak after emoji removal');
       return false;
     }
 
@@ -923,29 +928,31 @@ export class TTSManager {
 
       // CRITICAL: Initialize and resume AudioContext BEFORE API call
       if (!this.audioContext) {
-        this.audioContext = new (window.AudioContext ||
-          window.webkitAudioContext)();
+        this.audioContext = new (
+          window.AudioContext || window.webkitAudioContext
+        )();
         console.log(
           `🔊 Created new AudioContext (state: ${this.audioContext.state})`
         );
       }
 
       // CRITICAL: Resume AudioContext on user interaction (required by browser autoplay policy)
-      if (this.audioContext.state === "suspended") {
+      if (this.audioContext.state === 'suspended') {
         try {
           await this.audioContext.resume();
-          console.log("✅ Audio context resumed for TTS (before API call)");
+          console.log('✅ Audio context resumed for TTS (before API call)');
         } catch (error) {
-          console.error("❌ CRITICAL: Failed to resume audio context:", error);
+          console.error('❌ CRITICAL: Failed to resume audio context:', error);
           // Try to create a new context
           try {
             this.audioContext.close();
           } catch (closeError) {
             // Ignore close errors
           }
-          this.audioContext = new (window.AudioContext ||
-            window.webkitAudioContext)();
-          console.log("✅ Created new audio context after resume failure");
+          this.audioContext = new (
+            window.AudioContext || window.webkitAudioContext
+          )();
+          console.log('✅ Created new audio context after resume failure');
         }
       } else {
         console.log(
@@ -965,14 +972,14 @@ export class TTSManager {
 
       if (data.success) {
         // CRITICAL: Double-check AudioContext state before creating audio object
-        if (this.audioContext.state === "suspended") {
-          console.warn("⚠️ AudioContext suspended after API call, resuming...");
+        if (this.audioContext.state === 'suspended') {
+          console.warn('⚠️ AudioContext suspended after API call, resuming...');
           try {
             await this.audioContext.resume();
-            console.log("✅ Audio context resumed after API call");
+            console.log('✅ Audio context resumed after API call');
           } catch (error) {
             console.error(
-              "❌ Failed to resume audio context after API call:",
+              '❌ Failed to resume audio context after API call:',
               error
             );
           }
@@ -998,8 +1005,8 @@ export class TTSManager {
 
         // Verify audio object is valid
         if (!audioObject || !audioObject.audio) {
-          console.error("❌ Invalid audio object - cannot play");
-          throw new Error("Invalid audio object");
+          console.error('❌ Invalid audio object - cannot play');
+          throw new Error('Invalid audio object');
         }
 
         // Play speech with lip-sync
@@ -1007,11 +1014,11 @@ export class TTSManager {
 
         return true;
       } else {
-        console.error("TTS API call failed:", data.error);
+        console.error('TTS API call failed:', data.error);
         return false;
       }
     } catch (error) {
-      console.error("Speech error:", error);
+      console.error('Speech error:', error);
       if (this.speechBubbleManager) {
         this.speechBubbleManager.hideSpeechBubble(); // Hide bubble on error
       }
@@ -1033,8 +1040,9 @@ export class TTSManager {
 
   getAudioContext() {
     if (!this.audioContext) {
-      this.audioContext = new (window.AudioContext ||
-        window.webkitAudioContext)();
+      this.audioContext = new (
+        window.AudioContext || window.webkitAudioContext
+      )();
     }
     return this.audioContext;
   }
@@ -1042,12 +1050,13 @@ export class TTSManager {
   // Pre-warm AudioContext (will be suspended until user interaction)
   preWarmAudioContext() {
     if (!this.audioContext) {
-      this.audioContext = new (window.AudioContext ||
-        window.webkitAudioContext)();
+      this.audioContext = new (
+        window.AudioContext || window.webkitAudioContext
+      )();
       console.log(
-        "🔥 AudioContext pre-warmed (state:",
+        '🔥 AudioContext pre-warmed (state:',
         this.audioContext.state,
-        ")"
+        ')'
       );
     }
     return this.audioContext;

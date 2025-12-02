@@ -28,7 +28,8 @@ export abstract class BaseAgent {
   private useOpenRouter: boolean = false;
 
   constructor(options: BaseAgentOptions) {
-    this.clientName = options.clientName || process.env.CLIENT_NAME || 'synapse';
+    this.clientName =
+      options.clientName || process.env.CLIENT_NAME || 'synapse';
     this.language = options.language || 'en'; // Default to 'en'
     this.systemPrompt = ''; // Will be set by initialize()
     this.agentType = this.constructor.name.toLowerCase().replace('agent', '');
@@ -36,24 +37,34 @@ export abstract class BaseAgent {
     // Determine model from env var or default
     if (options.modelEnvVar) {
       // Use Grok (OpenRouter) for angry agents by default
-      const isAngryAgent = ['MODEL_IRRITATED', 'MODEL_AGITATED', 'MODEL_ENRAGED'].includes(options.modelEnvVar);
-      const defaultModel = isAngryAgent ? 'x-ai/grok-4-fast' : 'llama-3.1-8b-instant';
-      
+      const isAngryAgent = [
+        'MODEL_IRRITATED',
+        'MODEL_AGITATED',
+        'MODEL_ENRAGED',
+      ].includes(options.modelEnvVar);
+      const defaultModel = isAngryAgent
+        ? 'x-ai/grok-4-fast'
+        : 'llama-3.1-8b-instant';
+
       let modelName = process.env[options.modelEnvVar] || defaultModel;
-      
+
       // Check if model uses OpenRouter (contains '/')
       this.useOpenRouter = modelName.includes('/');
-      
+
       // Fix common model name issues (only for Groq models)
       if (!this.useOpenRouter) {
         if (modelName.includes('meta-llama/')) {
           modelName = modelName.replace('meta-llama/', '');
-          console.warn(`⚠️  Fixed model name for ${options.modelEnvVar}: removed 'meta-llama/' prefix. Using: ${modelName}`);
+          console.warn(
+            `⚠️  Fixed model name for ${options.modelEnvVar}: removed 'meta-llama/' prefix. Using: ${modelName}`
+          );
         }
         // Fix common mistake: llama-3.1-8b-instruct -> llama-3.1-8b-instant
         if (modelName === 'llama-3.1-8b-instruct') {
           modelName = 'llama-3.1-8b-instant';
-          console.warn(`⚠️  Fixed model name for ${options.modelEnvVar}: changed 'instruct' to 'instant'. Using: ${modelName}`);
+          console.warn(
+            `⚠️  Fixed model name for ${options.modelEnvVar}: changed 'instruct' to 'instant'. Using: ${modelName}`
+          );
         }
       }
       this.model = modelName;
@@ -94,30 +105,39 @@ export abstract class BaseAgent {
       // DO NOT use sassi_personality.md - use language-specific versions
       let personalityPrompt = '';
       if (!skipPersonality) {
-        const personalityFile = this.language === 'cn' ? 'sassi_personality_cn.md' : 'sassi_personality_en.md';
+        const personalityFile =
+          this.language === 'cn'
+            ? 'sassi_personality_cn.md'
+            : 'sassi_personality_en.md';
         personalityPrompt = await loadPrompt(personalityFile, this.clientName);
       }
       const agentPrompt = await loadPrompt(promptFile, this.clientName);
 
       // Load linguistic engine and false memory prompts
-      const linguisticEnginePrompt = await loadPrompt('linguistic-engine.md', this.clientName);
-      const falseMemoryPrompt = await loadPrompt('false-memory.md', this.clientName);
+      const linguisticEnginePrompt = await loadPrompt(
+        'linguistic-engine.md',
+        this.clientName
+      );
+      const falseMemoryPrompt = await loadPrompt(
+        'false-memory.md',
+        this.clientName
+      );
 
       // Combine prompts: personality + linguistic engine + false memory + agent-specific
       const promptParts: string[] = [];
-      
+
       if (!skipPersonality && personalityPrompt) {
         promptParts.push(personalityPrompt);
       }
-      
+
       if (linguisticEnginePrompt) {
         promptParts.push(linguisticEnginePrompt);
       }
-      
+
       if (falseMemoryPrompt) {
         promptParts.push(falseMemoryPrompt);
       }
-      
+
       if (agentPrompt) {
         promptParts.push(agentPrompt);
       }
@@ -128,11 +148,18 @@ export abstract class BaseAgent {
       this.initialized = true;
     } catch (error) {
       const err = error as Error;
-      console.error(`❌ Failed to load prompts for ${this.agentType}:`, err.message);
-      console.error(`   Client: ${this.clientName}, Prompt file: ${(this as any)._promptFile}`);
+      console.error(
+        `❌ Failed to load prompts for ${this.agentType}:`,
+        err.message
+      );
+      console.error(
+        `   Client: ${this.clientName}, Prompt file: ${(this as any)._promptFile}`
+      );
       console.error(`   Error details:`, err);
       // Fallback to basic prompt - but log warning
-      console.warn(`⚠️  Using fallback generic prompt for ${this.agentType} - prompts not loaded!`);
+      console.warn(
+        `⚠️  Using fallback generic prompt for ${this.agentType} - prompts not loaded!`
+      );
       this.systemPrompt = `You are ${this.agentType} agent. Respond appropriately.`;
       this.initialized = true;
     }
@@ -155,7 +182,10 @@ export abstract class BaseAgent {
   /**
    * Trim conversation history to maintain context window
    */
-  protected trimConversationHistory(messages: ChatMessage[], maxMessages: number = 20): ChatMessage[] {
+  protected trimConversationHistory(
+    messages: ChatMessage[],
+    maxMessages: number = 20
+  ): ChatMessage[] {
     if (messages.length <= maxMessages) {
       return messages;
     }
@@ -216,4 +246,3 @@ export abstract class BaseAgent {
     return this.model;
   }
 }
-

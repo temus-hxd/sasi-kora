@@ -4,7 +4,7 @@ export class VoiceStateManager {
     this.currentVoiceState = {
       current_volume_db: 10, // Default to maximum volume for better audibility
       current_speed_rate: 100,
-      senior_mode_active: false
+      senior_mode_active: false,
     };
   }
 
@@ -27,7 +27,9 @@ export class VoiceStateManager {
 
   async resetVoiceSettings() {
     try {
-      const response = await fetch(`/api/voice-reset/${this.sessionId}`, { method: 'POST' });
+      const response = await fetch(`/api/voice-reset/${this.sessionId}`, {
+        method: 'POST',
+      });
       const data = await response.json();
       if (data.success) {
         this.currentVoiceState = data.voiceState;
@@ -63,4 +65,4 @@ export class VoiceStateManager {
   updateStatus(message) {
     console.log('VoiceStateManager:', message);
   }
-} 
+}

@@ -30,30 +30,36 @@ export class SentimentAgent extends BaseAgent {
 
     try {
       const clientName = this.clientName;
-      
+
       // Load mini personality for context and sentiment prompt
-      this.personalityContext = await loadPrompt('sassi_personality_mini.md', clientName);
+      this.personalityContext = await loadPrompt(
+        'sassi_personality_mini.md',
+        clientName
+      );
       const agentPrompt = await loadPrompt('sentiment_agent.md', clientName);
 
       // Load linguistic engine and false memory prompts
-      const linguisticEnginePrompt = await loadPrompt('linguistic-engine.md', clientName);
+      const linguisticEnginePrompt = await loadPrompt(
+        'linguistic-engine.md',
+        clientName
+      );
       const falseMemoryPrompt = await loadPrompt('false-memory.md', clientName);
 
       // Combine prompts: personality_mini + linguistic engine + false memory + agent prompt
       const promptParts: string[] = [];
-      
+
       if (this.personalityContext) {
         promptParts.push(this.personalityContext);
       }
-      
+
       if (linguisticEnginePrompt) {
         promptParts.push(linguisticEnginePrompt);
       }
-      
+
       if (falseMemoryPrompt) {
         promptParts.push(falseMemoryPrompt);
       }
-      
+
       if (agentPrompt) {
         promptParts.push(agentPrompt);
       }
@@ -65,7 +71,8 @@ export class SentimentAgent extends BaseAgent {
     } catch (error) {
       console.error(`Failed to load prompts for sentiment agent:`, error);
       // Fallback to basic prompt
-      (this as any).systemPrompt = `You are a sentiment analysis agent. Analyze the emotion and intensity of messages.`;
+      (this as any).systemPrompt =
+        `You are a sentiment analysis agent. Analyze the emotion and intensity of messages.`;
       (this as any).initialized = true;
     }
   }
@@ -74,16 +81,20 @@ export class SentimentAgent extends BaseAgent {
    * Analyze sentiment of a single message with thinking process
    * Includes retry logic for better reliability
    */
-  async analyzeSentiment(message: string, retries: number = 3): Promise<SentimentAnalysis> {
+  async analyzeSentiment(
+    message: string,
+    retries: number = 3
+  ): Promise<SentimentAnalysis> {
     await this.ensureInitialized();
 
     // Create a simple message list for analysis with strict JSON instruction
     const analysisMessages: ChatMessage[] = [
-      { 
-        role: 'system', 
-        content: 'CRITICAL: You MUST return ONLY valid JSON. No text before or after. No markdown. Pure JSON only. Example: {"emotion":"neutral","intensity":0.5,"emotional_indicators":[],"thinking":"..."}'
+      {
+        role: 'system',
+        content:
+          'CRITICAL: You MUST return ONLY valid JSON. No text before or after. No markdown. Pure JSON only. Example: {"emotion":"neutral","intensity":0.5,"emotional_indicators":[],"thinking":"..."}',
       },
-      { role: 'user', content: message }
+      { role: 'user', content: message },
     ];
 
     let lastError: Error | null = null;
@@ -125,15 +136,24 @@ export class SentimentAgent extends BaseAgent {
       } catch (error) {
         const err = error as Error;
         lastError = err;
-        
+
         if (attempt < retries) {
-          console.warn(`⚠️  Sentiment analysis attempt ${attempt}/${retries} failed, retrying...`, err.message);
+          console.warn(
+            `⚠️  Sentiment analysis attempt ${attempt}/${retries} failed, retrying...`,
+            err.message
+          );
           // Wait a bit before retry (exponential backoff)
-          await new Promise(resolve => setTimeout(resolve, 200 * attempt));
+          await new Promise((resolve) => setTimeout(resolve, 200 * attempt));
         } else {
-          console.error(`⚠️  Sentiment analysis failed after ${retries} attempts:`, err.message);
-          console.error('Raw response (first 300 chars):', lastRawResponse.substring(0, 300));
-          
+          console.error(
+            `⚠️  Sentiment analysis failed after ${retries} attempts:`,
+            err.message
+          );
+          console.error(
+            'Raw response (first 300 chars):',
+            lastRawResponse.substring(0, 300)
+          );
+
           // Return a safe fallback instead of throwing
           // This allows the conversation to continue even if sentiment analysis fails
           console.warn('⚠️  Using fallback sentiment analysis (neutral)');
@@ -194,7 +214,7 @@ export class SentimentAgent extends BaseAgent {
           // Fall through to throw original error
         }
       }
-      
+
       // Store raw response for debugging
       (parseError as any).rawResponse = response;
       throw parseError;
@@ -208,4 +228,3 @@ export class SentimentAgent extends BaseAgent {
     return 'Sentiment agent should use analyzeSentiment method';
   }
 }
-

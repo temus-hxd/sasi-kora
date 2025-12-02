@@ -7,7 +7,7 @@ export class IdleTimerManager {
     this.head = null;
     this.isLoaded = false;
     this.currentMoodRef = null;
-    this.currentMood = "neutral";
+    this.currentMood = 'neutral';
     this.chatManager = null;
     this.ttsManager = null;
     this.isSpeaking = false;
@@ -26,14 +26,14 @@ export class IdleTimerManager {
   ) {
     this.head = head;
     // Handle both function and boolean for isLoaded
-    if (typeof isLoadedRef === "function") {
+    if (typeof isLoadedRef === 'function') {
       this.getIsLoaded = isLoadedRef;
     } else {
       // If it's a boolean, create a getter function
       // But we need to check the actual value from the head/avatar
       this.getIsLoaded = () => {
         // Check if head exists and has isLoaded property
-        if (head && typeof head.isLoaded !== "undefined") {
+        if (head && typeof head.isLoaded !== 'undefined') {
           return head.isLoaded;
         }
         // Fallback to the passed value
@@ -51,7 +51,7 @@ export class IdleTimerManager {
     this.chatManager = chatManager;
     this.ttsManager = ttsManager;
 
-    console.log("✅ IdleTimerManager dependencies set:", {
+    console.log('✅ IdleTimerManager dependencies set:', {
       hasHead: !!this.head,
       hasChatManager: !!this.chatManager,
       hasTtsManager: !!this.ttsManager,
@@ -88,16 +88,16 @@ export class IdleTimerManager {
         this.head &&
         this.getIsLoaded() &&
         this.currentMoodRef &&
-        this.currentMoodRef.current !== "neutral"
+        this.currentMoodRef.current !== 'neutral'
       ) {
         console.log(
           `🕐 ${
             this.idleTimeoutMs / 1000
           } seconds idle - reverting to neutral mood`
         );
-        this.head.setMood("neutral");
-        this.currentMoodRef.current = "neutral";
-        this.currentMood = "neutral";
+        this.head.setMood('neutral');
+        this.currentMoodRef.current = 'neutral';
+        this.currentMood = 'neutral';
       }
     }, this.idleTimeoutMs);
 

@@ -51,7 +51,7 @@ export class Orchestrator {
   async initialize(): Promise<void> {
     // Initialize anger meter
     this.angerMeter = await AngerMeter.create();
-    
+
     // Initialize sentiment agent
     await this.sentimentAgent.initialize();
   }
@@ -88,25 +88,59 @@ export class Orchestrator {
     // Step 1: Run sentiment analysis (required before routing and anger meter)
     console.log('⏱️  [TRACE] Starting sentiment analysis...');
     const sentimentStart = Date.now();
-    const sentimentAnalysis = await this.sentimentAgent.analyzeSentiment(message);
+    const sentimentAnalysis =
+      await this.sentimentAgent.analyzeSentiment(message);
     const sentimentDuration = (Date.now() - sentimentStart) / 1000;
-    console.log(`⏱️  [TRACE] Sentiment analysis completed in ${sentimentDuration.toFixed(2)}s`);
+    console.log(
+      `⏱️  [TRACE] Sentiment analysis completed in ${sentimentDuration.toFixed(2)}s`
+    );
 
     // Step 2: Process anger meter (anger persists across messages)
-    const angerEmotions = ['anger', 'frustration', 'irritation', 'rage', 'annoyance'];
+    const angerEmotions = [
+      'anger',
+      'frustration',
+      'irritation',
+      'rage',
+      'annoyance',
+    ];
     // Expanded happy emotions list to catch more variations
-    const happyEmotions = ['joy', 'happiness', 'excitement', 'enthusiasm', 'pleasure', 'love', 'affection', 'appreciation', 'gratitude', 'admiration', 'positive'];
-    const sadEmotions = ['sadness', 'melancholy', 'grief', 'disappointment', 'sorrow'];
+    const happyEmotions = [
+      'joy',
+      'happiness',
+      'excitement',
+      'enthusiasm',
+      'pleasure',
+      'love',
+      'affection',
+      'appreciation',
+      'gratitude',
+      'admiration',
+      'positive',
+    ];
+    const sadEmotions = [
+      'sadness',
+      'melancholy',
+      'grief',
+      'disappointment',
+      'sorrow',
+    ];
     const emotion = sentimentAnalysis.emotion || 'neutral';
     const intensity = sentimentAnalysis.intensity || 0;
 
     // Debug: Log detected emotion
-    console.log(`🎭 Detected emotion: "${emotion}", intensity: ${intensity.toFixed(2)}`);
-    console.log(`🎭 Emotional indicators: ${sentimentAnalysis.emotional_indicators?.join(', ') || 'none'}`);
+    console.log(
+      `🎭 Detected emotion: "${emotion}", intensity: ${intensity.toFixed(2)}`
+    );
+    console.log(
+      `🎭 Emotional indicators: ${sentimentAnalysis.emotional_indicators?.join(', ') || 'none'}`
+    );
 
     // ALWAYS use anger meter system - anger persists regardless of current message emotion
-    const [angerAgent, angerMeterInfo] = this.angerMeter.processMessage(message, sentimentAnalysis);
-    
+    const [angerAgent, angerMeterInfo] = this.angerMeter.processMessage(
+      message,
+      sentimentAnalysis
+    );
+
     // Determine next agent based on emotion and anger meter
     // Priority: Anger > Happiness > Sadness > Normal
     let nextAgent: string;
@@ -124,34 +158,46 @@ export class Orchestrator {
         action = 'anger_meter_routing_persistent';
         thinking = `Non-angry message but anger persists. Anger meter: ${angerMeterInfo.anger_points} pts, routing to ${angerAgent} agent.`;
       }
-      console.log(`😠 ANGER ROUTING: ${angerAgent} (${angerMeterInfo.anger_points} pts) - overriding emotion routing`);
+      console.log(
+        `😠 ANGER ROUTING: ${angerAgent} (${angerMeterInfo.anger_points} pts) - overriding emotion routing`
+      );
     }
     // If no anger, route based on positive emotions
     // Check if emotion matches happy emotions or contains happy keywords
     // Also check emotional indicators for positive words (compliments often detected as "positive" or "neutral")
     else {
       const emotionLower = emotion.toLowerCase();
-      const hasHappyEmotion = happyEmotions.includes(emotion) || 
-                              emotionLower.includes('happy') || 
-                              emotionLower.includes('joy') ||
-                              emotionLower === 'positive';
-      
+      const hasHappyEmotion =
+        happyEmotions.includes(emotion) ||
+        emotionLower.includes('happy') ||
+        emotionLower.includes('joy') ||
+        emotionLower === 'positive';
+
       // Check emotional indicators for compliment keywords
-      const hasComplimentIndicators = sentimentAnalysis.emotional_indicators?.some(indicator => {
-        const indicatorLower = indicator.toLowerCase();
-        return indicatorLower.includes('like') || 
-               indicatorLower.includes('love') || 
-               indicatorLower.includes('amazing') ||
-               indicatorLower.includes('nice') ||
-               indicatorLower.includes('good') ||
-               indicatorLower.includes('best') ||
-               indicatorLower.includes('friend') ||
-               indicatorLower.includes('kind') ||
-               indicatorLower.includes('great');
-      }) || false;
-      
+      const hasComplimentIndicators =
+        sentimentAnalysis.emotional_indicators?.some((indicator) => {
+          const indicatorLower = indicator.toLowerCase();
+          return (
+            indicatorLower.includes('like') ||
+            indicatorLower.includes('love') ||
+            indicatorLower.includes('amazing') ||
+            indicatorLower.includes('nice') ||
+            indicatorLower.includes('good') ||
+            indicatorLower.includes('best') ||
+            indicatorLower.includes('friend') ||
+            indicatorLower.includes('kind') ||
+            indicatorLower.includes('great')
+          );
+        }) || false;
+
       // Route to happy if emotion is happy OR if we detect compliment indicators with positive intensity
-      if (hasHappyEmotion || (hasComplimentIndicators && intensity > 0.3 && emotionLower !== 'anger' && emotionLower !== 'sadness')) {
+      if (
+        hasHappyEmotion ||
+        (hasComplimentIndicators &&
+          intensity > 0.3 &&
+          emotionLower !== 'anger' &&
+          emotionLower !== 'sadness')
+      ) {
         if (intensity >= 0.7) {
           nextAgent = 'ecstatic';
           action = 'emotion_routing_happy_high';
@@ -209,15 +255,26 @@ export class Orchestrator {
         this.ended = true;
         const walkawayMsg = `<t>🔥 ${Math.round(angerPoints)}/${maxPoints} pts (LVL 3) I'M DONE WITH THIS. WALKING AWAY.</t>BYE. I'M OUT. CONVERSATION OVER.`;
         const finalState = this.getCurrentState();
-        return [walkawayMsg, nextAgent, { ended: true, walkaway: true }, finalState];
+        return [
+          walkawayMsg,
+          nextAgent,
+          { ended: true, walkaway: true },
+          finalState,
+        ];
       }
     }
 
     // Step 4: Generate response and insights in parallel
-    console.log(`⏱️  [TRACE] Starting agent response generation for: ${nextAgent}`);
-    console.log(`📜 Conversation history length: ${conversationHistory.length}`);
+    console.log(
+      `⏱️  [TRACE] Starting agent response generation for: ${nextAgent}`
+    );
+    console.log(
+      `📜 Conversation history length: ${conversationHistory.length}`
+    );
     if (conversationHistory.length > 0) {
-      console.log(`📜 Last message in history: ${conversationHistory[conversationHistory.length - 1].role}: ${conversationHistory[conversationHistory.length - 1].content.substring(0, 50)}...`);
+      console.log(
+        `📜 Last message in history: ${conversationHistory[conversationHistory.length - 1].role}: ${conversationHistory[conversationHistory.length - 1].content.substring(0, 50)}...`
+      );
     }
     console.log(`💬 Current user message: ${message.substring(0, 50)}...`);
     const agentStart = Date.now();
@@ -228,12 +285,15 @@ export class Orchestrator {
       ...conversationHistory,
       { role: 'user', content: message },
     ];
-    
+
     const universalInstruction: ChatMessage = {
       role: 'system',
       content: 'You will use <t></t> tags',
     };
-    const enhancedHistory = [...historyWithCurrentMessage, universalInstruction];
+    const enhancedHistory = [
+      ...historyWithCurrentMessage,
+      universalInstruction,
+    ];
 
     // Get agent response
     const agent = await this.agentFactory.getAgent(nextAgent);
@@ -242,7 +302,10 @@ export class Orchestrator {
     // Special handling for enraged agent (needs anger meter info)
     if (nextAgent === 'enraged' && 'generateResponse' in agent) {
       const enragedAgent = agent as any;
-      response = await enragedAgent.generateResponse(enhancedHistory, angerMeterInfo);
+      response = await enragedAgent.generateResponse(
+        enhancedHistory,
+        angerMeterInfo
+      );
     } else {
       response = await agent.generateResponse(enhancedHistory);
     }
@@ -255,7 +318,9 @@ export class Orchestrator {
     );
 
     const agentDuration = (Date.now() - agentStart) / 1000;
-    console.log(`⏱️  [TRACE] Agent response generation (${nextAgent}) completed in ${agentDuration.toFixed(2)}s`);
+    console.log(
+      `⏱️  [TRACE] Agent response generation (${nextAgent}) completed in ${agentDuration.toFixed(2)}s`
+    );
 
     // Step 5: Check bye detector
     if (this.byeDetector(response)) {
@@ -286,28 +351,31 @@ export class Orchestrator {
    */
   private byeDetector(text: string): boolean {
     const textLower = text.toLowerCase();
-    
+
     // Only trigger on explicit goodbye phrases at the start or end of response
     // Check if the response starts or ends with goodbye phrases
-    const startsWithBye = textLower.trim().startsWith('bye') || 
-                         textLower.trim().startsWith("i'm done") ||
-                         textLower.trim().startsWith("i am done") ||
-                         textLower.trim().startsWith("i'm leaving") ||
-                         textLower.trim().startsWith("i am leaving") ||
-                         textLower.trim().startsWith("i'm out") ||
-                         textLower.trim().startsWith("i am out");
-    
-    const endsWithBye = textLower.trim().endsWith('bye') || 
-                       textLower.trim().endsWith('goodbye') ||
-                       textLower.trim().endsWith("i'm done") ||
-                       textLower.trim().endsWith("i am done");
-    
+    const startsWithBye =
+      textLower.trim().startsWith('bye') ||
+      textLower.trim().startsWith("i'm done") ||
+      textLower.trim().startsWith('i am done') ||
+      textLower.trim().startsWith("i'm leaving") ||
+      textLower.trim().startsWith('i am leaving') ||
+      textLower.trim().startsWith("i'm out") ||
+      textLower.trim().startsWith('i am out');
+
+    const endsWithBye =
+      textLower.trim().endsWith('bye') ||
+      textLower.trim().endsWith('goodbye') ||
+      textLower.trim().endsWith("i'm done") ||
+      textLower.trim().endsWith('i am done');
+
     // Also check for explicit walk-away phrases
-    const hasWalkAway = textLower.includes("i'm done with this") ||
-                       textLower.includes("i am done with this") ||
-                       textLower.includes("walking away") ||
-                       textLower.includes("conversation over");
-    
+    const hasWalkAway =
+      textLower.includes("i'm done with this") ||
+      textLower.includes('i am done with this') ||
+      textLower.includes('walking away') ||
+      textLower.includes('conversation over');
+
     return startsWithBye || endsWithBye || hasWalkAway;
   }
 
@@ -326,19 +394,36 @@ export class Orchestrator {
     const action = orchestratorThinking.action;
 
     // Generate conversation trajectory
-    const trajectory = StateManager.getConversationTrajectory(this.emotionalHistory);
+    const trajectory = StateManager.getConversationTrajectory(
+      this.emotionalHistory
+    );
 
     // Extract detected triggers
     const triggers = sentimentAnalysis.emotional_indicators || [];
 
     // Generate state transition explanation
-    const stateTransition = this.explainStateTransition(currentAgent, nextAgent, action, intensity);
+    const stateTransition = this.explainStateTransition(
+      currentAgent,
+      nextAgent,
+      action,
+      intensity
+    );
 
     // Generate orchestrator suggestion
-    const suggestion = this.generateOrchestratorSuggestion(nextAgent, emotion, intensity, action);
+    const suggestion = this.generateOrchestratorSuggestion(
+      nextAgent,
+      emotion,
+      intensity,
+      action
+    );
 
     // Create trigger explanation
-    const triggerExplanation = this.explainTriggers(triggers, emotion, intensity, message);
+    const triggerExplanation = this.explainTriggers(
+      triggers,
+      emotion,
+      intensity,
+      message
+    );
 
     // Extract anger meter info
     const angerMeterData = orchestratorThinking.anger_meter;
@@ -361,7 +446,10 @@ export class Orchestrator {
   /**
    * Update emotional history for trajectory tracking
    */
-  private updateEmotionalHistory(sentimentAnalysis: SentimentAnalysis, agent: string): void {
+  private updateEmotionalHistory(
+    sentimentAnalysis: SentimentAnalysis,
+    agent: string
+  ): void {
     const emotion = sentimentAnalysis.emotion || 'neutral';
     const intensity = sentimentAnalysis.intensity || 0;
 
@@ -413,12 +501,20 @@ export class Orchestrator {
   /**
    * Explain what triggered the emotional detection
    */
-  private explainTriggers(triggers: string[], emotion: string, intensity: number, _message: string): string {
+  private explainTriggers(
+    triggers: string[],
+    emotion: string,
+    intensity: number,
+    _message: string
+  ): string {
     if (!triggers || triggers.length === 0) {
       return `Detected ${emotion} emotion through overall message tone and context`;
     }
 
-    const triggerText = triggers.slice(0, 3).map((t) => `'${t}'`).join(', ');
+    const triggerText = triggers
+      .slice(0, 3)
+      .map((t) => `'${t}'`)
+      .join(', ');
     return `Key phrases ${triggerText} indicate ${emotion} emotion with ${intensity.toFixed(1)} intensity`;
   }
 
@@ -436,19 +532,26 @@ export class Orchestrator {
       pleased: 'gentle positivity and contentment for mild happiness',
       cheerful: 'upbeat enthusiasm and energy for moderate happiness',
       ecstatic: 'overwhelming joy and celebration for intense happiness',
-      melancholy: 'gentle, wistful sadness and contemplative responses for mild sadness',
-      sorrowful: 'deeper emotional weight and vulnerability for moderate sadness',
+      melancholy:
+        'gentle, wistful sadness and contemplative responses for mild sadness',
+      sorrowful:
+        'deeper emotional weight and vulnerability for moderate sadness',
       depressed: 'profound sadness and emotional struggle for intense sadness',
       irritated: 'mild annoyance and impatience for low-level anger',
       agitated: 'clear frustration and agitation for moderate anger',
       enraged: 'intense fury and hostility for high-level anger',
     };
 
-    const agentDesc = agentDescriptions[agent] || 'appropriate emotional response';
+    const agentDesc =
+      agentDescriptions[agent] || 'appropriate emotional response';
 
     if (['joy', 'happiness', 'excitement', 'enthusiasm'].includes(emotion)) {
       return `Using ${agent} agent for ${agentDesc}. Intensity ${intensity.toFixed(1)} matches ${agent} emotional range perfectly.`;
-    } else if (['anger', 'frustration', 'irritation', 'rage', 'annoyance'].includes(emotion)) {
+    } else if (
+      ['anger', 'frustration', 'irritation', 'rage', 'annoyance'].includes(
+        emotion
+      )
+    ) {
       return `Using ${agent} agent for ${agentDesc}. Intensity ${intensity.toFixed(1)} requires appropriate anger expression and venting.`;
     } else {
       return `Using ${agent} agent for ${agentDesc}. Emotion '${emotion}' requires measured, supportive response.`;
@@ -488,4 +591,3 @@ export class Orchestrator {
     this.angerMeter.deserializeState(state);
   }
 }
-

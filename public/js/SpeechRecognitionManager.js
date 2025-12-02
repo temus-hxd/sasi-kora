@@ -13,9 +13,9 @@ export class SpeechRecognitionManager {
     this.gladiaSessionId = null;
     this.audioContext = null;
     this.processor = null;
-    this.interimTranscript = "";
-    this.finalTranscript = "";
-    this.languages = ["en", "zh"]; // English, Chinese
+    this.interimTranscript = '';
+    this.finalTranscript = '';
+    this.languages = ['en', 'zh']; // English, Chinese
     this.codeSwitching = true;
   }
 
@@ -25,8 +25,8 @@ export class SpeechRecognitionManager {
   checkSupport() {
     // Check for both browser SpeechRecognition (fallback) and MediaRecorder (for Gladia)
     const hasBrowserSTT =
-      "webkitSpeechRecognition" in window || "SpeechRecognition" in window;
-    const hasMediaRecorder = "MediaRecorder" in window;
+      'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
+    const hasMediaRecorder = 'MediaRecorder' in window;
     const hasGetUserMedia =
       navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
 
@@ -44,10 +44,10 @@ export class SpeechRecognitionManager {
   async initGladiaSession() {
     try {
       // Get session from backend
-      const response = await fetch("/api/gladia/session", {
-        method: "POST",
+      const response = await fetch('/api/gladia/session', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           languages: this.languages,
@@ -58,7 +58,7 @@ export class SpeechRecognitionManager {
       if (!response.ok) {
         const errorText = await response.text();
         console.error(
-          "❌ [GLADIA] Session creation failed:",
+          '❌ [GLADIA] Session creation failed:',
           response.status,
           errorText
         );
@@ -68,8 +68,8 @@ export class SpeechRecognitionManager {
       const data = await response.json();
 
       if (!data.success) {
-        console.error("❌ [GLADIA] Session creation error:", data.error);
-        throw new Error(data.error || "Failed to create Gladia session");
+        console.error('❌ [GLADIA] Session creation error:', data.error);
+        throw new Error(data.error || 'Failed to create Gladia session');
       }
 
       this.gladiaSessionId = data.sessionId;
@@ -88,7 +88,7 @@ export class SpeechRecognitionManager {
         };
 
         this.gladiaWebSocket.onerror = (error) => {
-          console.error("❌ [GLADIA] WebSocket error:", error);
+          console.error('❌ [GLADIA] WebSocket error:', error);
           reject(error);
         };
 
@@ -100,7 +100,7 @@ export class SpeechRecognitionManager {
           if (this.isRecording) {
             // Unexpected close - stop recording
             console.warn(
-              "⚠️ [GLADIA] WebSocket closed unexpectedly during recording"
+              '⚠️ [GLADIA] WebSocket closed unexpectedly during recording'
             );
             this.isRecording = false;
             this.updateMicButtonState(false);
@@ -108,7 +108,7 @@ export class SpeechRecognitionManager {
         };
       });
     } catch (error) {
-      console.error("❌ Failed to initialize Gladia session:", error);
+      console.error('❌ Failed to initialize Gladia session:', error);
       throw error;
     }
   }
@@ -117,30 +117,30 @@ export class SpeechRecognitionManager {
     try {
       // Handle binary data (audio acknowledgments) - ignore
       if (event.data instanceof ArrayBuffer || event.data instanceof Blob) {
-        console.log("📦 [GLADIA] Received binary data (audio acknowledgment)");
+        console.log('📦 [GLADIA] Received binary data (audio acknowledgment)');
         return;
       }
 
       // Parse JSON message
       const message =
-        typeof event.data === "string" ? JSON.parse(event.data) : event.data;
+        typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
 
-      console.log("📥 [GLADIA] Received message:", {
+      console.log('📥 [GLADIA] Received message:', {
         type: message.type,
         hasData: !!message.data,
         messageKeys: Object.keys(message),
       });
 
       // Handle transcript messages
-      if (message.type === "transcript" && message.data) {
-        const transcript = message.data.utterance?.text || "";
+      if (message.type === 'transcript' && message.data) {
+        const transcript = message.data.utterance?.text || '';
         const isFinal = message.data.is_final || false;
         const detectedLanguage =
-          message.data.language || message.data.detected_language || "unknown";
+          message.data.language || message.data.detected_language || 'unknown';
         const confidence =
-          message.data.confidence || message.data.confidence_score || "unknown";
+          message.data.confidence || message.data.confidence_score || 'unknown';
 
-        console.log("🎯 [GLADIA] Transcript received:", {
+        console.log('🎯 [GLADIA] Transcript received:', {
           transcript,
           isFinal,
           detectedLanguage,
@@ -150,9 +150,9 @@ export class SpeechRecognitionManager {
 
         if (isFinal) {
           this.finalTranscript = transcript;
-          this.interimTranscript = "";
+          this.interimTranscript = '';
 
-          console.log("✅ [GLADIA] Final transcript:", {
+          console.log('✅ [GLADIA] Final transcript:', {
             text: transcript,
             language: detectedLanguage,
             confidence,
@@ -160,34 +160,34 @@ export class SpeechRecognitionManager {
 
           // Call callback if provided, otherwise handle directly
           if (this.onResultCallback) {
-            this.onResultCallback(this.finalTranscript, "");
+            this.onResultCallback(this.finalTranscript, '');
           } else {
-            this.handleResult(this.finalTranscript, "");
+            this.handleResult(this.finalTranscript, '');
           }
         } else {
           // Interim result
           this.interimTranscript = transcript;
 
-          console.log("⏳ [GLADIA] Interim transcript:", {
+          console.log('⏳ [GLADIA] Interim transcript:', {
             text: transcript,
             language: detectedLanguage,
             confidence,
           });
 
           if (this.onResultCallback) {
-            this.onResultCallback("", this.interimTranscript);
+            this.onResultCallback('', this.interimTranscript);
           } else {
-            this.handleResult("", this.interimTranscript);
+            this.handleResult('', this.interimTranscript);
           }
         }
-      } else if (message.type === "transcription" || message.transcript) {
+      } else if (message.type === 'transcription' || message.transcript) {
         // Alternative message format
-        const transcript = message.transcript || message.text || "";
+        const transcript = message.transcript || message.text || '';
         const isFinal = message.is_final || message.final || false;
         const detectedLanguage =
-          message.language || message.detected_language || "unknown";
+          message.language || message.detected_language || 'unknown';
 
-        console.log("🎯 [GLADIA] Alternative format transcript:", {
+        console.log('🎯 [GLADIA] Alternative format transcript:', {
           transcript,
           isFinal,
           detectedLanguage,
@@ -197,33 +197,33 @@ export class SpeechRecognitionManager {
         if (isFinal) {
           this.finalTranscript = transcript;
           console.log(
-            "✅ [GLADIA] Final transcript (alt format):",
+            '✅ [GLADIA] Final transcript (alt format):',
             transcript,
-            "Language:",
+            'Language:',
             detectedLanguage
           );
           if (this.onResultCallback) {
-            this.onResultCallback(this.finalTranscript, "");
+            this.onResultCallback(this.finalTranscript, '');
           } else {
-            this.handleResult(this.finalTranscript, "");
+            this.handleResult(this.finalTranscript, '');
           }
         } else {
           this.interimTranscript = transcript;
           console.log(
-            "⏳ [GLADIA] Interim transcript (alt format):",
+            '⏳ [GLADIA] Interim transcript (alt format):',
             transcript,
-            "Language:",
+            'Language:',
             detectedLanguage
           );
           if (this.onResultCallback) {
-            this.onResultCallback("", this.interimTranscript);
+            this.onResultCallback('', this.interimTranscript);
           } else {
-            this.handleResult("", this.interimTranscript);
+            this.handleResult('', this.interimTranscript);
           }
         }
       } else {
         // Log other message types for debugging
-        console.log("ℹ️ [GLADIA] Other message type:", {
+        console.log('ℹ️ [GLADIA] Other message type:', {
           type: message.type,
           message: message,
         });
@@ -234,9 +234,9 @@ export class SpeechRecognitionManager {
         return;
       }
       console.error(
-        "❌ [GLADIA] Error parsing message:",
+        '❌ [GLADIA] Error parsing message:',
         error,
-        "Raw data:",
+        'Raw data:',
         event.data
       );
     }
@@ -256,8 +256,9 @@ export class SpeechRecognitionManager {
       });
 
       // Create AudioContext for processing
-      this.audioContext = new (window.AudioContext ||
-        window.webkitAudioContext)({
+      this.audioContext = new (
+        window.AudioContext || window.webkitAudioContext
+      )({
         sampleRate: 16000,
       });
 
@@ -291,7 +292,7 @@ export class SpeechRecognitionManager {
             this.gladiaWebSocket.send(int16Array.buffer);
           } else {
             console.warn(
-              "⚠️ [GLADIA] WebSocket not open, cannot send audio chunk"
+              '⚠️ [GLADIA] WebSocket not open, cannot send audio chunk'
             );
           }
         }
@@ -302,7 +303,7 @@ export class SpeechRecognitionManager {
 
       return true;
     } catch (error) {
-      console.error("❌ Failed to start audio capture:", error);
+      console.error('❌ Failed to start audio capture:', error);
       throw error;
     }
   }
@@ -337,13 +338,13 @@ export class SpeechRecognitionManager {
   // =====================================================
   async initSpeechRecognition() {
     if (!this.isSupported) {
-      console.warn("Speech recognition not supported in this browser");
+      console.warn('Speech recognition not supported in this browser');
       this.updateMicButtonState(false);
       return false;
     }
 
     // Try Gladia first, fallback to browser STT
-    const hasMediaRecorder = "MediaRecorder" in window;
+    const hasMediaRecorder = 'MediaRecorder' in window;
     const hasGetUserMedia =
       navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
 
@@ -351,12 +352,12 @@ export class SpeechRecognitionManager {
       // Use Gladia
       try {
         await this.initGladiaSession();
-        this.recognition = { type: "gladia" }; // Mark as Gladia session
+        this.recognition = { type: 'gladia' }; // Mark as Gladia session
         this.updateMicButtonState(false);
         return true;
       } catch (error) {
         console.warn(
-          "⚠️ Gladia initialization failed, falling back to browser STT:",
+          '⚠️ Gladia initialization failed, falling back to browser STT:',
           error
         );
         // Fall through to browser STT fallback
@@ -367,25 +368,25 @@ export class SpeechRecognitionManager {
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      console.error("❌ No speech recognition available");
+      console.error('❌ No speech recognition available');
       return false;
     }
 
     this.recognition = new SpeechRecognition();
     this.recognition.continuous = true;
     this.recognition.interimResults = true;
-    this.recognition.lang = "en-US";
+    this.recognition.lang = 'en-US';
 
     this.recognition.onstart = () => {
-      console.log("🎤 Browser voice recognition started (fallback)");
+      console.log('🎤 Browser voice recognition started (fallback)');
       this.updateMicButtonState(true);
     };
 
     this.updateMicButtonState(false);
 
     this.recognition.onresult = (event) => {
-      let finalTranscript = "";
-      let interimTranscript = "";
+      let finalTranscript = '';
+      let interimTranscript = '';
 
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const transcript = event.results[i][0].transcript;
@@ -404,12 +405,12 @@ export class SpeechRecognitionManager {
     };
 
     this.recognition.onerror = (event) => {
-      console.error("🎤 Voice recognition error:", event.error);
+      console.error('🎤 Voice recognition error:', event.error);
       this.stopVoiceRecognition();
     };
 
     this.recognition.onend = () => {
-      console.log("🎤 Voice recognition ended");
+      console.log('🎤 Voice recognition ended');
       this.stopVoiceRecognition();
     };
 
@@ -421,7 +422,7 @@ export class SpeechRecognitionManager {
   // =====================================================
   handleResult(finalTranscript, interimTranscript) {
     // Update input field with current transcript
-    const messageInput = document.getElementById("messageInput");
+    const messageInput = document.getElementById('messageInput');
     if (finalTranscript) {
       messageInput.value = finalTranscript.trim();
       this.stopVoiceRecognition();
@@ -446,14 +447,14 @@ export class SpeechRecognitionManager {
     // Check if avatar is currently speaking - wait for speech to end instead of interrupting
     if (window.ttsManager && window.ttsManager.isSpeaking) {
       console.log(
-        "⏸️ Avatar is speaking - voice recognition will start after speech ends"
+        '⏸️ Avatar is speaking - voice recognition will start after speech ends'
       );
       // Wait for speech to end, then start
       const checkSpeaking = setInterval(() => {
         if (!window.ttsManager.isSpeaking) {
           clearInterval(checkSpeaking);
           console.log(
-            "✅ Avatar finished speaking, starting voice recognition"
+            '✅ Avatar finished speaking, starting voice recognition'
           );
           this.startVoiceRecognition();
         }
@@ -468,7 +469,7 @@ export class SpeechRecognitionManager {
     // Check if we have an open Gladia WebSocket connection
     if (
       this.recognition &&
-      this.recognition.type === "gladia" &&
+      this.recognition.type === 'gladia' &&
       this.gladiaWebSocket
     ) {
       const wsState = this.gladiaWebSocket.readyState;
@@ -486,7 +487,7 @@ export class SpeechRecognitionManager {
       const initialized = await this.initSpeechRecognition();
       if (!initialized) {
         alert(
-          "Voice recognition is not supported in your browser. Please use Chrome, Edge, or Safari."
+          'Voice recognition is not supported in your browser. Please use Chrome, Edge, or Safari.'
         );
         return false;
       }
@@ -494,7 +495,7 @@ export class SpeechRecognitionManager {
 
     try {
       // Check if using Gladia or browser STT
-      if (this.recognition && this.recognition.type === "gladia") {
+      if (this.recognition && this.recognition.type === 'gladia') {
         // Check if WebSocket is still open
         if (
           !this.gladiaWebSocket ||
@@ -513,7 +514,7 @@ export class SpeechRecognitionManager {
         this.recognition.start();
         this.isRecording = true;
         this.updateMicButtonState(true);
-        console.log("🎤 Browser voice recognition started (fallback)");
+        console.log('🎤 Browser voice recognition started (fallback)');
       }
 
       // Auto-stop after 10 seconds
@@ -523,7 +524,7 @@ export class SpeechRecognitionManager {
 
       return true;
     } catch (error) {
-      console.error("❌ [GLADIA] Error starting voice recognition:", error);
+      console.error('❌ [GLADIA] Error starting voice recognition:', error);
       this.stopVoiceRecognition();
       return false;
     }
@@ -532,12 +533,12 @@ export class SpeechRecognitionManager {
   stopVoiceRecognition(closeWebSocket = false) {
     if (this.isRecording) {
       // Check if using Gladia or browser STT
-      if (this.recognition && this.recognition.type === "gladia") {
+      if (this.recognition && this.recognition.type === 'gladia') {
         // Gladia path - stop audio capture but keep WebSocket open for reuse
         this.stopAudioCapture(closeWebSocket);
       } else if (
         this.recognition &&
-        typeof this.recognition.stop === "function"
+        typeof this.recognition.stop === 'function'
       ) {
         // Browser STT fallback
         this.recognition.stop();
@@ -546,8 +547,8 @@ export class SpeechRecognitionManager {
 
     this.isRecording = false;
     this.updateMicButtonState(false);
-    this.interimTranscript = "";
-    this.finalTranscript = "";
+    this.interimTranscript = '';
+    this.finalTranscript = '';
 
     if (this.recordingTimeout) {
       clearTimeout(this.recordingTimeout);
@@ -563,7 +564,7 @@ export class SpeechRecognitionManager {
       !this.isRecording
     ) {
       console.log(
-        "⏸️ Avatar is speaking - cannot start voice recognition. Wait for speech to end."
+        '⏸️ Avatar is speaking - cannot start voice recognition. Wait for speech to end.'
       );
       return;
     }
@@ -579,19 +580,19 @@ export class SpeechRecognitionManager {
   // UI UPDATES
   // =====================================================
   updateMicButtonState(recording) {
-    const micBtn = document.getElementById("micBtn");
-    const micIcon = micBtn.querySelector("svg");
+    const micBtn = document.getElementById('micBtn');
+    const micIcon = micBtn.querySelector('svg');
 
     if (!micBtn || !micIcon) return;
 
     if (recording) {
-      micBtn.classList.add("recording");
-      micBtn.title = "Stop voice input";
+      micBtn.classList.add('recording');
+      micBtn.title = 'Stop voice input';
       // Change to stop icon
       micIcon.innerHTML = '<rect x="6" y="6" width="12" height="12" rx="2"/>';
     } else {
-      micBtn.classList.remove("recording");
-      micBtn.title = "Voice input";
+      micBtn.classList.remove('recording');
+      micBtn.title = 'Voice input';
       // Change back to microphone icon
       micIcon.innerHTML = `
         <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
@@ -618,7 +619,7 @@ export class SpeechRecognitionManager {
       isRecording: this.isRecording,
       isSupported: this.isSupported,
       hasRecognition: this.recognition !== null,
-      provider: this.recognition?.type === "gladia" ? "gladia" : "browser",
+      provider: this.recognition?.type === 'gladia' ? 'gladia' : 'browser',
       languages: this.languages,
       codeSwitching: this.codeSwitching,
     };
@@ -638,24 +639,24 @@ export class SpeechRecognitionManager {
   // =====================================================
   // CONFIGURATION
   // =====================================================
-  setLanguage(language = "en-US") {
+  setLanguage(language = 'en-US') {
     // For Gladia, convert language code format
-    if (language.startsWith("en")) {
-      this.languages = ["en", "zh"];
-    } else if (language.startsWith("zh")) {
-      this.languages = ["zh", "en"];
+    if (language.startsWith('en')) {
+      this.languages = ['en', 'zh'];
+    } else if (language.startsWith('zh')) {
+      this.languages = ['zh', 'en'];
     } else {
-      this.languages = [language.split("-")[0], "en"];
+      this.languages = [language.split('-')[0], 'en'];
     }
 
     // Browser STT fallback
-    if (this.recognition && typeof this.recognition.lang !== "undefined") {
+    if (this.recognition && typeof this.recognition.lang !== 'undefined') {
       this.recognition.lang = language;
     }
   }
 
   // Set languages for multilingual support (Gladia)
-  setLanguages(languages = ["en", "zh"]) {
+  setLanguages(languages = ['en', 'zh']) {
     this.languages = languages;
   }
 

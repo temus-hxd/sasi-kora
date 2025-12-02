@@ -162,4 +162,3 @@ export interface AngerConfig {
     log_point_changes: boolean;
   };
 }
-

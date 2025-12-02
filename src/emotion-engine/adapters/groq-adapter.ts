@@ -29,20 +29,25 @@ export class GroqAdapter {
     }
 
     this.client = new Groq({ apiKey });
-    let modelName = options.model || process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
-    
+    let modelName =
+      options.model || process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
+
     // Fix common model name issues
     if (modelName.includes('meta-llama/')) {
       modelName = modelName.replace('meta-llama/', '');
-      console.warn(`⚠️  Fixed model name: removed 'meta-llama/' prefix. Using: ${modelName}`);
+      console.warn(
+        `⚠️  Fixed model name: removed 'meta-llama/' prefix. Using: ${modelName}`
+      );
     }
-    
+
     // Fix common mistake: llama-3.1-8b-instruct -> llama-3.1-8b-instant
     if (modelName === 'llama-3.1-8b-instruct') {
       modelName = 'llama-3.1-8b-instant';
-      console.warn(`⚠️  Fixed model name: changed 'instruct' to 'instant'. Using: ${modelName}`);
+      console.warn(
+        `⚠️  Fixed model name: changed 'instruct' to 'instant'. Using: ${modelName}`
+      );
     }
-    
+
     this.defaultModel = modelName;
     this.defaultMaxTokens = options.maxTokens || 1500;
     this.defaultTemperature = options.temperature || 0.7;
@@ -85,7 +90,10 @@ export class GroqAdapter {
         }, this.timeout);
       });
 
-      const completion = await Promise.race([completionPromise, timeoutPromise]);
+      const completion = await Promise.race([
+        completionPromise,
+        timeoutPromise,
+      ]);
       const content = completion.choices[0]?.message?.content;
 
       if (!content) {
@@ -101,7 +109,11 @@ export class GroqAdapter {
       const errorMessage = err.message || String(error);
 
       // Check for specific error types
-      if (errorMessage.includes('safety') || errorMessage.includes('content') || errorMessage.includes('moderation')) {
+      if (
+        errorMessage.includes('safety') ||
+        errorMessage.includes('content') ||
+        errorMessage.includes('moderation')
+      ) {
         throw new GroqAPIError(
           'Content was rejected by safety filters. Please rephrase your message.',
           { model, originalError: errorMessage }
@@ -109,10 +121,13 @@ export class GroqAdapter {
       }
 
       if (errorMessage.includes('rate limit') || errorMessage.includes('429')) {
-        throw new GroqAPIError('Rate limit exceeded. Please try again in a moment.', {
-          model,
-          originalError: errorMessage,
-        });
+        throw new GroqAPIError(
+          'Rate limit exceeded. Please try again in a moment.',
+          {
+            model,
+            originalError: errorMessage,
+          }
+        );
       }
 
       // Generic error
@@ -132,11 +147,12 @@ export class GroqAdapter {
       if (!models.data) {
         return [];
       }
-      return models.data.map((m) => m.id).filter((id): id is string => id !== undefined);
+      return models.data
+        .map((m) => m.id)
+        .filter((id): id is string => id !== undefined);
     } catch (error) {
       console.warn('Failed to fetch Groq models:', error);
       return [];
     }
   }
 }
-

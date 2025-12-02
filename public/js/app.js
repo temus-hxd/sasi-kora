@@ -1,16 +1,16 @@
 // Import modules
-import { EmojiManager } from "./EmojiManager.js";
-import { LinkButtonManager } from "./LinkButtonManager.js";
-import { VoiceStateManager } from "./VoiceStateManager.js";
-import { IdleTimerManager } from "./IdleTimerManager.js";
-import { ConfigManager } from "./ConfigManager.js";
-import { UIManager } from "./UIManager.js";
-import { SpeechBubbleManager } from "./SpeechBubbleManager.js";
-import { SpeechRecognitionManager } from "./SpeechRecognitionManager.js";
-import { TTSManager } from "./TTSManager.js";
-import { WebSocketManager } from "./WebSocketManager.js";
-import { ChatManager } from "./ChatManager.js";
-import { AvatarManager } from "./AvatarManager.js";
+import { EmojiManager } from './EmojiManager.js';
+import { LinkButtonManager } from './LinkButtonManager.js';
+import { VoiceStateManager } from './VoiceStateManager.js';
+import { IdleTimerManager } from './IdleTimerManager.js';
+import { ConfigManager } from './ConfigManager.js';
+import { UIManager } from './UIManager.js';
+import { SpeechBubbleManager } from './SpeechBubbleManager.js';
+import { SpeechRecognitionManager } from './SpeechRecognitionManager.js';
+import { TTSManager } from './TTSManager.js';
+import { WebSocketManager } from './WebSocketManager.js';
+import { ChatManager } from './ChatManager.js';
+import { AvatarManager } from './AvatarManager.js';
 
 // =====================================================
 // GLOBAL VARIABLES
@@ -39,7 +39,6 @@ let avatarManager = null;
 // =====================================================
 // PHASE 4: VOICE CONTROL VARIABLES
 // =====================================================
-
 
 // Configuration manager (moved to separate file)
 
@@ -74,18 +73,20 @@ async function initializeApp() {
   linkButtonManager = new LinkButtonManager();
   webSocketManager = new WebSocketManager();
   chatManager = new ChatManager();
-  
+
   // ================================
   // BROWSER MEMORY SYSTEM
   // ================================
   if (typeof BrowserMemory !== 'undefined') {
     BrowserMemory.init();
     window.BrowserMemory = BrowserMemory; // Make globally accessible
-    console.log('🧠 BrowserMemory initialized - Persistent conversation memory ready!');
+    console.log(
+      '🧠 BrowserMemory initialized - Persistent conversation memory ready!'
+    );
   } else {
     console.warn('⚠️ BrowserMemory module not loaded');
   }
-  
+
   // ================================
   // CONFETTI APPRECIATION SYSTEM
   // ================================
@@ -96,7 +97,7 @@ async function initializeApp() {
   } else {
     console.log('🎊 ConfettiManager disabled or not loaded');
   }
-  
+
   // Initialize AnimationManager (loaded as global script)
   let animationManager = null;
   if (window.AnimationManager) {
@@ -105,7 +106,7 @@ async function initializeApp() {
   } else {
     console.warn('⚠️ AnimationManager not available on window');
   }
-  
+
   // Initialize AvatarManager with all dependencies
   avatarManager = new AvatarManager();
   avatarManager.setDependencies({
@@ -120,16 +121,16 @@ async function initializeApp() {
     ttsManager,
     webSocketManager,
     chatManager,
-    animationManager // Pass AnimationManager to AvatarManager
+    animationManager, // Pass AnimationManager to AvatarManager
   });
-  
+
   // Initialize the avatar (this will initialize all other managers too)
   // Start avatar loading countdown immediately
   avatarManager.startAvatarLoadingCountdown();
-  
+
   // Initialize avatar (will hide loading screen when ready)
   await avatarManager.initAvatar();
-  
+
   // Make managers available globally for interruption after initialization
   window.ttsManager = ttsManager;
   window.chatManager = chatManager;
@@ -137,17 +138,23 @@ async function initializeApp() {
   window.linkButtonManager = linkButtonManager;
   window.speechRecognitionManager = speechRecognitionManager;
   window.speechBubbleManager = speechBubbleManager;
-  
+
   // Voice recognition is OFF by default - user must press mic button to enable
   // This prevents the mic from interrupting the avatar's speech
   console.log('🎤 Voice recognition available - press mic button to enable');
-  
+
   // Add global keyboard interruption
   document.addEventListener('keydown', (event) => {
     // Only interrupt on typing keys, not special keys
-    if (ttsManager && ttsManager.isSpeaking && 
-        !event.ctrlKey && !event.altKey && !event.metaKey &&
-        event.key.length === 1) { // Single character keys only
+    if (
+      ttsManager &&
+      ttsManager.isSpeaking &&
+      !event.ctrlKey &&
+      !event.altKey &&
+      !event.metaKey &&
+      event.key.length === 1
+    ) {
+      // Single character keys only
       console.log('⌨️ Keyboard interrupt detected');
       ttsManager.interruptSpeech();
     }
@@ -180,8 +187,6 @@ async function initializeApp() {
 // TEXT-TO-SPEECH FUNCTIONS (moved to TTSManager)
 // =====================================================
 
-
-
 // =====================================================
 // VOICE STATE MANAGER (moved to separate file)
 // =====================================================
@@ -197,8 +202,6 @@ async function initializeApp() {
 // =====================================================
 // BOOK COVER MANAGER (moved to separate file)
 // =====================================================
-
-
 
 // =====================================================
 // GLOBAL EXPORTS AND INITIALIZATION
@@ -229,7 +232,6 @@ window.toggleConfetti = () => {
   return 'Confetti manager not available';
 };
 
-
 // =====================================================
 // LANGUAGE TOGGLE HANDLER
 // =====================================================
@@ -240,15 +242,15 @@ function initializeLanguageToggle() {
 }
 
 // Global function called from onclick handlers
-window.setLanguage = function(language) {
+window.setLanguage = function (language) {
   console.log(`🌐 Switching language to: ${language}`);
-  
+
   // Save language preference
   localStorage.setItem('app_language', language);
-  
+
   // Update UI
   updateLanguageToggleUI(language);
-  
+
   // Reload config with new language (to get correct voice ID)
   if (window.configManager) {
     window.configManager.setLanguage(language);
@@ -261,11 +263,11 @@ window.setLanguage = function(language) {
 function updateLanguageToggleUI(language) {
   const languageEN = document.getElementById('languageEN');
   const languageCN = document.getElementById('languageCN');
-  
+
   if (!languageEN || !languageCN) {
     return;
   }
-  
+
   if (language === 'cn') {
     languageEN.classList.remove('active');
     languageCN.classList.add('active');

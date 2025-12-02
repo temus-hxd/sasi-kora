@@ -106,4 +106,3 @@ CRITICAL INSTRUCTIONS:
     return await this.callGroq(enhancedMessages);
   }
 }
-
