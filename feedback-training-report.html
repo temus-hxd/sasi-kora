@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Feedback Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'aic-orange': '#F59C00',
+              'aic-orange-light': '#FFC34D',
+              'aic-orange-dark': '#C77D00',
+              'wellness-green': '#00d084',
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="stylesheet" href="/css/navigation.css" />
+    <link rel="stylesheet" href="/css/feedback-training-report.css" />
+  </head>
+
+  <body>
+    <!-- Sticky Header -->
+    <header
+      class="bg-aic-orange text-white px-8 py-4 shadow-md flex items-center fixed top-0 left-0 right-0 z-50"
+    >
+      <a
+        href="/"
+        class="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+      >
+        <img
+          src="/images/logo-aic-white.svg"
+          alt="AIC Logo"
+          class="h-10 w-auto"
+        />
+      </a>
+      <div class="ml-8 text-xl font-medium">Training Feedback Report</div>
+    </header>
+
+    <div class="report-container" style="padding-top: 80px;">
+      <div class="report-content">
+
+        <!-- Summary Cards Row -->
+        <div class="summary-cards-row">
+          <!-- Card 1: How You Did -->
+          <div class="summary-card">
+            <div class="summary-header">
+              <div class="summary-header-info">
+                <p><strong>Trainee:</strong> Freddy Tan</p>
+                <p><strong>Scenario:</strong> Introduction to Advance Care Planning</p>
+                <p><strong>Date:</strong> 15 December 2025</p>
+              </div>
+            </div>
+
+            <div class="summary-content">
+              <h2 class="summary-section-title">How You Did</h2>
+
+              <div class="summary-goals">
+                <ul class="goals-list">
+                  <li>
+                    <span class="goal-text">Practice introducing ACP in a sensitive manner</span>
+                    <span class="fail-badge">FAIL</span>
+                  </li>
+                  <li>
+                    <span class="goal-text">Explain ACP benefits clearly and guide senior to book ACP appointment</span>
+                    <span class="fail-badge">FAIL</span>
+                  </li>
+                </ul>
+                <div class="overall-result">
+                  <strong>Overall Result</strong>
+                  <span class="fail-badge-large">FAIL - Requires Immediate Retraining</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Persona Emotional Trajectory -->
+          <div class="summary-card">
+            <div class="summary-content">
+              <h2 class="summary-section-title">Persona Emotional Trajectory</h2>
+
+              <div class="summary-trajectory">
+                <div class="trajectory-visual-compact">
+                  <div class="emotion-step">
+                    <svg class="neutral" width="44px" height="44px" viewBox="0 0 44 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                      <g>
+                        <circle id="body" fill="#F9AC1B" cx="22" cy="22" r="22"></circle>
+                        <g class="face">
+                          <g transform="translate(13.000000, 20.000000)" fill="#2C0E0F">
+                            <g class="mouth">
+                              <g transform="translate(9, 5)">
+                                <rect x="-2" y="0" width="4" height="2" rx="2"></rect>
+                              </g>
+                            </g>
+                            <ellipse class="right-eye" cx="16.0941176" cy="1.75" rx="1.90588235" ry="1.75"></ellipse>
+                            <ellipse class="left-eye" cx="1.90588235" cy="1.75" rx="1.90588235" ry="1.75"></ellipse>
+                          </g>
+                        </g>
+                      </g>
+                    </svg>
+                    <div class="emotion-label">Initial State</div>
+                    <div class="emotion-arrow">→</div>
+                  </div>
+
+                  <div class="emotion-step">
+                    <svg class="irritated" width="44px" height="44px" viewBox="0 0 44 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                      <g id="irritated" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(0, 0)">
+                        <circle id="body" fill="#FF8C00" cx="22" cy="22" r="22"></circle>
+                        <g id="face" transform="translate(13.000000, 20.000000)">
+                          <g class="face">
+                            <path d="M7,4 C7,5.1045695 7.8954305,6 9,6 C10.1045695,6 11,5.1045695 11,4" class="mouth" stroke="#2C0E0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(9.000000, 5.000000) rotate(-180.000000) translate(-9.000000, -5.000000)"></path>
+                            <ellipse class="right-eye" fill="#2C0E0F" cx="16.0941176" cy="1.75609756" rx="1.90588235" ry="1.75609756"></ellipse>
+                            <ellipse class="left-eye" fill="#2C0E0F" cx="1.90588235" cy="1.75609756" rx="1.90588235" ry="1.75609756"></ellipse>
+                          </g>
+                        </g>
+                      </g>
+                    </svg>
+                    <div class="emotion-label">Irritated</div>
+                    <div class="emotion-arrow">→</div>
+                  </div>
+
+                  <div class="emotion-step">
+                    <svg class="annoyed" width="44px" height="44px" viewBox="0 0 44 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                      <g id="annoyed" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(0, 0)">
+                        <circle id="body" fill="#FF6B35" cx="22" cy="22" r="22"></circle>
+                        <g id="face" transform="translate(13.000000, 20.000000)">
+                          <g class="face">
+                            <path d="M7,4 C7,5.1045695 7.8954305,6 9,6 C10.1045695,6 11,5.1045695 11,4" class="mouth" stroke="#2C0E0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(9.000000, 5.000000) rotate(-180.000000) translate(-9.000000, -5.000000)"></path>
+                            <ellipse class="right-eye" fill="#2C0E0F" cx="16.0941176" cy="1.75609756" rx="1.90588235" ry="1.75609756"></ellipse>
+                            <ellipse class="left-eye" fill="#2C0E0F" cx="1.90588235" cy="1.75609756" rx="1.90588235" ry="1.75609756"></ellipse>
+                          </g>
+                        </g>
+                      </g>
+                    </svg>
+                    <div class="emotion-label">Annoyed</div>
+                    <div class="emotion-arrow">→</div>
+                  </div>
+
+                  <div class="emotion-step">
+                    <svg class="sad" width="44px" height="44px" viewBox="0 0 44 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                      <g id="sad" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(0, 0)">
+                        <circle id="body" fill="#E23D18" cx="22" cy="22" r="22"></circle>
+                        <g id="face" transform="translate(13.000000, 20.000000)">
+                          <g class="face">
+                            <path d="M7,4 C7,5.1045695 7.8954305,6 9,6 C10.1045695,6 11,5.1045695 11,4" class="mouth" stroke="#2C0E0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(9.000000, 5.000000) rotate(-180.000000) translate(-9.000000, -5.000000)"></path>
+                            <ellipse class="right-eye" fill="#2C0E0F" cx="16.0941176" cy="1.75609756" rx="1.90588235" ry="1.75609756"></ellipse>
+                            <ellipse class="left-eye" fill="#2C0E0F" cx="1.90588235" cy="1.75609756" rx="1.90588235" ry="1.75609756"></ellipse>
+                          </g>
+                        </g>
+                      </g>
+                    </svg>
+                    <div class="emotion-label">Enraged</div>
+                  </div>
+                </div>
+
+                <div class="emotional-states-summary">
+                  <div class="emotional-state-summary-item">
+                    <strong>Neutral:</strong> Open conversation
+                  </div>
+                  <div class="emotional-state-summary-item">
+                    <strong>Irritated:</strong>
+                    <ul class="emotional-state-details">
+                      <li><strong>Triggers:</strong> You treated Uncle Lim as incapable of understanding and denied information</li>
+                      <li><strong>What you said:</strong> "This might be hard for you to understand", "very complicated lah"</li>
+                    </ul>
+                  </div>
+                  <div class="emotional-state-summary-item">
+                    <strong>Annoyed:</strong>
+                    <ul class="emotional-state-details">
+                      <li><strong>Triggers:</strong> You registered Uncle Lim without his permission and used coercive tactics</li>
+                      <li><strong>What you said:</strong> "at your age you never know when suddenly something happens"</li>
+                    </ul>
+                  </div>
+                  <div class="emotional-state-summary-item">
+                    <strong>Enraged:</strong>
+                    <ul class="emotional-state-details">
+                      <li><strong>Triggers:</strong> You blamed Uncle Lim and dismissed his concerns</li>
+                      <li><strong>What you said:</strong> "Why so difficult?", "why you so sensitive?"</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <hr class="section-divider" />
+
+        <section class="report-section">
+          <h2>Your Person-Centered Care Readiness</h2>
+
+          <div class="pcc-score">
+            <h3>
+              Overall PCC Score:
+              <fieldset class="rating" data-rating="0.5">
+                <label class="full"></label>
+                <label class="full"></label>
+                <label class="full"></label>
+                <label class="full"></label>
+                <label class="full"></label>
+              </fieldset>
+            </h3>
+          </div>
+
+          <div class="pcc-category">
+            <h3>1. Building Connection and Trust</h3>
+            <p class="category-score">
+              <strong>Score: </strong>
+              <fieldset class="rating" data-rating="0">
+                <label class="full"></label>
+                <label class="full"></label>
+                <label class="full"></label>
+                <label class="full"></label>
+                <label class="full"></label>
+              </fieldset>
+            </p>
+
+            <div class="feedback-subsection">
+              <h4>What Went Well</h4>
+              <ul>
+                <li>Initial greeting included a friendly tone</li>
+                <li>
+                  Volunteer approached Uncle Lim (showed initiative to engage)
+                </li>
+              </ul>
+            </div>
+
+            <div class="feedback-subsection">
+              <h4>What Did Not Go Well</h4>
+              <ul class="issues-list">
+                <li>
+                  ❌ <strong>Did Not Address by Name:</strong> Used "Ah gong"
+                  throughout instead of "Mr. Lim" - this is infantilizing and
+                  disrespectful
+                </li>
+                <li>
+                  ❌ <strong>No Active Listening:</strong> Volunteer completely
+                  ignored Uncle Lim's repeated objections and concerns across
+                  all 14 turns
+                </li>
+                <li>
+                  ❌ <strong>Failed to Ask Permission:</strong> Never asked "Is
+                  it okay if we talk about Advance Care Planning?", instead
+                  launched directly into assuming Uncle Lim could not understand
+                </li>
+                <li>
+                  ❌ <strong>No Politeness/Respect:</strong> Used diminutive
+                  term "Ah gong" (grandfather) instead of proper name "Mr. Lim"
+                  or asking preferred form of address
+                </li>
+              </ul>
+            </div>
+
+            <div class="feedback-subsection">
+              <h4>What to Do Next Time</h4>
+              <div class="example-boxes-container">
+                <div class="example-box">
+                  <p><strong>Opening with Permission:</strong></p>
+                  <p>
+                    "Thank you, Mr. Lim. I would like to share information about a
+                    programme called Advance Care Planning. This programme helps
+                    Mr. Lim plan for future healthcare. Is it okay if I explain
+                    more to Mr. Lim?"
+                  </p>
+                </div>
+                <div class="example-box">
+                  <p><strong>If Uncle Lim Shows Concern:</strong></p>
+                  <p>
+                    "I can see Mr. Lim has some questions about this. That is very
+                    normal. What concerns does Mr. Lim have? I am here to listen
+                    to Mr. Lim."
+                  </p>
+                </div>
+                <div class="example-box">
+                  <p><strong>Before Any Registration:</strong></p>
+                  <p>
+                    "Would Mr. Lim like to attend a talk to learn more about ACP?
+                    The talk is at [location] on [date]. I can register Mr. Lim
+                    only if Mr. Lim wants to attend. What does Mr. Lim think?"
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pcc-category">
+            <h3>2. Asking Questions Effectively</h3>
+            <p class="category-score">
+              <strong>Score: </strong>
+              <fieldset class="rating" data-rating="0">
+                <label class="full"></label>
+                <label class="full"></label>
+                <label class="full"></label>
+                <label class="full"></label>
+                <label class="full"></label>
+              </fieldset>
+            </p>
+
+            <div class="feedback-subsection">
+              <h4>What Went Well</h4>
+              <ul>
+                <li>
+                  Volunteer did attempt to ask some questions (though
+                  inappropriately framed)
+                </li>
+              </ul>
+            </div>
+
+            <div class="feedback-subsection">
+              <h4>What Did Not Go Well</h4>
+              <ul class="issues-list">
+                <li>
+                  ❌ <strong>No Open-Ended Questions:</strong> Never asked "What
+                  is important to Mr. Lim when thinking about healthcare?" or
+                  "What does Mr. Lim already know about planning for future
+                  care?"
+                </li>
+                <li>
+                  ❌ <strong>No Appropriate Yes/No Questions:</strong> Never
+                  asked "Does Mr. Lim have someone Mr. Lim trusts to make
+                  decisions?" or "Does Mr. Lim want to learn more about ACP?"
+                </li>
+                <li>
+                  ❌ <strong>Did Not Check Readiness:</strong> Never asked "Is
+                  Mr. Lim ready to talk about planning for future healthcare?"
+                </li>
+              </ul>
+            </div>
+
+            <div class="feedback-subsection">
+              <h4>What to Do Next Time</h4>
+              <div class="example-boxes-container">
+                <div class="example-box">
+                  <p><strong>Open-Ended Questions to Explore Values:</strong></p>
+                  <p>
+                    "If Mr. Lim becomes very sick, who does Mr. Lim want to make
+                    decisions for Mr. Lim?"
+                  </p>
+                </div>
+                <div class="example-box">
+                  <p><strong>Yes/No Questions to Check Understanding:</strong></p>
+                  <p>
+                    "Does Mr. Lim understand what I just explained about ACP?"
+                  </p>
+                </div>
+                <div class="example-box">
+                  <p><strong>Questions to Assess Readiness:</strong></p>
+                  <p>
+                    "Is now a good time to talk about this with Mr. Lim, or would
+                    Mr. Lim prefer to talk another day?"
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pcc-category">
+            <h3>3. Speaking Clearly and Simply</h3>
+            <p class="category-score">
+              <strong>Score: </strong>
+              <fieldset class="rating" data-rating="0.5">
+                <label class="full"></label>
+                <label class="full"></label>
+                <label class="full"></label>
+                <label class="full"></label>
+                <label class="full"></label>
+              </fieldset>
+            </p>
+
+            <div class="feedback-subsection">
+              <h4>What Went Well</h4>
+              <ul>
+                <li>
+                  Volunteer used relatively simple vocabulary in some turns
+                </li>
+                <li>
+                  Used "lah" and colloquial Singaporean English which can aid
+                  relatability (though tone negated this benefit)
+                </li>
+              </ul>
+            </div>
+
+            <div class="feedback-subsection">
+              <h4>What Did Not Go Well</h4>
+              <ul class="issues-list">
+                <li>
+                  ❌ <strong>No Right-Branching Sentences:</strong> Never
+                  structured information clearly with main idea first. Example
+                  of what was NOT done: "Advance Care Planning helps Mr. Lim.
+                  ACP helps Mr. Lim make choices. Mr. Lim can tell doctors what
+                  Mr. Lim wants."
+                </li>
+                <li>
+                  ❌ <strong>Used Negative Instructions:</strong> "Do not say no
+                  lah" instead of positive framing like "Please consider
+                  attending"
+                </li>
+                <li>
+                  ❌ <strong>Patronizing Language:</strong> "This might be hard
+                  for you to understand," "a lot of big words," "I do not think
+                  you will understand lah"
+                </li>
+              </ul>
+            </div>
+
+            <div class="feedback-subsection">
+              <h4>What to Do Next Time</h4>
+              <div class="example-boxes-container">
+                <div class="example-box">
+                  <p><strong>Use Right-Branching Sentences:</strong></p>
+                  <p>
+                    "Advance Care Planning helps Mr. Lim plan for future
+                    healthcare. Mr. Lim can make choices about treatment. Mr. Lim
+                    can choose who speaks for Mr. Lim. Mr. Lim can tell doctors
+                    what is important to Mr. Lim."
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pcc-category">
+            <h3>4. Showing Understanding and Support</h3>
+            <p class="category-score">
+              <strong>Score: </strong>
+              <fieldset class="rating" data-rating="0">
+                <label class="full"></label>
+                <label class="full"></label>
+                <label class="full"></label>
+                <label class="full"></label>
+                <label class="full"></label>
+              </fieldset>
+            </p>
+
+            <div class="feedback-subsection">
+              <h4>What Went Well</h4>
+              <ul>
+                <li>None identified in this interaction</li>
+              </ul>
+            </div>
+
+            <div class="feedback-subsection">
+              <h4>What Did Not Go Well</h4>
+              <ul class="issues-list">
+                <li>
+                  ❌ <strong>No Matching Comments:</strong> Failed to repeat
+                  back or acknowledge any of Uncle Lim's statements to show
+                  understanding
+                </li>
+                <li>
+                  ❌ <strong>No Affirmations:</strong> Never validated Uncle
+                  Lim's capability, autonomy, or concerns with statements like
+                  "Yes, that is right" or "Good question, Mr. Lim"
+                </li>
+                <li>
+                  ❌ <strong>No Supportive Language:</strong> Never offered "I
+                  am here to help Mr. Lim" or "Mr. Lim can take time to think
+                  about this"
+                </li>
+              </ul>
+            </div>
+
+            <div class="feedback-subsection">
+              <h4>What to Do Next Time</h4>
+              <div class="example-boxes-container">
+                <div class="example-box">
+                  <p><strong>Use Matching Comments:</strong></p>
+                  <p>Uncle Lim says: "My children are working overseas"</p>
+                  <p>
+                    Volunteer responds: "I understand. Mr. Lim's children are
+                    overseas. That is why ACP can be helpful - Mr. Lim can make
+                    choices now, and Mr. Lim's children will know Mr. Lim's wishes
+                    even when they are far away."
+                  </p>
+                </div>
+                <div class="example-box">
+                  <p><strong>Use Affirmations:</strong></p>
+                  <p>
+                    "Mr. Lim is right to ask about that. Let me explain clearly."
+                  </p>
+                </div>
+                <div class="example-box">
+                  <p><strong>Provide Support:</strong></p>
+                  <p>
+                    "If Mr. Lim wants, I can give Mr. Lim information to read at
+                    home. Mr. Lim can call later if Mr. Lim has questions."
+                  </p>
+                  <p>
+                    "Mr. Lim can talk with family first before making any
+                    decisions. That is completely okay."
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script>
+      // Initialize star ratings based on data-rating attribute
+      document.addEventListener('DOMContentLoaded', function() {
+        const ratings = document.querySelectorAll('.rating[data-rating]');
+        ratings.forEach(function(fieldset) {
+          const rating = parseFloat(fieldset.getAttribute('data-rating')) || 0;
+          const labels = fieldset.querySelectorAll('label');
+          const fullStars = Math.floor(rating);
+          const hasHalfStar = rating % 1 !== 0;
+          
+          labels.forEach(function(label, index) {
+            if (index < fullStars) {
+              label.classList.add('active');
+            } else if (index === fullStars && hasHalfStar) {
+              label.classList.remove('full');
+              label.classList.add('half');
+              label.classList.add('active');
+            }
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -50,7 +50,6 @@ body {
 .welcome-title {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #333;
   margin-bottom: 8px;
   letter-spacing: -0.02em;
 }
@@ -106,8 +105,9 @@ body {
 
 .nav-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 12px 24px rgba(91, 13, 245, 0.2);
-  border-color: #5b0df5;
+  box-shadow: 0 12px 24px rgba(245, 156, 0, 0.2);
+  border-color: #f59c00;
+  background-color: #fff9f0;
 }
 
 .nav-card:hover::before {
@@ -150,7 +150,7 @@ body {
 /* Card Arrow */
 .card-arrow {
   font-size: 2rem;
-  color: #5b0df5;
+  color: #f59c00;
   font-weight: 300;
   transition:
     transform 0.3s ease,
@@ -160,7 +160,7 @@ body {
 
 .nav-card:hover .card-arrow {
   transform: translateX(8px);
-  color: #ea33f7;
+  color: #c77d00;
 }
 
 /* Logout Section */
@@ -189,9 +189,9 @@ body {
 }
 
 .logout-button:hover {
-  background-color: #fee;
-  border-color: #fcc;
-  color: #c33;
+  background-color: #fff9f0;
+  border-color: #ffc34d;
+  color: #c77d00;
   transform: translateY(-1px);
 }
 

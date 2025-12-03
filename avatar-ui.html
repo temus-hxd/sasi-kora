@@ -109,6 +109,16 @@
         <div class="link-buttons-container" id="linkButtonsContainer">
           <!-- Buttons will be dynamically generated here -->
         </div>
+
+        <!-- End Call Button -->
+        <button
+          id="endCallBtn"
+          class="end-call-button"
+          onclick="endCall()"
+          title="End training and go to feedback"
+        >
+          End Training
+        </button>
       </div>
 
       <!-- KORAV4-STYLE CHAT INPUT -->
@@ -232,5 +242,13 @@
     <!-- No need to load them separately - ES modules handle dependencies automatically -->
     <!-- Cache busting: Use timestamp to force fresh load -->
     <script type="module" src="js/app.js?v=20250127-003"></script>
+
+    <!-- End Call Button Handler -->
+    <script>
+      function endCall() {
+        // Navigate to feedback training report page
+        window.location.href = '/feedback-training-report';
+      }
+    </script>
   </body>
 </html>

@@ -4,21 +4,44 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Select Persona</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'aic-orange': '#F59C00',
+              'aic-orange-light': '#FFC34D',
+              'aic-orange-dark': '#C77D00',
+              'wellness-green': '#00d084',
+            },
+          },
+        },
+      };
+    </script>
     <link rel="stylesheet" href="/css/navigation.css" />
     <link rel="stylesheet" href="/css/persona-selection.css" />
   </head>
 
   <body>
     <!-- Sticky Header -->
-    <header class="sticky-header">
-      <div class="header-content">
-        <div class="header-logo">
-          <img src="/images/aic_logo.jpeg" alt="AIC Logo" class="logo" />
-        </div>
-      </div>
+    <header
+      class="bg-aic-orange text-white px-8 py-4 shadow-md flex items-center fixed top-0 left-0 right-0 z-50"
+    >
+      <a
+        href="/"
+        class="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+      >
+        <img
+          src="/images/logo-aic-white.svg"
+          alt="AIC Logo"
+          class="h-10 w-auto"
+        />
+      </a>
+      <div class="ml-8 text-xl font-medium">Select Your Scenario</div>
     </header>
 
-    <div class="navigation-container">
+    <div class="navigation-container" style="padding-top: 80px">
       <!-- Welcome Header -->
       <div class="welcome-header">
         <h1 class="welcome-title">Choose Your Scenario</h1>

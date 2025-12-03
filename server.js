@@ -256,9 +256,19 @@ app.get('/training-hub', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'training-hub.html'));
 });
 
+// Serve quiz1.html - available at /quiz1
+app.get('/quiz1', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'quiz1.html'));
+});
+
 // Serve chat-ui.html (text-only testing) - available at /chat
 app.get('/chat', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'chat-ui.html'));
+});
+
+// Serve feedback-training-report.html - available at /feedback-training-report
+app.get('/feedback-training-report', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'feedback-training-report.html'));
 });
 
 // Health check (public)
