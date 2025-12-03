@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <link rel="stylesheet" href="/css/login.css" />
+  </head>
+
+  <body>
+    <div class="login-container">
+      <!-- Logo Section -->
+      <div class="logo-section">
+        <img src="/images/aic_logo.jpeg" alt="AIC Logo" class="logo" />
+      </div>
+
+      <!-- Welcome Header -->
+      <div class="welcome-header">
+        <h1 class="welcome-title">Welcome</h1>
+      </div>
+
+      <!-- Login Form Card -->
+      <div class="login-card">
+        <form id="loginForm" class="login-form">
+          <!-- User ID Field -->
+          <div class="form-group">
+            <label for="userId" class="form-label">User ID</label>
+            <input
+              type="text"
+              id="userId"
+              name="userId"
+              class="form-input"
+              placeholder="Enter your user ID"
+              required
+              autocomplete="username"
+            />
+          </div>
+
+          <!-- Password Field -->
+          <div class="form-group">
+            <label for="password" class="form-label">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              class="form-input"
+              placeholder="Enter your password"
+              required
+              autocomplete="current-password"
+            />
+          </div>
+
+          <!-- Error Message -->
+          <div
+            id="errorMessage"
+            class="error-message"
+            style="display: none"
+          ></div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="login-button">Login</button>
+        </form>
+      </div>
+    </div>
+
+    <script src="/js/login.js"></script>
+  </body>
+</html>
