@@ -4,10 +4,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const trainingHubCard = document.getElementById('trainingHubCard');
   const logoutButton = document.getElementById('logoutButton');
 
-  // Navigate to Avatar Roleplay
+  // Navigate to Persona Selection
   if (avatarCard) {
     avatarCard.addEventListener('click', () => {
-      window.location.href = '/avatar';
+      window.location.href = '/persona-selection';
     });
   }
 

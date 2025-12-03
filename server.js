@@ -5,7 +5,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import crypto from 'crypto';
-import session from 'express-session';
 import emotionalStateRoutes from './dist/api/emotional-state.js';
 import configRoutes from './dist/api/config.js';
 import elevenLabsRoutes from './dist/api/elevenlabs-tts.js';
@@ -240,6 +239,11 @@ app.get('/api/auth/status', (req, res) => {
 // Serve navigation.html - DEFAULT ROUTE
 app.get('/', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'navigation.html'));
+});
+
+// Serve persona-selection.html - available at /persona-selection
+app.get('/persona-selection', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'persona-selection.html'));
 });
 
 // Serve avatar-ui.html (with ReadyPlayerMe avatar) - available at /avatar

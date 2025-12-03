@@ -1,0 +1,926 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Select Persona</title>
+    <link rel="stylesheet" href="/css/navigation.css" />
+    <link rel="stylesheet" href="/css/persona-selection.css" />
+  </head>
+
+  <body>
+    <!-- Sticky Header -->
+    <header class="sticky-header">
+      <div class="header-content">
+        <div class="header-logo">
+          <img src="/images/aic_logo.jpeg" alt="AIC Logo" class="logo" />
+        </div>
+      </div>
+    </header>
+
+    <div class="navigation-container">
+      <!-- Welcome Header -->
+      <div class="welcome-header">
+        <h1 class="welcome-title">Choose Your Scenario</h1>
+      </div>
+
+      <!-- Persona Cards -->
+      <div class="cards-container">
+        <!-- HealthierSG Persona Card -->
+        <div class="nav-card persona-card" data-persona="healthiersg">
+          <button
+            class="more-info-button"
+            aria-label="More information"
+            title="View more information"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
+          <div class="persona-image-container">
+            <img
+              src="/images/healthiersg_image.png"
+              alt="HealthierSG Persona"
+              class="persona-image"
+            />
+          </div>
+          <h2 class="card-title">Introducing Healthier SG Screening</h2>
+          <p class="card-description">
+            Introduce to 70 year-old Uncle Lim the benefits of Healthier SG
+            Screening and how he can access affordable screenings at nearby
+            clinics.
+          </p>
+          <div class="card-expanded-content" style="display: none">
+            <!-- Tab Navigation -->
+            <div class="modal-tabs">
+              <button class="tab-button active" data-tab="overview">
+                Overview
+              </button>
+              <button class="tab-button" data-tab="goals">
+                Training Goals
+              </button>
+              <button class="tab-button" data-tab="dialogue">
+                Dialogue Flow
+              </button>
+              <button class="tab-button" data-tab="techniques">
+                Techniques
+              </button>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="tab-content-container">
+              <!-- Overview Tab -->
+              <div class="tab-content active" id="tab-overview">
+                <div class="scenario-summary-section">
+                  <h3>Scenario Summary</h3>
+                  <p>
+                    Introduce to 70 year-old Uncle Lim the benefits of Healthier
+                    SG Screening and how he can access affordable screenings at
+                    nearby clinics.
+                  </p>
+                </div>
+
+                <div class="persona-bio-card">
+                  <h3>Persona Bio: Lim Swee Heng (Age 70)</h3>
+                  <ul>
+                    <li>Lives alone in a 3-room HDB flat</li>
+                    <li>Has high blood pressure and mild knee pain</li>
+                    <li>Not currently enrolled in Healthier SG</li>
+                    <li>
+                      Retired hawker, managing on savings and some CPF payouts
+                    </li>
+                    <li>
+                      Son works overseas, visits once yearly during Chinese New
+                      Year
+                    </li>
+                    <li>
+                      Friendly but somewhat shy about discussing health matters
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Training Goals Tab -->
+              <div class="tab-content" id="tab-goals">
+                <div class="training-goals-section">
+                  <h3>Training Goals</h3>
+                  <ul>
+                    <li>
+                      Practice conducting a health and social needs assessment
+                    </li>
+                    <li>
+                      Introduce Healthier SG screening benefits and registration
+                      process
+                    </li>
+                    <li>Practice supportive communication techniques</li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Dialogue Flow Tab -->
+              <div class="tab-content" id="tab-dialogue">
+                <div class="dialogue-flow-section">
+                  <h3>Suggested Dialogue Flow</h3>
+                  <div class="timeline">
+                    <div class="timeline-item">
+                      <div class="timeline-marker">1</div>
+                      <div class="timeline-content">
+                        <h4>Stage 1: Warm Introduction and Building Trust</h4>
+                        <p>
+                          Start with friendly small talk about daily routine and
+                          family to help Uncle Lim feel comfortable before
+                          discussing health matters.
+                        </p>
+                        <p class="timeline-note">
+                          <strong>Technique:</strong> Use clear announcements:
+                          "Uncle Lim, I am here today to chat with you about
+                          your health and see how we can support you. Is that
+                          okay with you?"
+                        </p>
+                      </div>
+                    </div>
+                    <div class="timeline-item">
+                      <div class="timeline-marker">2</div>
+                      <div class="timeline-content">
+                        <h4>Stage 2: Health Assessment</h4>
+                        <p>
+                          Gently ask about current health conditions,
+                          medications, and last health screening, noting the
+                          high blood pressure and knee pain concerns.
+                        </p>
+                        <p class="timeline-note">
+                          <strong>Technique:</strong> Use yes/no questions and
+                          nouns instead of pronouns: "Uncle Lim, do you have
+                          high blood pressure? Does Uncle Lim take medicine for
+                          the high blood pressure every day?"
+                        </p>
+                      </div>
+                    </div>
+                    <div class="timeline-item">
+                      <div class="timeline-marker">3</div>
+                      <div class="timeline-content">
+                        <h4>
+                          Stage 3: Introduce Healthier SG Screening Benefits
+                        </h4>
+                        <p>
+                          Explain how enrolling in Healthier SG can provide
+                          subsidised screenings (as low as $25 for Pioneer
+                          Generation) at a regular clinic near his home.
+                        </p>
+                        <p class="timeline-note">
+                          <strong>Technique:</strong> Use right-branching
+                          sentences: "Healthier SG helps Uncle Lim with health
+                          screening. Health screening checks Uncle Lim's blood
+                          pressure, checks Uncle Lim's sugar level, checks Uncle
+                          Lim's cholesterol. The screening costs only $25 for
+                          Uncle Lim."
+                        </p>
+                      </div>
+                    </div>
+                    <div class="timeline-item">
+                      <div class="timeline-marker">4</div>
+                      <div class="timeline-content">
+                        <h4>Stage 4: Social and Financial Needs Check</h4>
+                        <p>
+                          Ask about social activities, loneliness, financial
+                          concerns, and whether he knows about home modification
+                          programmes or community activities nearby.
+                        </p>
+                        <p class="timeline-note">
+                          <strong>Technique:</strong> Use matching comments:
+                          "Yes, meeting friends at the market is good for Uncle
+                          Lim."
+                        </p>
+                      </div>
+                    </div>
+                    <div class="timeline-item">
+                      <div class="timeline-marker">5</div>
+                      <div class="timeline-content">
+                        <h4>Stage 5: Next Steps and Follow-up</h4>
+                        <p>
+                          Summarise what was discussed, provide contact
+                          information for Healthier SG enrollment, and arrange a
+                          follow-up visit or connect him to relevant services.
+                        </p>
+                        <p class="timeline-note">
+                          <strong>Technique:</strong> Use positive instructions:
+                          "Uncle Lim can call this number to sign up for
+                          Healthier SG. Good!"
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Communication Techniques Tab -->
+              <div class="tab-content" id="tab-techniques">
+                <div class="communication-techniques-section">
+                  <h3>Person-Centered Care Communication Techniques</h3>
+
+                  <div class="technique-category">
+                    <h4>Building Connection and Trust</h4>
+                    <ul>
+                      <li>
+                        <strong>Active Listening</strong> - Give full attention
+                        and show understanding
+                      </li>
+                      <li>
+                        <strong>Asking Permission</strong> - "Is it okay if we
+                        talk about health screening?"
+                      </li>
+                      <li>
+                        <strong>Politeness</strong> - Use respectful language
+                        and titles
+                      </li>
+                      <li>
+                        <strong>Announcing Activity/Intent</strong> - State
+                        clearly what will happen next
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div class="technique-category">
+                    <h4>Asking Questions Effectively</h4>
+                    <ul>
+                      <li>
+                        <strong>Open-Ended Questions</strong> - "What does Uncle
+                        Lim do in the morning?"
+                      </li>
+                      <li>
+                        <strong>Yes/No Questions</strong> - "Does Uncle Lim have
+                        knee pain?"
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div class="technique-category">
+                    <h4>Speaking Clearly and Simply</h4>
+                    <ul>
+                      <li>
+                        <strong>Address by Name</strong> - Say "Uncle Lim"
+                        instead of "you"
+                      </li>
+                      <li>
+                        <strong>Right-Branching Sentences</strong> - Put main
+                        idea first, details after
+                      </li>
+                      <li>
+                        <strong>Positive Instructions</strong> - Say what to do,
+                        not what not to do
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div class="technique-category">
+                    <h4>Showing Understanding and Support</h4>
+                    <ul>
+                      <li>
+                        <strong>Allowing Time to Respond</strong> - Wait
+                        patiently for 5-10 seconds
+                      </li>
+                      <li>
+                        <strong>Matching Comments</strong> - Repeat back what
+                        was said to show understanding
+                      </li>
+                      <li>
+                        <strong>Affirmations</strong> - "Yes, that is right" or
+                        "Good, Uncle Lim understands"
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button class="select-scenario-button">
+            Select Scenario
+            <span class="button-arrow">→</span>
+          </button>
+        </div>
+
+        <!-- Befriending Persona Card -->
+        <div class="nav-card persona-card" data-persona="befriending">
+          <button
+            class="more-info-button"
+            aria-label="More information"
+            title="View more information"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
+          <div class="persona-image-container">
+            <img
+              src="/images/befriending_image.png"
+              alt="Befriending Persona"
+              class="persona-image"
+            />
+          </div>
+          <h2 class="card-title">Befriending Visit</h2>
+          <p class="card-description">
+            Practice meaningful small talk and companionship with 70-year-old
+            Lim Swee Heng during a befriending visit to help him have enjoyable
+            company.
+          </p>
+          <div class="card-expanded-content" style="display: none">
+            <!-- Tab Navigation -->
+            <div class="modal-tabs">
+              <button class="tab-button active" data-tab="overview">
+                Overview
+              </button>
+              <button class="tab-button" data-tab="goals">
+                Training Goals
+              </button>
+              <button class="tab-button" data-tab="dialogue">
+                Dialogue Flow
+              </button>
+              <button class="tab-button" data-tab="techniques">
+                Techniques
+              </button>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="tab-content-container">
+              <!-- Overview Tab -->
+              <div class="tab-content active" id="tab-overview">
+                <div class="scenario-summary-section">
+                  <h3>Scenario Summary</h3>
+                  <p>
+                    Practice meaningful small talk and companionship with
+                    70-year-old Lim Swee Heng during a befriending visit to help
+                    him have enjoyable company.
+                  </p>
+                </div>
+
+                <div class="persona-bio-card">
+                  <h3>Persona Bio: Lim Swee Heng (Age 70)</h3>
+                  <ul>
+                    <li>Lives alone in a 3-room HDB flat</li>
+                    <li>Has high blood pressure and mild knee pain</li>
+                    <li>Not currently enrolled in Healthier SG</li>
+                    <li>
+                      Retired hawker, managing on savings and some CPF payouts
+                    </li>
+                    <li>
+                      Son works overseas, visits once yearly during Chinese New
+                      Year
+                    </li>
+                    <li>
+                      Friendly but somewhat shy about discussing health matters
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Training Goals Tab -->
+              <div class="tab-content" id="tab-goals">
+                <div class="training-goals-section">
+                  <h3>Training Goals</h3>
+                  <ul>
+                    <li>
+                      Practice building genuine connection through relaxed
+                      conversation that makes Lim Swee Heng feel valued and
+                      heard
+                    </li>
+                    <li>
+                      Practice small talk topics that bring joy and meaning to
+                      the senior, such as memories, hobbies, family, and daily
+                      routines
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Dialogue Flow Tab -->
+              <div class="tab-content" id="tab-dialogue">
+                <div class="dialogue-flow-section">
+                  <h3>Suggested Dialogue Flow</h3>
+                  <div class="timeline">
+                    <div class="timeline-item">
+                      <div class="timeline-marker">1</div>
+                      <div class="timeline-content">
+                        <h4>Stage 1: Warm Greeting and Settling In</h4>
+                        <p>
+                          Begin with a friendly greeting and some light
+                          conversation about the weather or the neighbourhood to
+                          help Mr. Lim feel comfortable with the visit.
+                        </p>
+                        <p class="timeline-note">
+                          <strong>Technique:</strong> Use announcing activity
+                          and politeness: "Mr. Lim, I am here today to spend
+                          time with Mr. Lim and have a nice chat. May I sit here
+                          with Mr. Lim?"
+                        </p>
+                      </div>
+                    </div>
+                    <div class="timeline-item">
+                      <div class="timeline-marker">2</div>
+                      <div class="timeline-content">
+                        <h4>Stage 2: Exploring Daily Life and Interests</h4>
+                        <p>
+                          Ask about Mr. Lim's daily routine, hobbies, and what
+                          he enjoys doing, showing genuine interest in his
+                          answers and encouraging him to share more.
+                        </p>
+                        <p class="timeline-note">
+                          <strong>Technique:</strong> Use open-ended questions:
+                          "What does Mr. Lim like to do in the morning? What
+                          food does Mr. Lim enjoy cooking?"
+                        </p>
+                      </div>
+                    </div>
+                    <div class="timeline-item">
+                      <div class="timeline-marker">3</div>
+                      <div class="timeline-content">
+                        <h4>Stage 3: Sharing Stories and Memories</h4>
+                        <p>
+                          Encourage Mr. Lim to share stories about his hawker
+                          days, family memories, or life in the neighbourhood,
+                          listening attentively and responding with interest.
+                        </p>
+                        <p class="timeline-note">
+                          <strong>Technique:</strong> Use matching comments and
+                          allowing time to respond: "Yes, working as a hawker
+                          must have been very busy. Mr. Lim worked hard for many
+                          years." Then wait patiently for Mr. Lim to continue.
+                        </p>
+                      </div>
+                    </div>
+                    <div class="timeline-item">
+                      <div class="timeline-marker">4</div>
+                      <div class="timeline-content">
+                        <h4>Stage 4: Finding Common Ground and Light Topics</h4>
+                        <p>
+                          Discuss shared interests such as favourite foods,
+                          local events, television programmes, or news from the
+                          neighbourhood to create connection and enjoyment.
+                        </p>
+                        <p class="timeline-note">
+                          <strong>Technique:</strong> Use affirmations: "Yes,
+                          that kopitiam makes very good kopi. Mr. Lim has good
+                          taste!"
+                        </p>
+                      </div>
+                    </div>
+                    <div class="timeline-item">
+                      <div class="timeline-marker">5</div>
+                      <div class="timeline-content">
+                        <h4>Stage 5: Gentle Closing and Planning Next Visit</h4>
+                        <p>
+                          Thank Mr. Lim for the pleasant conversation, summarise
+                          what was enjoyed during the visit, and arrange when to
+                          visit again.
+                        </p>
+                        <p class="timeline-note">
+                          <strong>Technique:</strong> Use positive instructions:
+                          "Mr. Lim, thank you for sharing stories with me today.
+                          I enjoyed hearing about Mr. Lim's hawker stall. I will
+                          come visit Mr. Lim again next week. Is Tuesday morning
+                          good for Mr. Lim?"
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Communication Techniques Tab -->
+              <div class="tab-content" id="tab-techniques">
+                <div class="communication-techniques-section">
+                  <h3>Person-Centered Care Communication Techniques</h3>
+
+                  <div class="technique-category">
+                    <h4>Building Connection and Trust</h4>
+                    <ul>
+                      <li>
+                        <strong>Active Listening</strong> - Give full attention
+                        and show understanding
+                      </li>
+                      <li>
+                        <strong>Asking Permission</strong> - "May I sit here
+                        with Mr. Lim?"
+                      </li>
+                      <li>
+                        <strong>Politeness</strong> - Use respectful language
+                        and titles
+                      </li>
+                      <li>
+                        <strong>Announcing Activity/Intent</strong> - State
+                        clearly what will happen next
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div class="technique-category">
+                    <h4>Asking Questions Effectively</h4>
+                    <ul>
+                      <li>
+                        <strong>Open-Ended Questions</strong> - "What does Mr.
+                        Lim enjoy doing?" or "What was Mr. Lim's favourite dish
+                        to cook?"
+                      </li>
+                      <li>
+                        <strong>Yes/No Questions</strong> - "Does Mr. Lim watch
+                        the evening news?"
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div class="technique-category">
+                    <h4>Speaking Clearly and Simply</h4>
+                    <ul>
+                      <li>
+                        <strong>Using Nouns Instead of Pronouns</strong> - Say
+                        "Mr. Lim" instead of "you"
+                      </li>
+                      <li>
+                        <strong>Right-Branching Sentences</strong> - Put main
+                        idea first, details after
+                      </li>
+                      <li>
+                        <strong>Positive Instructions</strong> - Say what to do,
+                        not what not to do
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div class="technique-category">
+                    <h4>Showing Understanding and Support</h4>
+                    <ul>
+                      <li>
+                        <strong>Allowing Time to Respond</strong> - Wait
+                        patiently for 5-10 seconds, especially during
+                        storytelling
+                      </li>
+                      <li>
+                        <strong>Matching Comments</strong> - Repeat back what
+                        was said to show understanding
+                      </li>
+                      <li>
+                        <strong>Affirmations</strong> - "Yes, that is
+                        interesting" or "Mr. Lim tells good stories"
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button class="select-scenario-button">
+            Select Scenario
+            <span class="button-arrow">→</span>
+          </button>
+        </div>
+
+        <!-- ACP Persona Card -->
+        <div class="nav-card persona-card" data-persona="acp">
+          <button
+            class="more-info-button"
+            aria-label="More information"
+            title="View more information"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
+          <div class="persona-image-container">
+            <img
+              src="/images/acp_image.png"
+              alt="ACP Persona"
+              class="persona-image"
+            />
+          </div>
+          <h2 class="card-title">Introducing Advance Care Planning</h2>
+          <p class="card-description">
+            Introduce to 70-year-old Lim Swee Heng the benefits of Advance Care
+            Planning and guide him on how to book an ACP appointment with a
+            certified provider.
+          </p>
+          <div class="card-expanded-content" style="display: none">
+            <!-- Tab Navigation -->
+            <div class="modal-tabs">
+              <button class="tab-button active" data-tab="overview">
+                Overview
+              </button>
+              <button class="tab-button" data-tab="goals">
+                Training Goals
+              </button>
+              <button class="tab-button" data-tab="dialogue">
+                Dialogue Flow
+              </button>
+              <button class="tab-button" data-tab="techniques">
+                Techniques
+              </button>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="tab-content-container">
+              <!-- Overview Tab -->
+              <div class="tab-content active" id="tab-overview">
+                <div class="scenario-summary-section">
+                  <h3>Scenario Summary</h3>
+                  <p>
+                    Introduce to 70-year-old Lim Swee Heng the benefits of
+                    Advance Care Planning and guide him on how to book an ACP
+                    appointment with a certified provider.
+                  </p>
+                </div>
+
+                <div class="persona-bio-card">
+                  <h3>Persona Bio: Lim Swee Heng (Age 70)</h3>
+                  <ul>
+                    <li>Lives alone in a 3-room HDB flat</li>
+                    <li>Has high blood pressure and mild knee pain</li>
+                    <li>Not currently enrolled in Healthier SG</li>
+                    <li>
+                      Retired hawker, managing on savings and some CPF payouts
+                    </li>
+                    <li>
+                      Son works overseas, visits once yearly during Chinese New
+                      Year
+                    </li>
+                    <li>
+                      Friendly but somewhat shy about discussing health matters
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Training Goals Tab -->
+              <div class="tab-content" id="tab-goals">
+                <div class="training-goals-section">
+                  <h3>Training Goals</h3>
+                  <ul>
+                    <li>
+                      Practice introducing Advance Care Planning in a sensitive
+                      manner
+                    </li>
+                    <li>
+                      Explain ACP benefits clearly and guide the senior on how
+                      to book an ACP appointment with a certified provider
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Dialogue Flow Tab -->
+              <div class="tab-content" id="tab-dialogue">
+                <div class="dialogue-flow-section">
+                  <h3>Suggested Dialogue Flow</h3>
+                  <div class="timeline">
+                    <div class="timeline-item">
+                      <div class="timeline-marker">1</div>
+                      <div class="timeline-content">
+                        <h4>Stage 1: Warm Introduction and Building Trust</h4>
+                        <p>
+                          Start with friendly small talk about daily routine and
+                          health management before gently introducing the topic
+                          of planning for future healthcare.
+                        </p>
+                        <p class="timeline-note">
+                          <strong>Technique:</strong> Use clear announcements
+                          and asking permission: "Mr. Lim, I would like to talk
+                          with Mr. Lim about planning for future health care. Is
+                          that okay with Mr. Lim?"
+                        </p>
+                      </div>
+                    </div>
+                    <div class="timeline-item">
+                      <div class="timeline-marker">2</div>
+                      <div class="timeline-content">
+                        <h4>Stage 2: Introduce What ACP Is</h4>
+                        <p>
+                          Explain that Advance Care Planning helps Mr. Lim tell
+                          doctors and family what kind of healthcare Mr. Lim
+                          wants if Mr. Lim becomes very sick and cannot speak
+                          for himself.
+                        </p>
+                        <p class="timeline-note">
+                          <strong>Technique:</strong> Use right-branching
+                          sentences: "Advance Care Planning helps Mr. Lim make
+                          choices. Mr. Lim can choose what treatment Mr. Lim
+                          wants. Mr. Lim can tell family members what is
+                          important to Mr. Lim."
+                        </p>
+                      </div>
+                    </div>
+                    <div class="timeline-item">
+                      <div class="timeline-marker">3</div>
+                      <div class="timeline-content">
+                        <h4>Stage 3: Explain ACP Benefits</h4>
+                        <p>
+                          Share how ACP gives Mr. Lim control, reduces worry for
+                          family members, and ensures doctors understand Mr.
+                          Lim's wishes about comfort care, life support, and
+                          where Mr. Lim wants to receive care.
+                        </p>
+                        <p class="timeline-note">
+                          <strong>Technique:</strong> Use yes/no questions:
+                          "Does Mr. Lim want family to know Mr. Lim's healthcare
+                          wishes? Does Mr. Lim want to choose someone to speak
+                          for Mr. Lim if Mr. Lim cannot speak?"
+                        </p>
+                      </div>
+                    </div>
+                    <div class="timeline-item">
+                      <div class="timeline-marker">4</div>
+                      <div class="timeline-content">
+                        <h4>Stage 4: Address Concerns and Answer Questions</h4>
+                        <p>
+                          Listen to any worries Mr. Lim has about discussing
+                          end-of-life planning, and reassure him that ACP can be
+                          changed anytime and is about living well, not about
+                          dying.
+                        </p>
+                        <p class="timeline-note">
+                          <strong>Technique:</strong> Use matching comments and
+                          affirmations: "Yes, Mr. Lim is right. ACP can be
+                          changed anytime. Good that Mr. Lim asks this
+                          question."
+                        </p>
+                      </div>
+                    </div>
+                    <div class="timeline-item">
+                      <div class="timeline-marker">5</div>
+                      <div class="timeline-content">
+                        <h4>Stage 5: Guide on Booking ACP Appointment</h4>
+                        <p>
+                          Explain where Mr. Lim can go for ACP (polyclinics,
+                          hospitals, community centres), provide contact
+                          information, and offer to help Mr. Lim make the
+                          appointment or arrange a callback.
+                        </p>
+                        <p class="timeline-note">
+                          <strong>Technique:</strong> Use positive instructions:
+                          "Mr. Lim can call this number to book ACP appointment.
+                          Mr. Lim can also visit the community centre near Mr.
+                          Lim's home. Would Mr. Lim like me to help Mr. Lim call
+                          now?"
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Communication Techniques Tab -->
+              <div class="tab-content" id="tab-techniques">
+                <div class="communication-techniques-section">
+                  <h3>Person-Centered Care Communication Techniques</h3>
+
+                  <div class="technique-category">
+                    <h4>Building Connection and Trust</h4>
+                    <ul>
+                      <li>
+                        <strong>Active Listening</strong> - Give full attention
+                        and show understanding
+                      </li>
+                      <li>
+                        <strong>Asking Permission</strong> - "Is it okay if we
+                        talk about Advance Care Planning?"
+                      </li>
+                      <li>
+                        <strong>Politeness</strong> - Use respectful language
+                        and titles
+                      </li>
+                      <li>
+                        <strong>Announcing Activity/Intent</strong> - State
+                        clearly what will happen next
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div class="technique-category">
+                    <h4>Asking Questions Effectively</h4>
+                    <ul>
+                      <li>
+                        <strong>Open-Ended Questions</strong> - "What is
+                        important to Mr. Lim when thinking about healthcare?"
+                      </li>
+                      <li>
+                        <strong>Yes/No Questions</strong> - "Does Mr. Lim have
+                        someone Mr. Lim trusts to make decisions?"
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div class="technique-category">
+                    <h4>Speaking Clearly and Simply</h4>
+                    <ul>
+                      <li>
+                        <strong>Address by name</strong> - Say "Mr. Lim" instead
+                        of "you"
+                      </li>
+                      <li>
+                        <strong>Right-Branching Sentences</strong> - Put main
+                        idea first, details after
+                      </li>
+                      <li>
+                        <strong>Positive Instructions</strong> - Say what to do,
+                        not what not to do
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div class="technique-category">
+                    <h4>Showing Understanding and Support</h4>
+                    <ul>
+                      <li>
+                        <strong>Allowing Time to Respond</strong> - Wait
+                        patiently for 5-10 seconds
+                      </li>
+                      <li>
+                        <strong>Matching Comments</strong> - Repeat back what
+                        was said to show understanding
+                      </li>
+                      <li>
+                        <strong>Affirmations</strong> - "Yes, that is right" or
+                        "Good, Mr. Lim understands"
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button class="select-scenario-button">
+            Select Scenario
+            <span class="button-arrow">→</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Back Button -->
+      <div class="back-section">
+        <button class="back-button" id="backButton">
+          ← Back to Navigation
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div
+      id="infoModal"
+      class="modal"
+      role="dialog"
+      aria-labelledby="modalTitle"
+      aria-hidden="true"
+    >
+      <div class="modal-overlay"></div>
+      <div class="modal-content">
+        <button class="modal-close" aria-label="Close modal">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+        <div class="modal-body" id="modalBody">
+          <!-- Content will be inserted here -->
+        </div>
+      </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/persona-selection.js"></script>
+  </body>
+</html>
