@@ -19,20 +19,14 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 8888;
 
-// Session configuration
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: process.env.NODE_ENV === 'production',
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    },
-  })
-);
+// Detect if running on Vercel
+const isVercel =
+  process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
+
+// Trust Vercel reverse proxy (required for sessions to work on Vercel)
+if (isVercel) {
+  app.set('trust proxy', 1);
+}
 
 // Middleware
 app.use(
@@ -42,6 +36,22 @@ app.use(
   })
 );
 app.use(express.json());
+
+// Session configuration - dynamic based on environment
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || 'default-secret-change-in-production',
+    resave: false,
+    saveUninitialized: false,
+    proxy: isVercel, // Trust reverse proxy only on Vercel
+    cookie: {
+      secure: isVercel, // HTTPS only on Vercel (always HTTPS), HTTP for local dev
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      sameSite: isVercel ? 'none' : 'lax', // 'none' for Vercel, 'lax' for local dev
+    },
+  })
+);
 
 // Authentication middleware
 const requireAuth = (req, res, next) => {
