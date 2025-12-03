@@ -26,9 +26,10 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: process.env.NODE_ENV === 'production', // Use secure cookies in production (HTTPS)
+      secure: process.env.NODE_ENV === 'production',
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     },
   })
 );
@@ -170,7 +171,9 @@ if (process.env.VERCEL !== '1') {
     console.log(`🔐 Login: http://localhost:${PORT}/login`);
     console.log(`🧭 Navigation: http://localhost:${PORT}/ (protected)`);
     console.log(`🎭 Avatar UI: http://localhost:${PORT}/avatar (protected)`);
-    console.log(`🎓 Training Hub: http://localhost:${PORT}/training-hub (protected)`);
+    console.log(
+      `🎓 Training Hub: http://localhost:${PORT}/training-hub (protected)`
+    );
     console.log(`💬 Chat UI: http://localhost:${PORT}/chat (protected)`);
     console.log(`🔊 Health: http://localhost:${PORT}/api/health`);
     console.log(
