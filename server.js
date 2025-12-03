@@ -4,6 +4,7 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
+import crypto from 'crypto';
 import session from 'express-session';
 import emotionalStateRoutes from './dist/api/emotional-state.js';
 import configRoutes from './dist/api/config.js';
@@ -37,21 +38,122 @@ app.use(
 );
 app.use(express.json());
 
-// Session configuration - dynamic based on environment
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || 'default-secret-change-in-production',
-    resave: false,
-    saveUninitialized: false,
-    proxy: isVercel, // Trust reverse proxy only on Vercel
-    cookie: {
-      secure: isVercel, // HTTPS only on Vercel (always HTTPS), HTTP for local dev
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      sameSite: isVercel ? 'none' : 'lax', // 'none' for Vercel, 'lax' for local dev
-    },
-  })
-);
+// Cookie parser middleware (simple version) - must run first
+app.use((req, res, next) => {
+  if (!req.cookies) {
+    req.cookies = {};
+    const cookieHeader = req.headers.cookie;
+    if (cookieHeader) {
+      cookieHeader.split(';').forEach((cookie) => {
+        const parts = cookie.trim().split('=');
+        if (parts.length === 2) {
+          req.cookies[parts[0].trim()] = decodeURIComponent(parts[1]);
+        }
+      });
+    }
+  }
+  next();
+});
+
+// Cookie-based session helper (for serverless compatibility)
+const sessionSecret =
+  process.env.SESSION_SECRET || 'default-secret-change-in-production-change-me';
+const getSessionKey = () => {
+  return crypto.createHash('sha256').update(sessionSecret).digest();
+};
+
+const encryptSession = (data) => {
+  const key = getSessionKey();
+  const iv = crypto.randomBytes(16);
+  const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+  let encrypted = cipher.update(JSON.stringify(data), 'utf8', 'hex');
+  encrypted += cipher.final('hex');
+  return iv.toString('hex') + ':' + encrypted;
+};
+
+const decryptSession = (encryptedData) => {
+  try {
+    if (!encryptedData) return null;
+    const key = getSessionKey();
+    const parts = encryptedData.split(':');
+    if (parts.length !== 2) return null;
+    const iv = Buffer.from(parts[0], 'hex');
+    const encrypted = parts[1];
+    const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+    let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    return JSON.parse(decrypted);
+  } catch (error) {
+    return null;
+  }
+};
+
+// Cookie-based session middleware (works with serverless)
+const cookieName = 'auth_session';
+app.use((req, res, next) => {
+  // Get session from cookie
+  const cookie = req.cookies?.[cookieName];
+
+  if (cookie) {
+    req.session = decryptSession(cookie) || {};
+  } else {
+    req.session = {};
+  }
+
+  // Save session before sending response
+  const originalSend = res.send.bind(res);
+  const originalJson = res.json.bind(res);
+  const originalEnd = res.end.bind(res);
+  const originalRedirect = res.redirect.bind(res);
+
+  const saveSession = () => {
+    // Don't try to save session if headers have already been sent
+    if (res.headersSent) {
+      return;
+    }
+
+    if (req.session && Object.keys(req.session).length > 0) {
+      const encrypted = encryptSession(req.session);
+      res.cookie(cookieName, encrypted, {
+        httpOnly: true,
+        secure: isVercel,
+        sameSite: isVercel ? 'none' : 'lax',
+        maxAge: 24 * 60 * 60 * 1000,
+      });
+    } else if (cookie) {
+      res.clearCookie(cookieName, {
+        httpOnly: true,
+        secure: isVercel,
+        sameSite: isVercel ? 'none' : 'lax',
+      });
+    }
+  };
+
+  res.send = function (...args) {
+    saveSession();
+    return originalSend(...args);
+  };
+
+  res.json = function (...args) {
+    saveSession();
+    return originalJson(...args);
+  };
+
+  res.end = function (...args) {
+    // Only save session if headers haven't been sent (for static files, headers are sent before end)
+    if (!res.headersSent) {
+      saveSession();
+    }
+    return originalEnd(...args);
+  };
+
+  res.redirect = function (...args) {
+    saveSession();
+    return originalRedirect(...args);
+  };
+
+  next();
+});
 
 // Authentication middleware
 const requireAuth = (req, res, next) => {
@@ -111,18 +213,18 @@ app.post('/api/login', (req, res) => {
 
 // Logout endpoint
 app.post('/api/logout', (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-      return res.status(500).json({
-        success: false,
-        message: 'Error logging out',
-      });
-    }
-    res.json({
-      success: true,
-      message: 'Logged out successfully',
-      redirect: '/login',
-    });
+  // Clear session
+  req.session = {};
+  // Clear cookie
+  res.clearCookie(cookieName, {
+    httpOnly: true,
+    secure: isVercel,
+    sameSite: isVercel ? 'none' : 'lax',
+  });
+  res.json({
+    success: true,
+    message: 'Logged out successfully',
+    redirect: '/login',
   });
 });
 
