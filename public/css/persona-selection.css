@@ -690,6 +690,19 @@ body {
 
 /* Responsive Header */
 @media (max-width: 768px) {
+  html,
+  body {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .navigation-container {
+    height: auto;
+    overflow: visible;
+    min-height: auto;
+  }
+
   .header-content {
     padding: 0 16px;
   }
@@ -717,11 +730,24 @@ body {
     height: 90vh;
   }
 
+  .modal-close {
+    top: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+  }
+
+  .modal-close svg {
+    width: 18px;
+    height: 18px;
+  }
+
   .modal-tabs {
-    padding: 0 10px;
+    padding: 0 50px 0 10px;
     overflow-x: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    position: relative;
   }
 
   .modal-tabs::-webkit-scrollbar {
