@@ -43,12 +43,13 @@
 
     <div class="report-container" style="padding-top: 80px;">
       <div class="report-content">
-
-        <!-- Summary Cards Row -->
-        <div class="summary-cards-row">
-          <!-- Card 1: How You Did -->
-          <div class="summary-card">
+        <!-- Summary Cards -->
+        <!-- Card 1: How You Did -->
+        <div class="summary-card" style="margin-bottom: 20px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+            <!-- Left Column: Header Info -->
             <div class="summary-header">
+              <h2 class="summary-section-title">Session Information</h2>
               <div class="summary-header-info">
                 <p><strong>Trainee:</strong> Freddy Tan</p>
                 <p><strong>Scenario:</strong> Introduction to Advance Care Planning</p>
@@ -56,37 +57,38 @@
               </div>
             </div>
 
+            <!-- Right Column: Content -->
             <div class="summary-content">
               <h2 class="summary-section-title">How You Did</h2>
-
               <div class="summary-goals">
-                <ul class="goals-list">
-                  <li>
-                    <span class="goal-text">Practice introducing ACP in a sensitive manner</span>
-                    <span class="fail-badge">FAIL</span>
-                  </li>
-                  <li>
-                    <span class="goal-text">Explain ACP benefits clearly and guide senior to book ACP appointment</span>
-                    <span class="fail-badge">FAIL</span>
-                  </li>
-                </ul>
                 <div class="overall-result">
                   <strong>Overall Result</strong>
                   <span class="fail-badge-large">FAIL - Requires Immediate Retraining</span>
+                  <ul class="goals-list">
+                    <h3>Scenario Goals</h3>
+                    <li>
+                      <span class="goal-text">Practice introducing ACP in a sensitive manner</span>
+                      <span class="fail-badge">FAIL</span>
+                    </li>
+                    <li>
+                      <span class="goal-text">Explain ACP benefits clearly and guide senior to book ACP appointment</span>
+                      <span class="fail-badge">FAIL</span>
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>
           </div>
-
-          <!-- Card 2: Persona Emotional Trajectory -->
-          <div class="summary-card">
+        </div>
+        
+        <!-- Card 2: Persona Emotional Trajectory -->
+        <div class="summary-card">
             <div class="summary-content">
               <h2 class="summary-section-title">Persona Emotional Trajectory</h2>
-
               <div class="summary-trajectory">
-                <div class="trajectory-visual-compact">
-                  <div class="emotion-step">
-                    <svg class="neutral" width="44px" height="44px" viewBox="0 0 44 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                <div class="emotional-states-summary">
+                  <div class="emotional-state-summary-item" style="display: flex; align-items: center; gap: 8px; flex-wrap: nowrap;">
+                    <svg class="neutral" width="32px" height="32px" viewBox="0 0 44 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                       <g>
                         <circle id="body" fill="#F9AC1B" cx="22" cy="22" r="22"></circle>
                         <g class="face">
@@ -102,94 +104,77 @@
                         </g>
                       </g>
                     </svg>
-                    <div class="emotion-label">Initial State</div>
-                    <div class="emotion-arrow">→</div>
-                  </div>
-
-                  <div class="emotion-step">
-                    <svg class="irritated" width="44px" height="44px" viewBox="0 0 44 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                      <g id="irritated" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(0, 0)">
-                        <circle id="body" fill="#FF8C00" cx="22" cy="22" r="22"></circle>
-                        <g id="face" transform="translate(13.000000, 20.000000)">
-                          <g class="face">
-                            <path d="M7,4 C7,5.1045695 7.8954305,6 9,6 C10.1045695,6 11,5.1045695 11,4" class="mouth" stroke="#2C0E0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(9.000000, 5.000000) rotate(-180.000000) translate(-9.000000, -5.000000)"></path>
-                            <ellipse class="right-eye" fill="#2C0E0F" cx="16.0941176" cy="1.75609756" rx="1.90588235" ry="1.75609756"></ellipse>
-                            <ellipse class="left-eye" fill="#2C0E0F" cx="1.90588235" cy="1.75609756" rx="1.90588235" ry="1.75609756"></ellipse>
-                          </g>
-                        </g>
-                      </g>
-                    </svg>
-                    <div class="emotion-label">Irritated</div>
-                    <div class="emotion-arrow">→</div>
-                  </div>
-
-                  <div class="emotion-step">
-                    <svg class="annoyed" width="44px" height="44px" viewBox="0 0 44 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                      <g id="annoyed" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(0, 0)">
-                        <circle id="body" fill="#FF6B35" cx="22" cy="22" r="22"></circle>
-                        <g id="face" transform="translate(13.000000, 20.000000)">
-                          <g class="face">
-                            <path d="M7,4 C7,5.1045695 7.8954305,6 9,6 C10.1045695,6 11,5.1045695 11,4" class="mouth" stroke="#2C0E0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(9.000000, 5.000000) rotate(-180.000000) translate(-9.000000, -5.000000)"></path>
-                            <ellipse class="right-eye" fill="#2C0E0F" cx="16.0941176" cy="1.75609756" rx="1.90588235" ry="1.75609756"></ellipse>
-                            <ellipse class="left-eye" fill="#2C0E0F" cx="1.90588235" cy="1.75609756" rx="1.90588235" ry="1.75609756"></ellipse>
-                          </g>
-                        </g>
-                      </g>
-                    </svg>
-                    <div class="emotion-label">Annoyed</div>
-                    <div class="emotion-arrow">→</div>
-                  </div>
-
-                  <div class="emotion-step">
-                    <svg class="sad" width="44px" height="44px" viewBox="0 0 44 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                      <g id="sad" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(0, 0)">
-                        <circle id="body" fill="#E23D18" cx="22" cy="22" r="22"></circle>
-                        <g id="face" transform="translate(13.000000, 20.000000)">
-                          <g class="face">
-                            <path d="M7,4 C7,5.1045695 7.8954305,6 9,6 C10.1045695,6 11,5.1045695 11,4" class="mouth" stroke="#2C0E0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(9.000000, 5.000000) rotate(-180.000000) translate(-9.000000, -5.000000)"></path>
-                            <ellipse class="right-eye" fill="#2C0E0F" cx="16.0941176" cy="1.75609756" rx="1.90588235" ry="1.75609756"></ellipse>
-                            <ellipse class="left-eye" fill="#2C0E0F" cx="1.90588235" cy="1.75609756" rx="1.90588235" ry="1.75609756"></ellipse>
-                          </g>
-                        </g>
-                      </g>
-                    </svg>
-                    <div class="emotion-label">Enraged</div>
-                  </div>
-                </div>
-
-                <div class="emotional-states-summary">
-                  <div class="emotional-state-summary-item">
-                    <strong>Neutral:</strong> Open conversation
+                    <strong>Neutral:</strong>
+                    <span>Open conversation</span>
                   </div>
                   <div class="emotional-state-summary-item">
-                    <strong>Irritated:</strong>
+                    <span style="display: inline-flex; align-items: center; gap: 8px;">
+                      <svg class="irritated" width="32px" height="32px" viewBox="0 0 44 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <g id="irritated" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(0, 0)">
+                          <circle id="body" fill="#FF8C00" cx="22" cy="22" r="22"></circle>
+                          <g id="face" transform="translate(13.000000, 20.000000)">
+                            <g class="face">
+                              <path d="M7,4 C7,5.1045695 7.8954305,6 9,6 C10.1045695,6 11,5.1045695 11,4" class="mouth" stroke="#2C0E0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(9.000000, 5.000000) rotate(-180.000000) translate(-9.000000, -5.000000)"></path>
+                              <ellipse class="right-eye" fill="#2C0E0F" cx="16.0941176" cy="1.75609756" rx="1.90588235" ry="1.75609756"></ellipse>
+                              <ellipse class="left-eye" fill="#2C0E0F" cx="1.90588235" cy="1.75609756" rx="1.90588235" ry="1.75609756"></ellipse>
+                            </g>
+                          </g>
+                        </g>
+                      </svg>
+                      <strong>Irritated:</strong>
+                    </span>
                     <ul class="emotional-state-details">
                       <li><strong>Triggers:</strong> You treated Uncle Lim as incapable of understanding and denied information</li>
-                      <li><strong>What you said:</strong> "This might be hard for you to understand", "very complicated lah"</li>
+                      <li><strong>What you said:</strong> <blockquote style="margin: 8px 0; padding: 8px 12px; border-left: 3px solid #ccc; background-color: #f5f5f5; font-style: italic;">"This might be hard for you to understand", "very complicated lah"</blockquote></li>
                     </ul>
                   </div>
                   <div class="emotional-state-summary-item">
-                    <strong>Annoyed:</strong>
+                    <span style="display: inline-flex; align-items: center; gap: 8px;">
+                      <svg class="annoyed" width="32px" height="32px" viewBox="0 0 44 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <g id="annoyed" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(0, 0)">
+                          <circle id="body" fill="#FF6B35" cx="22" cy="22" r="22"></circle>
+                          <g id="face" transform="translate(13.000000, 20.000000)">
+                            <g class="face">
+                              <path d="M7,4 C7,5.1045695 7.8954305,6 9,6 C10.1045695,6 11,5.1045695 11,4" class="mouth" stroke="#2C0E0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(9.000000, 5.000000) rotate(-180.000000) translate(-9.000000, -5.000000)"></path>
+                              <ellipse class="right-eye" fill="#2C0E0F" cx="16.0941176" cy="1.75609756" rx="1.90588235" ry="1.75609756"></ellipse>
+                              <ellipse class="left-eye" fill="#2C0E0F" cx="1.90588235" cy="1.75609756" rx="1.90588235" ry="1.75609756"></ellipse>
+                            </g>
+                          </g>
+                        </g>
+                      </svg>
+                      <strong>Annoyed:</strong>
+                    </span>
                     <ul class="emotional-state-details">
                       <li><strong>Triggers:</strong> You registered Uncle Lim without his permission and used coercive tactics</li>
-                      <li><strong>What you said:</strong> "at your age you never know when suddenly something happens"</li>
+                      <li><strong>What you said:</strong> <blockquote style="margin: 8px 0; padding: 8px 12px; border-left: 3px solid #ccc; background-color: #f5f5f5; font-style: italic;">"at your age you never know when suddenly something happens"</blockquote></li>
                     </ul>
                   </div>
                   <div class="emotional-state-summary-item">
-                    <strong>Enraged:</strong>
+                    <span style="display: inline-flex; align-items: center; gap: 8px;">
+                      <svg class="sad" width="32px" height="32px" viewBox="0 0 44 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <g id="sad" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(0, 0)">
+                          <circle id="body" fill="#E23D18" cx="22" cy="22" r="22"></circle>
+                          <g id="face" transform="translate(13.000000, 20.000000)">
+                            <g class="face">
+                              <path d="M7,4 C7,5.1045695 7.8954305,6 9,6 C10.1045695,6 11,5.1045695 11,4" class="mouth" stroke="#2C0E0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(9.000000, 5.000000) rotate(-180.000000) translate(-9.000000, -5.000000)"></path>
+                              <ellipse class="right-eye" fill="#2C0E0F" cx="16.0941176" cy="1.75609756" rx="1.90588235" ry="1.75609756"></ellipse>
+                              <ellipse class="left-eye" fill="#2C0E0F" cx="1.90588235" cy="1.75609756" rx="1.90588235" ry="1.75609756"></ellipse>
+                            </g>
+                          </g>
+                        </g>
+                      </svg>
+                      <strong>Enraged:</strong>
+                    </span>
                     <ul class="emotional-state-details">
                       <li><strong>Triggers:</strong> You blamed Uncle Lim and dismissed his concerns</li>
-                      <li><strong>What you said:</strong> "Why so difficult?", "why you so sensitive?"</li>
+                      <li><strong>What you said:</strong> <blockquote style="margin: 8px 0; padding: 8px 12px; border-left: 3px solid #ccc; background-color: #f5f5f5; font-style: italic;">"Why so difficult?", "why you so sensitive?"</blockquote></li>
                     </ul>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-
         <hr class="section-divider" />
-
         <section class="report-section">
           <h2>Your Person-Centered Care Readiness</h2>
 
