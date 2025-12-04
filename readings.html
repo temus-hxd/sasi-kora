@@ -1,0 +1,1514 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Further Readings - AIC Volunteer Training Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'aic-orange': '#F59C00',
+              'aic-orange-light': '#FFC34D',
+              'aic-orange-dark': '#C77D00',
+              'wellness-green': '#00d084',
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .reading-card {
+        animation: fadeIn 0.3s ease;
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
+        display: flex;
+        flex-direction: column;
+      }
+      .reading-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      }
+      .reading-card-image {
+        width: 100%;
+        height: 320px;
+        object-fit: contain;
+        object-position: center;
+        background: #f3f4f6;
+      }
+      .reading-card-content {
+        padding: 1rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .reading-card-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+        line-height: 1.3;
+      }
+      .reading-card-details {
+        font-size: 0.875rem;
+        color: #6b7280;
+      }
+      .lesson-item:hover {
+        background-color: rgba(245, 156, 0, 0.05);
+      }
+      /* Modal styles */
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.75);
+        z-index: 1000;
+        animation: fadeIn 0.2s ease;
+      }
+      .modal-overlay.active {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .modal-container {
+        background: white;
+        border-radius: 12px;
+        width: 90vw;
+        height: 90vh;
+        max-width: 1200px;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.3s ease;
+      }
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .modal-header {
+        padding: 0;
+        border-bottom: 1px solid #e5e7eb;
+        background: #f9fafb;
+      }
+      .pdf-tab {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+        background: white;
+        border-bottom: 1px solid #e5e7eb;
+        border-radius: 8px 8px 0 0;
+        width: fit-content;
+      }
+      .pdf-icon {
+        width: 16px;
+        height: 16px;
+        opacity: 0.7;
+      }
+      .pdf-filename {
+        font-size: 0.875rem;
+        color: #374151;
+        font-weight: 500;
+      }
+      .pdf-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1rem;
+        background: #f9fafb;
+        border-bottom: 1px solid #e5e7eb;
+      }
+      .toolbar-left {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .toolbar-right {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+      .zoom-controls {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        background: white;
+        border: 1px solid #d1d5db;
+        border-radius: 4px;
+        padding: 0.25rem;
+      }
+      .zoom-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0.25rem 0.5rem;
+        color: #6b7280;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: color 0.2s;
+      }
+      .zoom-btn:hover {
+        color: #1f2937;
+      }
+      .zoom-percentage {
+        font-size: 0.875rem;
+        color: #374151;
+        padding: 0 0.5rem;
+        min-width: 50px;
+        text-align: center;
+        font-weight: 500;
+      }
+      .page-nav {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        color: #374151;
+      }
+      .page-nav-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #6b7280;
+        padding: 0.25rem 0.5rem;
+        transition: color 0.2s;
+      }
+      .page-nav-btn:hover {
+        color: #1f2937;
+      }
+      .page-nav-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+      .modal-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: #6b7280;
+        cursor: pointer;
+        padding: 0.5rem;
+        line-height: 1;
+        transition: color 0.2s;
+        margin-left: auto;
+      }
+      .modal-close:hover {
+        color: #1f2937;
+      }
+      .modal-body {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 0;
+        background: #525252;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+      }
+      .pdf-viewer-container {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+      }
+      .pdf-page-canvas {
+        background: white;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1rem;
+      }
+    </style>
+  </head>
+  <body class="h-screen overflow-hidden bg-gray-50">
+    <div class="flex flex-col h-screen">
+      <!-- Top Navigation -->
+      <header
+        class="bg-aic-orange text-white px-8 py-4 shadow-md flex items-center"
+      >
+        <a
+          href="/"
+          class="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+        >
+          <img
+            src="/images/logo-aic-white.svg"
+            alt="AIC Logo"
+            class="h-10 w-auto"
+          />
+        </a>
+        <div class="ml-8 text-xl font-medium">SGO Volunteer Training Hub</div>
+        <a
+          href="/training-hub"
+          class="ml-auto text-white hover:text-gray-200 flex items-center gap-2"
+        >
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            ></path>
+          </svg>
+          <span>Back to Main</span>
+        </a>
+      </header>
+
+      <!-- Main Content -->
+      <div class="flex flex-1 overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="w-96 bg-white border-r border-gray-200 overflow-y-auto">
+          <div class="p-6">
+            <div
+              class="flex items-center gap-2 mb-6 pb-3 border-b-2 border-aic-orange"
+            >
+              <svg
+                class="w-6 h-6 text-aic-orange"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                ></path>
+              </svg>
+              <h2 class="text-xl font-semibold text-gray-800">
+                Training Modules
+              </h2>
+            </div>
+
+            <nav class="space-y-4">
+              <!-- Module 1 -->
+              <div class="border-2 border-gray-200 rounded-lg overflow-hidden">
+                <button
+                  onclick="toggleModule('module1')"
+                  class="w-full px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between"
+                >
+                  <div class="flex items-center gap-3">
+                    <svg
+                      class="w-5 h-5 text-aic-orange"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"
+                      ></path>
+                    </svg>
+                    <div class="text-left">
+                      <div class="font-semibold text-gray-800">Module 1</div>
+                      <div class="text-xs text-gray-600">
+                        Foundations of Senior Engagement
+                      </div>
+                    </div>
+                  </div>
+                  <svg
+                    id="module1-icon"
+                    class="w-5 h-5 text-gray-600 transition-transform"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    ></path>
+                  </svg>
+                </button>
+                <div id="module1" class="border-t border-gray-200">
+                  <div class="p-4">
+                    <img
+                      src="/images/module1.jpg"
+                      alt="Module 1 Thumbnail"
+                      class="w-full h-32 object-cover rounded-lg mb-3"
+                    />
+                    <div
+                      class="flex items-center justify-between text-xs text-gray-600 mb-2"
+                    >
+                      <span>Progress</span>
+                      <span class="font-semibold">50%</span>
+                    </div>
+                    <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+                        class="h-full bg-wellness-green"
+                        style="width: 50%"
+                      ></div>
+                    </div>
+                  </div>
+                  <ul class="py-2">
+                    <li
+                      class="lesson-item px-4 py-2 text-sm text-gray-700 hover:text-aic-orange cursor-pointer flex items-center gap-2"
+                    >
+                      <svg
+                        class="w-4 h-4 text-wellness-green flex-shrink-0"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                          clip-rule="evenodd"
+                        />
+                      </svg>
+                      <span>1. SGO Mission and Volunteer Role</span>
+                    </li>
+                    <li
+                      class="lesson-item px-4 py-2 text-sm text-gray-700 hover:text-aic-orange cursor-pointer flex items-center gap-2"
+                    >
+                      <div
+                        class="w-4 h-4 border-2 border-gray-300 rounded-full flex-shrink-0"
+                      ></div>
+                      <span>2. Understanding Aging Fundamentals</span>
+                    </li>
+                    <li
+                      class="lesson-item px-4 py-2 text-sm text-gray-700 hover:text-aic-orange cursor-pointer flex items-center gap-2"
+                    >
+                      <div
+                        class="w-4 h-4 border-2 border-gray-300 rounded-full flex-shrink-0"
+                      ></div>
+                      <span>3. Cultural Competency in Singapore</span>
+                    </li>
+                    <li
+                      class="lesson-item px-4 py-2 text-sm text-gray-700 hover:text-aic-orange cursor-pointer flex items-center gap-2"
+                    >
+                      <div
+                        class="w-4 h-4 border-2 border-gray-300 rounded-full flex-shrink-0"
+                      ></div>
+                      <span>4. Active Listening with LISTEN Framework</span>
+                    </li>
+                    <li
+                      class="lesson-item px-4 py-2 text-sm text-gray-700 hover:text-aic-orange cursor-pointer flex items-center gap-2 bg-aic-orange-light font-semibold"
+                      onclick="window.location.href = '/readings'"
+                    >
+                      <svg
+                        class="w-4 h-4 text-aic-orange flex-shrink-0"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                          clip-rule="evenodd"
+                        />
+                      </svg>
+                      <span>5. Further Readings</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Module 2 -->
+              <div class="border-2 border-gray-200 rounded-lg overflow-hidden">
+                <button
+                  onclick="toggleModule('module2')"
+                  class="w-full px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between"
+                >
+                  <div class="flex items-center gap-3">
+                    <svg
+                      class="w-5 h-5 text-aic-orange"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"
+                      ></path>
+                    </svg>
+                    <div class="text-left">
+                      <div class="font-semibold text-gray-800">Module 2</div>
+                      <div class="text-xs text-gray-600">
+                        Health Observation & Assessment
+                      </div>
+                    </div>
+                  </div>
+                  <svg
+                    id="module2-icon"
+                    class="w-5 h-5 text-gray-600 transition-transform"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    ></path>
+                  </svg>
+                </button>
+                <div id="module2" class="border-t border-gray-200 hidden">
+                  <div class="p-4">
+                    <img
+                      src="/images/module2.jpg"
+                      alt="Module 2 Thumbnail"
+                      class="w-full h-32 object-cover rounded-lg mb-3"
+                    />
+                    <div
+                      class="flex items-center justify-between text-xs text-gray-600 mb-2"
+                    >
+                      <span>Progress</span>
+                      <span class="font-semibold">35%</span>
+                    </div>
+                    <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+                        class="h-full bg-wellness-green"
+                        style="width: 35%"
+                      ></div>
+                    </div>
+                  </div>
+                  <ul class="py-2">
+                    <li
+                      class="lesson-item px-4 py-2 text-sm text-gray-700 hover:text-aic-orange cursor-pointer flex items-center gap-2"
+                    >
+                      <div
+                        class="w-4 h-4 border-2 border-gray-300 rounded-full flex-shrink-0"
+                      ></div>
+                      <span>1. Scope Boundaries for Volunteers</span>
+                    </li>
+                    <li
+                      class="lesson-item px-4 py-2 text-sm text-gray-700 hover:text-aic-orange cursor-pointer flex items-center gap-2"
+                    >
+                      <div
+                        class="w-4 h-4 border-2 border-gray-300 rounded-full flex-shrink-0"
+                      ></div>
+                      <span>2. Observational Health Assessment</span>
+                    </li>
+                    <li
+                      class="lesson-item px-4 py-2 text-sm text-gray-700 hover:text-aic-orange cursor-pointer flex items-center gap-2"
+                    >
+                      <div
+                        class="w-4 h-4 border-2 border-gray-300 rounded-full flex-shrink-0"
+                      ></div>
+                      <span>3. Validated Screening Tools</span>
+                    </li>
+                    <li
+                      class="lesson-item px-4 py-2 text-sm text-gray-700 hover:text-aic-orange cursor-pointer flex items-center gap-2"
+                    >
+                      <div
+                        class="w-4 h-4 border-2 border-gray-300 rounded-full flex-shrink-0"
+                      ></div>
+                      <span>4. Home Environment Safety</span>
+                    </li>
+                    <li
+                      class="lesson-item px-4 py-2 text-sm text-gray-700 hover:text-aic-orange cursor-pointer flex items-center gap-2"
+                    >
+                      <div
+                        class="w-4 h-4 border-2 border-gray-300 rounded-full flex-shrink-0"
+                      ></div>
+                      <span>5. Escalation Protocols</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Module 3 -->
+              <div class="border-2 border-gray-200 rounded-lg overflow-hidden">
+                <button
+                  onclick="toggleModule('module3')"
+                  class="w-full px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between"
+                >
+                  <div class="flex items-center gap-3">
+                    <svg
+                      class="w-5 h-5 text-aic-orange"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"
+                      ></path>
+                    </svg>
+                    <div class="text-left">
+                      <div class="font-semibold text-gray-800">Module 3</div>
+                      <div class="text-xs text-gray-600">
+                        Communication for Challenging Situations
+                      </div>
+                    </div>
+                  </div>
+                  <svg
+                    id="module3-icon"
+                    class="w-5 h-5 text-gray-600 transition-transform"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    ></path>
+                  </svg>
+                </button>
+                <div id="module3" class="border-t border-gray-200 hidden">
+                  <div class="p-4">
+                    <img
+                      src="/images/module3.jpg"
+                      alt="Module 3 Thumbnail"
+                      class="w-full h-32 object-cover rounded-lg mb-3"
+                    />
+                    <div
+                      class="flex items-center justify-between text-xs text-gray-600 mb-2"
+                    >
+                      <span>Progress</span>
+                      <span class="font-semibold">60%</span>
+                    </div>
+                    <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+                        class="h-full bg-wellness-green"
+                        style="width: 60%"
+                      ></div>
+                    </div>
+                  </div>
+                  <ul class="py-2">
+                    <li
+                      class="lesson-item px-4 py-2 text-sm text-gray-700 hover:text-aic-orange cursor-pointer flex items-center gap-2"
+                    >
+                      <div
+                        class="w-4 h-4 border-2 border-gray-300 rounded-full flex-shrink-0"
+                      ></div>
+                      <span>1. Communicating with Hearing Loss</span>
+                    </li>
+                    <li
+                      class="lesson-item px-4 py-2 text-sm text-gray-700 hover:text-aic-orange cursor-pointer flex items-center gap-2"
+                    >
+                      <div
+                        class="w-4 h-4 border-2 border-gray-300 rounded-full flex-shrink-0"
+                      ></div>
+                      <span>2. Communicating with Cognitive Impairment</span>
+                    </li>
+                    <li
+                      class="lesson-item px-4 py-2 text-sm text-gray-700 hover:text-aic-orange cursor-pointer flex items-center gap-2"
+                    >
+                      <div
+                        class="w-4 h-4 border-2 border-gray-300 rounded-full flex-shrink-0"
+                      ></div>
+                      <span>3. Motivational Interviewing with OARS</span>
+                    </li>
+                    <li
+                      class="lesson-item px-4 py-2 text-sm text-gray-700 hover:text-aic-orange cursor-pointer flex items-center gap-2"
+                    >
+                      <div
+                        class="w-4 h-4 border-2 border-gray-300 rounded-full flex-shrink-0"
+                      ></div>
+                      <span>4. Addressing Resistance and Skepticism</span>
+                    </li>
+                    <li
+                      class="lesson-item px-4 py-2 text-sm text-gray-700 hover:text-aic-orange cursor-pointer flex items-center gap-2"
+                    >
+                      <div
+                        class="w-4 h-4 border-2 border-gray-300 rounded-full flex-shrink-0"
+                      ></div>
+                      <span>5. Sensitive Conversations with COMFORT</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Module 4 -->
+              <div class="border-2 border-gray-200 rounded-lg overflow-hidden">
+                <button
+                  onclick="toggleModule('module4')"
+                  class="w-full px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between"
+                >
+                  <div class="flex items-center gap-3">
+                    <svg
+                      class="w-5 h-5 text-aic-orange"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"
+                      ></path>
+                    </svg>
+                    <div class="text-left">
+                      <div class="font-semibold text-gray-800">Module 4</div>
+                      <div class="text-xs text-gray-600">
+                        Government Schemes & Referral Pathways
+                      </div>
+                    </div>
+                  </div>
+                  <svg
+                    id="module4-icon"
+                    class="w-5 h-5 text-gray-600 transition-transform"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    ></path>
+                  </svg>
+                </button>
+                <div id="module4" class="border-t border-gray-200 hidden">
+                  <div class="p-4">
+                    <img
+                      src="/images/module4.jpg"
+                      alt="Module 4 Thumbnail"
+                      class="w-full h-32 object-cover rounded-lg mb-3"
+                    />
+                    <div
+                      class="flex items-center justify-between text-xs text-gray-600 mb-2"
+                    >
+                      <span>Progress</span>
+                      <span class="font-semibold">25%</span>
+                    </div>
+                    <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+                        class="h-full bg-wellness-green"
+                        style="width: 25%"
+                      ></div>
+                    </div>
+                  </div>
+                  <ul class="py-2">
+                    <li
+                      class="lesson-item px-4 py-2 text-sm text-gray-700 hover:text-aic-orange cursor-pointer flex items-center gap-2"
+                    >
+                      <div
+                        class="w-4 h-4 border-2 border-gray-300 rounded-full flex-shrink-0"
+                      ></div>
+                      <span>1. Pioneer Generation Package</span>
+                    </li>
+                    <li
+                      class="lesson-item px-4 py-2 text-sm text-gray-700 hover:text-aic-orange cursor-pointer flex items-center gap-2"
+                    >
+                      <div
+                        class="w-4 h-4 border-2 border-gray-300 rounded-full flex-shrink-0"
+                      ></div>
+                      <span>2. Merdeka Generation Package</span>
+                    </li>
+                    <li
+                      class="lesson-item px-4 py-2 text-sm text-gray-700 hover:text-aic-orange cursor-pointer flex items-center gap-2"
+                    >
+                      <div
+                        class="w-4 h-4 border-2 border-gray-300 rounded-full flex-shrink-0"
+                      ></div>
+                      <span>3. Community Health Assist Scheme (CHAS)</span>
+                    </li>
+                    <li
+                      class="lesson-item px-4 py-2 text-sm text-gray-700 hover:text-aic-orange cursor-pointer flex items-center gap-2"
+                    >
+                      <div
+                        class="w-4 h-4 border-2 border-gray-300 rounded-full flex-shrink-0"
+                      ></div>
+                      <span>4. CareShield Life Insurance</span>
+                    </li>
+                    <li
+                      class="lesson-item px-4 py-2 text-sm text-gray-700 hover:text-aic-orange cursor-pointer flex items-center gap-2"
+                    >
+                      <div
+                        class="w-4 h-4 border-2 border-gray-300 rounded-full flex-shrink-0"
+                      ></div>
+                      <span>5. Referral Pathway Knowledge</span>
+                    </li>
+                    <li
+                      class="lesson-item px-4 py-2 text-sm text-gray-700 hover:text-aic-orange cursor-pointer flex items-center gap-2"
+                    >
+                      <div
+                        class="w-4 h-4 border-2 border-gray-300 rounded-full flex-shrink-0"
+                      ></div>
+                      <span>6. Documentation Requirements</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Module 5 -->
+              <div class="border-2 border-gray-200 rounded-lg overflow-hidden">
+                <button
+                  onclick="toggleModule('module5')"
+                  class="w-full px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between"
+                >
+                  <div class="flex items-center gap-3">
+                    <svg
+                      class="w-5 h-5 text-aic-orange"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"
+                      ></path>
+                    </svg>
+                    <div class="text-left">
+                      <div class="font-semibold text-gray-800">Module 5</div>
+                      <div class="text-xs text-gray-600">
+                        Complete Preventive Health Visit
+                      </div>
+                    </div>
+                  </div>
+                  <svg
+                    id="module5-icon"
+                    class="w-5 h-5 text-gray-600 transition-transform"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    ></path>
+                  </svg>
+                </button>
+                <div id="module5" class="border-t border-gray-200 hidden">
+                  <div class="p-4">
+                    <img
+                      src="/images/module5.jpg"
+                      alt="Module 5 Thumbnail"
+                      class="w-full h-32 object-cover rounded-lg mb-3"
+                    />
+                    <div
+                      class="flex items-center justify-between text-xs text-gray-600 mb-2"
+                    >
+                      <span>Progress</span>
+                      <span class="font-semibold">75%</span>
+                    </div>
+                    <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+                        class="h-full bg-wellness-green"
+                        style="width: 75%"
+                      ></div>
+                    </div>
+                  </div>
+                  <ul class="py-2">
+                    <li
+                      class="lesson-item px-4 py-2 text-sm text-gray-700 hover:text-aic-orange cursor-pointer flex items-center gap-2"
+                    >
+                      <div
+                        class="w-4 h-4 border-2 border-gray-300 rounded-full flex-shrink-0"
+                      ></div>
+                      <span>1. Pre-visit Preparation</span>
+                    </li>
+                    <li
+                      class="lesson-item px-4 py-2 text-sm text-gray-700 hover:text-aic-orange cursor-pointer flex items-center gap-2"
+                    >
+                      <div
+                        class="w-4 h-4 border-2 border-gray-300 rounded-full flex-shrink-0"
+                      ></div>
+                      <span>2. BELIEF Framework in Action</span>
+                    </li>
+                    <li
+                      class="lesson-item px-4 py-2 text-sm text-gray-700 hover:text-aic-orange cursor-pointer flex items-center gap-2"
+                    >
+                      <div
+                        class="w-4 h-4 border-2 border-gray-300 rounded-full flex-shrink-0"
+                      ></div>
+                      <span>3. Safety Protocols for Home Visits</span>
+                    </li>
+                    <li
+                      class="lesson-item px-4 py-2 text-sm text-gray-700 hover:text-aic-orange cursor-pointer flex items-center gap-2"
+                    >
+                      <div
+                        class="w-4 h-4 border-2 border-gray-300 rounded-full flex-shrink-0"
+                      ></div>
+                      <span>4. Comprehensive Scenario Practice</span>
+                    </li>
+                    <li
+                      class="lesson-item px-4 py-2 text-sm text-gray-700 hover:text-aic-orange cursor-pointer flex items-center gap-2"
+                    >
+                      <div
+                        class="w-4 h-4 border-2 border-gray-300 rounded-full flex-shrink-0"
+                      ></div>
+                      <span>5. Final Assessment</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Quiz Yourself Module -->
+              <div class="border-2 border-gray-200 rounded-lg overflow-hidden">
+                <button
+                  onclick="toggleModule('module6')"
+                  class="w-full px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between"
+                >
+                  <div class="flex items-center gap-3">
+                    <svg
+                      class="w-5 h-5 text-aic-orange"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                      ></path>
+                    </svg>
+                    <div class="text-left">
+                      <div class="font-semibold text-gray-800">
+                        Quiz Yourself
+                      </div>
+                      <div class="text-xs text-gray-600">
+                        Test Your Knowledge
+                      </div>
+                    </div>
+                  </div>
+                  <svg
+                    id="module6-icon"
+                    class="w-5 h-5 text-gray-600 transition-transform"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    ></path>
+                  </svg>
+                </button>
+                <div id="module6" class="border-t border-gray-200 hidden">
+                  <div class="p-4">
+                    <img
+                      src="/images/Quiz.jpg"
+                      alt="Quiz Module Thumbnail"
+                      class="w-full h-32 object-cover rounded-lg mb-3"
+                    />
+                    <div
+                      class="flex items-center justify-between text-xs text-gray-600 mb-2"
+                    >
+                      <span>Progress</span>
+                      <span class="font-semibold">40%</span>
+                    </div>
+                    <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+                        class="h-full bg-wellness-green"
+                        style="width: 40%"
+                      ></div>
+                    </div>
+                  </div>
+                  <ul class="py-2">
+                    <li
+                      class="lesson-item px-4 py-2 text-sm text-gray-700 hover:text-aic-orange cursor-pointer flex items-center gap-2"
+                    >
+                      <svg
+                        class="w-4 h-4 text-wellness-green flex-shrink-0"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                          clip-rule="evenodd"
+                        />
+                      </svg>
+                      <a href="/quiz1" class="hover:underline"
+                        >Quiz 1: Senior Engagement Fundamentals</a
+                      >
+                    </li>
+                    <li
+                      class="lesson-item px-4 py-2 text-sm text-gray-700 hover:text-aic-orange cursor-pointer flex items-center gap-2"
+                    >
+                      <svg
+                        class="w-4 h-4 text-wellness-green flex-shrink-0"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                          clip-rule="evenodd"
+                        />
+                      </svg>
+                      <span>Quiz 2: Health Assessment Knowledge</span>
+                    </li>
+                    <li
+                      class="lesson-item px-4 py-2 text-sm text-gray-700 hover:text-aic-orange cursor-pointer flex items-center gap-2"
+                    >
+                      <div
+                        class="w-4 h-4 border-2 border-gray-300 rounded-full flex-shrink-0"
+                      ></div>
+                      <span>Quiz 3: Communication Skills</span>
+                    </li>
+                    <li
+                      class="lesson-item px-4 py-2 text-sm text-gray-700 hover:text-aic-orange cursor-pointer flex items-center gap-2"
+                    >
+                      <div
+                        class="w-4 h-4 border-2 border-gray-300 rounded-full flex-shrink-0"
+                      ></div>
+                      <span>Quiz 4: Government Schemes & Referrals</span>
+                    </li>
+                    <li
+                      class="lesson-item px-4 py-2 text-sm text-gray-700 hover:text-aic-orange cursor-pointer flex items-center gap-2"
+                    >
+                      <div
+                        class="w-4 h-4 border-2 border-gray-300 rounded-full flex-shrink-0"
+                      ></div>
+                      <span>Quiz 5: Complete PHV Preparation</span>
+                    </li>
+                    <li
+                      class="lesson-item px-4 py-2 text-sm text-gray-700 hover:text-aic-orange cursor-pointer flex items-center gap-2"
+                    >
+                      <div
+                        class="w-4 h-4 border-2 border-gray-300 rounded-full flex-shrink-0"
+                      ></div>
+                      <span>Final Comprehensive Assessment</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </nav>
+          </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col bg-gray-50 overflow-y-auto">
+          <!-- Content Header -->
+          <div class="bg-white px-8 py-6 border-b border-gray-200 shadow-sm">
+            <div class="flex items-center gap-3">
+              <svg
+                class="w-6 h-6 text-aic-orange"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                ></path>
+              </svg>
+              <h1 class="text-2xl font-semibold text-gray-800">
+                Further Readings
+              </h1>
+            </div>
+          </div>
+
+          <!-- Reading Cards Container -->
+          <div class="flex-1 overflow-y-auto px-8 py-6">
+            <div class="max-w-7xl mx-auto">
+              <div class="mb-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-2">
+                  Additional Learning Resources
+                </h2>
+                <p class="text-gray-600">
+                  Explore these supplementary materials to deepen your
+                  understanding of senior engagement and volunteer work.
+                </p>
+              </div>
+
+              <!-- Reading Cards Grid -->
+              <div class="grid grid-cols-3 gap-6 justify-items-center">
+                <!-- Reading Card 1: Heartful Conversations -->
+                <div
+                  class="reading-card bg-white rounded-lg border border-gray-200 overflow-hidden shadow-md hover:shadow-xl cursor-pointer w-64 transition-all duration-200"
+                  onclick="
+                    openPdfModal(
+                      'Heartful-Conversations_print.pdf',
+                      'Heartful Conversations'
+                    )
+                  "
+                >
+                  <img
+                    src="/images/readings/image1.png"
+                    alt="Heartful Conversations"
+                    class="reading-card-image"
+                  />
+                  <div class="reading-card-content">
+                    <div>
+                      <h3 class="reading-card-title">Heartful Conversations</h3>
+                      <p class="reading-card-details">Communication Guide</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Reading Card 2: Financial Schemes Brochure -->
+                <div
+                  class="reading-card bg-white rounded-lg border border-gray-200 overflow-hidden shadow-md hover:shadow-xl cursor-pointer w-64 transition-all duration-200"
+                  onclick="
+                    openPdfModal(
+                      'Sharity_Befriending_Seniors_Infokit_V2_FINAL.pdf',
+                      'Befriending Seniors Info Kit'
+                    )
+                  "
+                >
+                  <img
+                    src="/images/readings/image4.png"
+                    alt="Befriending Seniors Info Kit"
+                    class="reading-card-image"
+                  />
+                  <div class="reading-card-content">
+                    <div>
+                      <h3 class="reading-card-title">
+                        Befriending Seniors Info Kit
+                      </h3>
+                      <p class="reading-card-details">
+                        Volunteer Resource Guide
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Reading Card 3: ACP Brochure -->
+                <div
+                  class="reading-card bg-white rounded-lg border border-gray-200 overflow-hidden shadow-md hover:shadow-xl cursor-pointer w-64 transition-all duration-200"
+                  onclick="openPdfModal('ACP-Brochure-EN.pdf', 'ACP Brochure')"
+                >
+                  <img
+                    src="/images/readings/image3.png"
+                    alt="ACP Brochure"
+                    class="reading-card-image"
+                  />
+                  <div class="reading-card-content">
+                    <div>
+                      <h3 class="reading-card-title">ACP Brochure</h3>
+                      <p class="reading-card-details">Information Guide</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Reading Card 4: Befriending Seniors Info Kit -->
+                <div
+                  class="reading-card bg-white rounded-lg border border-gray-200 overflow-hidden shadow-md hover:shadow-xl cursor-pointer w-64 transition-all duration-200"
+                  onclick="
+                    openPdfModal(
+                      'Financial-Schemes-Brochure-Eng.pdf',
+                      'Financial Schemes Brochure'
+                    )
+                  "
+                >
+                  <img
+                    src="/images/readings/image2.png"
+                    alt="Financial Schemes Brochure"
+                    class="reading-card-image"
+                  />
+                  <div class="reading-card-content">
+                    <div>
+                      <h3 class="reading-card-title">
+                        Financial Schemes Brochure
+                      </h3>
+                      <p class="reading-card-details">
+                        Financial Assistance Guide
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Reading Card 5: Healthier SG Brochure -->
+                <div
+                  class="reading-card bg-white rounded-lg border border-gray-200 overflow-hidden shadow-md hover:shadow-xl cursor-pointer w-64 transition-all duration-200"
+                  onclick="
+                    openPdfModal(
+                      'Healthier-SG-brochure(english).pdf',
+                      'Healthier SG Brochure'
+                    )
+                  "
+                >
+                  <img
+                    src="/images/readings/image5.png"
+                    alt="Healthier SG Brochure"
+                    class="reading-card-image"
+                  />
+                  <div class="reading-card-content">
+                    <div>
+                      <h3 class="reading-card-title">Healthier SG Brochure</h3>
+                      <p class="reading-card-details">Health Program Guide</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- PDF Modal -->
+    <div id="pdfModal" class="modal-overlay" onclick="closePdfModal(event)">
+      <div class="modal-container" onclick="event.stopPropagation()">
+        <div class="modal-header">
+          <!-- PDF Tab -->
+          <div class="pdf-tab">
+            <svg
+              class="pdf-icon"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            <span class="pdf-filename" id="pdfFilename">document.pdf</span>
+          </div>
+
+          <!-- Toolbar -->
+          <div class="pdf-toolbar">
+            <div class="toolbar-left">
+              <!-- Zoom Controls -->
+              <div class="zoom-controls">
+                <button
+                  class="zoom-btn"
+                  onclick="zoomOut()"
+                  aria-label="Zoom Out"
+                  title="Zoom Out"
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    <line x1="8" y1="11" x2="14" y2="11"></line>
+                  </svg>
+                </button>
+                <span class="zoom-percentage" id="zoomPercentage">100%</span>
+                <button
+                  class="zoom-btn"
+                  onclick="zoomIn()"
+                  aria-label="Zoom In"
+                  title="Zoom In"
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    <line x1="11" y1="8" x2="11" y2="14"></line>
+                    <line x1="8" y1="11" x2="14" y2="11"></line>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="toolbar-right">
+              <!-- Page Navigation -->
+              <div class="page-nav">
+                <button
+                  class="page-nav-btn"
+                  onclick="previousPage()"
+                  aria-label="Previous Page"
+                  id="prevPageBtn"
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                  </svg>
+                </button>
+                <span id="pageInfo">Page 1 of 1</span>
+                <button
+                  class="page-nav-btn"
+                  onclick="nextPage()"
+                  aria-label="Next Page"
+                  id="nextPageBtn"
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Close Button -->
+              <button
+                class="modal-close"
+                onclick="closePdfModal()"
+                aria-label="Close"
+              >
+                &times;
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-body" id="pdfViewerBody">
+          <div class="pdf-viewer-container" id="pdfViewerContainer">
+            <!-- PDF pages will be rendered here -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function toggleModule(moduleId) {
+        const module = document.getElementById(moduleId);
+        const icon = document.getElementById(moduleId + '-icon');
+
+        if (module.classList.contains('hidden')) {
+          module.classList.remove('hidden');
+          icon.style.transform = 'rotate(180deg)';
+        } else {
+          module.classList.add('hidden');
+          icon.style.transform = 'rotate(0deg)';
+        }
+      }
+
+      // PDF.js configuration
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+      let pdfDoc = null;
+      let currentPage = 1;
+      let totalPages = 1;
+      let currentZoom = 1.0;
+      let pdfFileName = '';
+
+      async function openPdfModal(pdfFileNameParam, title) {
+        const modal = document.getElementById('pdfModal');
+        const pdfFilename = document.getElementById('pdfFilename');
+        const pdfViewerContainer =
+          document.getElementById('pdfViewerContainer');
+
+        // Set the PDF path (note: folder name is "futher-readings" with typo)
+        const pdfPath = `/images/readings/futher-readings/${pdfFileNameParam}`;
+        pdfFileName = pdfFileNameParam;
+
+        // Update PDF filename
+        pdfFilename.textContent = pdfFileNameParam;
+
+        // Reset state
+        currentPage = 1;
+        currentZoom = 1.0;
+        pdfDoc = null;
+
+        // Clear previous content
+        pdfViewerContainer.innerHTML = '';
+
+        // Show modal
+        modal.classList.add('active');
+
+        // Prevent body scroll when modal is open
+        document.body.style.overflow = 'hidden';
+
+        try {
+          // Load PDF
+          const loadingTask = pdfjsLib.getDocument(pdfPath);
+          pdfDoc = await loadingTask.promise;
+          totalPages = pdfDoc.numPages;
+
+          // Update page display
+          updatePageDisplay();
+
+          // Render all pages
+          await renderAllPages();
+        } catch (error) {
+          console.error('Error loading PDF:', error);
+          pdfViewerContainer.innerHTML = `
+            <div style="color: white; padding: 2rem; text-align: center;">
+              <p>Error loading PDF. Please try again.</p>
+            </div>
+          `;
+        }
+      }
+
+      async function renderAllPages() {
+        const pdfViewerContainer =
+          document.getElementById('pdfViewerContainer');
+        pdfViewerContainer.innerHTML = '';
+
+        for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+          await renderPage(pageNum);
+        }
+
+        // Scroll to current page
+        scrollToPage(currentPage);
+      }
+
+      async function renderPage(pageNum) {
+        const pdfViewerContainer =
+          document.getElementById('pdfViewerContainer');
+
+        const page = await pdfDoc.getPage(pageNum);
+        const viewport = page.getViewport({ scale: currentZoom });
+
+        // Create canvas for this page
+        const canvas = document.createElement('canvas');
+        canvas.className = 'pdf-page-canvas';
+        canvas.id = `pdf-page-${pageNum}`;
+        const context = canvas.getContext('2d');
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        // Render PDF page into canvas context
+        const renderContext = {
+          canvasContext: context,
+          viewport: viewport,
+        };
+
+        await page.render(renderContext).promise;
+        pdfViewerContainer.appendChild(canvas);
+      }
+
+      function scrollToPage(pageNum) {
+        const pageElement = document.getElementById(`pdf-page-${pageNum}`);
+        if (pageElement) {
+          pageElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+
+      function zoomIn() {
+        if (currentZoom < 3.0) {
+          currentZoom = Math.min(currentZoom + 0.25, 3.0);
+          applyZoom();
+        }
+      }
+
+      function zoomOut() {
+        if (currentZoom > 0.5) {
+          currentZoom = Math.max(currentZoom - 0.25, 0.5);
+          applyZoom();
+        }
+      }
+
+      async function applyZoom() {
+        const pdfViewerContainer =
+          document.getElementById('pdfViewerContainer');
+        pdfViewerContainer.innerHTML = '';
+        await renderAllPages();
+        updateZoomDisplay();
+      }
+
+      function updateZoomDisplay() {
+        const zoomPercent = Math.round(currentZoom * 100);
+        document.getElementById('zoomPercentage').textContent =
+          zoomPercent + '%';
+      }
+
+      function previousPage() {
+        if (currentPage > 1) {
+          currentPage--;
+          scrollToPage(currentPage);
+          updatePageDisplay();
+        }
+      }
+
+      function nextPage() {
+        if (currentPage < totalPages) {
+          currentPage++;
+          scrollToPage(currentPage);
+          updatePageDisplay();
+        }
+      }
+
+      function updatePageDisplay() {
+        const pageInfo = document.getElementById('pageInfo');
+        pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+
+        // Update button states
+        document.getElementById('prevPageBtn').disabled = currentPage <= 1;
+        document.getElementById('nextPageBtn').disabled =
+          currentPage >= totalPages;
+      }
+
+      function closePdfModal(event) {
+        // If event is provided and clicked on overlay (not container), close
+        if (event && event.target.id !== 'pdfModal') {
+          return;
+        }
+
+        const modal = document.getElementById('pdfModal');
+        const pdfViewerContainer =
+          document.getElementById('pdfViewerContainer');
+
+        // Hide modal
+        modal.classList.remove('active');
+
+        // Clear PDF content
+        pdfViewerContainer.innerHTML = '';
+        pdfDoc = null;
+        currentPage = 1;
+        totalPages = 1;
+        currentZoom = 1.0;
+
+        // Restore body scroll
+        document.body.style.overflow = '';
+      }
+
+      // Close modal on Escape key
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+          const modal = document.getElementById('pdfModal');
+          if (modal.classList.contains('active')) {
+            closePdfModal();
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

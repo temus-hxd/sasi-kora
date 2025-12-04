@@ -256,6 +256,11 @@ app.get('/training-hub', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'training-hub.html'));
 });
 
+// Serve readings.html - available at /readings
+app.get('/readings', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'readings.html'));
+});
+
 // Serve quiz1.html - available at /quiz1
 app.get('/quiz1', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'quiz1.html'));
@@ -300,6 +305,7 @@ if (process.env.VERCEL !== '1') {
     console.log(
       `🎓 Training Hub: http://localhost:${PORT}/training-hub (protected)`
     );
+    console.log(`📚 Readings: http://localhost:${PORT}/readings (protected)`);
     console.log(`💬 Chat UI: http://localhost:${PORT}/chat (protected)`);
     console.log(`🔊 Health: http://localhost:${PORT}/api/health`);
     console.log(
