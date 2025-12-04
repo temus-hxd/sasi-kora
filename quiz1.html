@@ -105,7 +105,9 @@
             class="h-8 md:h-10 w-auto"
           />
         </a>
-        <div class="ml-4 md:ml-8 text-lg md:text-xl font-medium">SGO Volunteer Training Hub</div>
+        <div class="ml-4 md:ml-8 text-lg md:text-xl font-medium">
+          SGO Volunteer Training Hub
+        </div>
         <a
           href="/training-hub"
           class="ml-auto text-white hover:text-gray-200 flex items-center gap-2"
@@ -128,12 +130,19 @@
       </header>
 
       <!-- Sidebar Overlay (Mobile Only) -->
-      <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+      <div
+        id="sidebarOverlay"
+        class="sidebar-overlay"
+        onclick="toggleSidebar()"
+      ></div>
 
       <!-- Main Content -->
       <div class="flex flex-1 overflow-hidden">
         <!-- Sidebar -->
-        <aside id="sidebar" class="w-80 md:w-96 bg-white border-r border-gray-200 overflow-y-auto">
+        <aside
+          id="sidebar"
+          class="w-80 md:w-96 bg-white border-r border-gray-200 overflow-y-auto"
+        >
           <div class="p-4 md:p-6">
             <div
               class="flex items-center justify-between gap-2 mb-4 md:mb-6 pb-3 border-b-2 border-aic-orange"
@@ -281,6 +290,18 @@
                         class="w-4 h-4 border-2 border-gray-300 rounded-full flex-shrink-0"
                       ></div>
                       <span>4. Active Listening with LISTEN Framework</span>
+                    </li>
+                    <li
+                      class="lesson-item px-4 py-2 text-sm text-gray-700 hover:text-aic-orange cursor-pointer flex items-center gap-2"
+                      onclick="
+                        window.location.href = '/readings';
+                        closeMobileSidebar();
+                      "
+                    >
+                      <div
+                        class="w-4 h-4 border-2 border-gray-300 rounded-full flex-shrink-0"
+                      ></div>
+                      <span>5. Further Readings</span>
                     </li>
                   </ul>
                 </div>
@@ -866,7 +887,9 @@
         <!-- Chat Area -->
         <main class="flex-1 flex flex-col bg-gray-50">
           <!-- Chat Header -->
-          <div class="bg-white px-4 md:px-8 py-4 md:py-6 border-b border-gray-200 shadow-sm">
+          <div
+            class="bg-white px-4 md:px-8 py-4 md:py-6 border-b border-gray-200 shadow-sm"
+          >
             <div class="flex items-center gap-3">
               <svg
                 class="w-5 h-5 md:w-6 md:h-6 text-aic-orange"
@@ -928,7 +951,9 @@
                     class="w-full h-32 md:h-48 object-cover rounded-lg"
                   />
                 </div>
-                <h3 class="text-base md:text-lg font-semibold text-gray-800 mb-4">
+                <h3
+                  class="text-base md:text-lg font-semibold text-gray-800 mb-4"
+                >
                   Question 1: What is the primary mission of the Silver
                   Generation Office (SGO)?
                 </h3>
@@ -942,7 +967,8 @@
                       value="a"
                       class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
+                    <span
+                      class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
                       >To provide medical treatment to seniors at home</span
                     >
                   </label>
@@ -955,7 +981,8 @@
                       value="b"
                       class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
+                    <span
+                      class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
                       >To engage seniors through door-to-door visits and help
                       them access healthcare benefits</span
                     >
@@ -969,7 +996,8 @@
                       value="c"
                       class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
+                    <span
+                      class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
                       >To organize recreational activities for seniors</span
                     >
                   </label>
@@ -982,7 +1010,8 @@
                       value="d"
                       class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
+                    <span
+                      class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
                       >To sell insurance products to elderly residents</span
                     >
                   </label>
@@ -1000,7 +1029,9 @@
                     class="w-full h-32 md:h-48 object-cover rounded-lg"
                   />
                 </div>
-                <h3 class="text-base md:text-lg font-semibold text-gray-800 mb-4">
+                <h3
+                  class="text-base md:text-lg font-semibold text-gray-800 mb-4"
+                >
                   Question 2: How long should a typical Preventive Health Visit
                   (PHV) last?
                 </h3>
@@ -1014,7 +1045,10 @@
                       value="a"
                       class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700">15 minutes</span>
+                    <span
+                      class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
+                      >15 minutes</span
+                    >
                   </label>
                   <label
                     class="flex items-center p-3 md:p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
@@ -1025,7 +1059,10 @@
                       value="b"
                       class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700">30 minutes</span>
+                    <span
+                      class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
+                      >30 minutes</span
+                    >
                   </label>
                   <label
                     class="flex items-center p-3 md:p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
@@ -1036,7 +1073,10 @@
                       value="c"
                       class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700">Up to 45 minutes</span>
+                    <span
+                      class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
+                      >Up to 45 minutes</span
+                    >
                   </label>
                   <label
                     class="flex items-center p-3 md:p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
@@ -1047,7 +1087,10 @@
                       value="d"
                       class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700">2 hours</span>
+                    <span
+                      class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
+                      >2 hours</span
+                    >
                   </label>
                 </div>
               </div>
@@ -1063,7 +1106,9 @@
                     class="w-full h-32 md:h-48 object-cover rounded-lg"
                   />
                 </div>
-                <h3 class="text-base md:text-lg font-semibold text-gray-800 mb-4">
+                <h3
+                  class="text-base md:text-lg font-semibold text-gray-800 mb-4"
+                >
                   Question 3: What does the LISTEN framework stand for in active
                   listening?
                 </h3>
@@ -1077,7 +1122,8 @@
                       value="a"
                       class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
+                    <span
+                      class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
                       >Learn, Instruct, Speak, Talk, Educate, Notify</span
                     >
                   </label>
@@ -1090,7 +1136,8 @@
                       value="b"
                       class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
+                    <span
+                      class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
                       >Look, Involve, Show interest, Take time, Echo back, Note
                       non-verbal cues</span
                     >
@@ -1104,7 +1151,8 @@
                       value="c"
                       class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
+                    <span
+                      class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
                       >Lead, Interact, Support, Train, Engage, Network</span
                     >
                   </label>
@@ -1117,7 +1165,8 @@
                       value="d"
                       class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
+                    <span
+                      class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
                       >Listen, Inform, Schedule, Track, Evaluate, Navigate</span
                     >
                   </label>
@@ -1135,7 +1184,9 @@
                     class="w-full h-32 md:h-48 object-cover rounded-lg"
                   />
                 </div>
-                <h3 class="text-base md:text-lg font-semibold text-gray-800 mb-4">
+                <h3
+                  class="text-base md:text-lg font-semibold text-gray-800 mb-4"
+                >
                   Question 4: Which of the following is TRUE about the
                   volunteer's role during PHV?
                 </h3>
@@ -1149,7 +1200,8 @@
                       value="a"
                       class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
+                    <span
+                      class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
                       >Volunteers can diagnose medical conditions</span
                     >
                   </label>
@@ -1162,7 +1214,8 @@
                       value="b"
                       class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
+                    <span
+                      class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
                       >Volunteers provide information and support, not medical
                       advice</span
                     >
@@ -1176,7 +1229,8 @@
                       value="c"
                       class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
+                    <span
+                      class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
                       >Volunteers can prescribe medications</span
                     >
                   </label>
@@ -1189,7 +1243,8 @@
                       value="d"
                       class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
+                    <span
+                      class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
                       >Volunteers must charge a fee for their services</span
                     >
                   </label>
@@ -1207,7 +1262,9 @@
                     class="w-full h-32 md:h-48 object-cover rounded-lg"
                   />
                 </div>
-                <h3 class="text-base md:text-lg font-semibold text-gray-800 mb-4">
+                <h3
+                  class="text-base md:text-lg font-semibold text-gray-800 mb-4"
+                >
                   Question 5: When communicating with seniors, volunteers should
                   allow how much response time compared to normal conversations?
                 </h3>
@@ -1221,7 +1278,8 @@
                       value="a"
                       class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
+                    <span
+                      class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
                       >The same amount of time</span
                     >
                   </label>
@@ -1234,7 +1292,8 @@
                       value="b"
                       class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
+                    <span
+                      class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
                       >Double the normal response time</span
                     >
                   </label>
@@ -1247,7 +1306,8 @@
                       value="c"
                       class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
+                    <span
+                      class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
                       >Triple the normal response time</span
                     >
                   </label>
@@ -1260,7 +1320,8 @@
                       value="d"
                       class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
+                    <span
+                      class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
                       >Half the normal response time to keep conversations
                       moving</span
                     >
@@ -1279,7 +1340,9 @@
                     class="w-full h-32 md:h-48 object-cover rounded-lg"
                   />
                 </div>
-                <h3 class="text-base md:text-lg font-semibold text-gray-800 mb-4">
+                <h3
+                  class="text-base md:text-lg font-semibold text-gray-800 mb-4"
+                >
                   Question 6: What is the most common dialect spoken by Chinese
                   Singaporean seniors?
                 </h3>
@@ -1293,7 +1356,10 @@
                       value="a"
                       class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700">Mandarin</span>
+                    <span
+                      class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
+                      >Mandarin</span
+                    >
                   </label>
                   <label
                     class="flex items-center p-3 md:p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
@@ -1304,7 +1370,10 @@
                       value="b"
                       class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700">Cantonese</span>
+                    <span
+                      class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
+                      >Cantonese</span
+                    >
                   </label>
                   <label
                     class="flex items-center p-3 md:p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
@@ -1315,7 +1384,10 @@
                       value="c"
                       class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700">Hokkien</span>
+                    <span
+                      class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
+                      >Hokkien</span
+                    >
                   </label>
                   <label
                     class="flex items-center p-3 md:p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
@@ -1326,7 +1398,10 @@
                       value="d"
                       class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700">Teochew</span>
+                    <span
+                      class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
+                      >Teochew</span
+                    >
                   </label>
                 </div>
               </div>
@@ -1363,7 +1438,7 @@
       function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebarOverlay');
-        
+
         sidebar.classList.toggle('mobile-open');
         overlay.classList.toggle('active');
       }
@@ -1372,17 +1447,17 @@
       function closeMobileSidebar() {
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebarOverlay');
-        
+
         sidebar.classList.remove('mobile-open');
         overlay.classList.remove('active');
       }
 
       // Close sidebar on window resize if it becomes desktop view
-      window.addEventListener('resize', function() {
+      window.addEventListener('resize', function () {
         if (window.innerWidth > 768) {
           const sidebar = document.getElementById('sidebar');
           const overlay = document.getElementById('sidebarOverlay');
-          
+
           sidebar.classList.remove('mobile-open');
           overlay.classList.remove('active');
         }
