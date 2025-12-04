@@ -134,6 +134,12 @@ body {
   margin-right: 8px;
 }
 
+.summary-grid-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
 .summary-content {
   padding-top: 10px;
   flex: 1;
@@ -801,6 +807,11 @@ svg.sad .mouth {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+  .summary-grid-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
   .summary-cards-row {
     grid-template-columns: 1fr;
     gap: 20px;
