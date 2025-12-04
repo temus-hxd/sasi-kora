@@ -36,14 +36,65 @@
       .lesson-item:hover {
         background-color: rgba(245, 156, 0, 0.05);
       }
+      /* Mobile sidebar overlay */
+      .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 40;
+        transition: opacity 0.3s ease;
+      }
+      .sidebar-overlay.active {
+        display: block;
+      }
+      /* Sidebar mobile styles */
+      @media (max-width: 768px) {
+        aside {
+          position: fixed;
+          top: 0;
+          left: -100%;
+          height: 100vh;
+          z-index: 50;
+          transition: left 0.3s ease;
+          box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+        aside.mobile-open {
+          left: 0;
+        }
+      }
     </style>
   </head>
   <body class="h-screen overflow-hidden bg-gray-50">
     <div class="flex flex-col h-screen">
       <!-- Top Navigation -->
       <header
-        class="bg-aic-orange text-white px-8 py-4 shadow-md flex items-center"
+        class="bg-aic-orange text-white px-4 md:px-8 py-4 shadow-md flex items-center relative z-30"
       >
+        <!-- Hamburger Menu Button (Mobile Only) -->
+        <button
+          id="hamburgerBtn"
+          class="md:hidden mr-4 p-2 hover:bg-white/10 rounded transition-colors"
+          onclick="toggleSidebar()"
+          aria-label="Toggle sidebar"
+        >
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"
+            ></path>
+          </svg>
+        </button>
         <a
           href="/"
           class="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
@@ -51,10 +102,10 @@
           <img
             src="/images/logo-aic-white.svg"
             alt="AIC Logo"
-            class="h-10 w-auto"
+            class="h-8 md:h-10 w-auto"
           />
         </a>
-        <div class="ml-8 text-xl font-medium">SGO Volunteer Training Hub</div>
+        <div class="ml-4 md:ml-8 text-lg md:text-xl font-medium">SGO Volunteer Training Hub</div>
         <a
           href="/training-hub"
           class="ml-auto text-white hover:text-gray-200 flex items-center gap-2"
@@ -72,34 +123,59 @@
               d="M10 19l-7-7m0 0l7-7m-7 7h18"
             ></path>
           </svg>
-          <span>Back to Main</span>
+          <span class="hidden sm:inline">Back to Main</span>
         </a>
       </header>
+
+      <!-- Sidebar Overlay (Mobile Only) -->
+      <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
       <!-- Main Content -->
       <div class="flex flex-1 overflow-hidden">
         <!-- Sidebar -->
-        <aside class="w-96 bg-white border-r border-gray-200 overflow-y-auto">
-          <div class="p-6">
+        <aside id="sidebar" class="w-80 md:w-96 bg-white border-r border-gray-200 overflow-y-auto">
+          <div class="p-4 md:p-6">
             <div
-              class="flex items-center gap-2 mb-6 pb-3 border-b-2 border-aic-orange"
+              class="flex items-center justify-between gap-2 mb-4 md:mb-6 pb-3 border-b-2 border-aic-orange"
             >
-              <svg
-                class="w-6 h-6 text-aic-orange"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+              <div class="flex items-center gap-2">
+                <svg
+                  class="w-6 h-6 text-aic-orange"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                  ></path>
+                </svg>
+                <h2 class="text-lg md:text-xl font-semibold text-gray-800">
+                  Training Modules
+                </h2>
+              </div>
+              <!-- Close button for mobile -->
+              <button
+                onclick="toggleSidebar()"
+                class="md:hidden p-1 hover:bg-gray-100 rounded transition-colors"
+                aria-label="Close sidebar"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                ></path>
-              </svg>
-              <h2 class="text-xl font-semibold text-gray-800">
-                Training Modules
-              </h2>
+                <svg
+                  class="w-6 h-6 text-gray-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  ></path>
+                </svg>
+              </button>
             </div>
 
             <nav class="space-y-4">
@@ -790,10 +866,10 @@
         <!-- Chat Area -->
         <main class="flex-1 flex flex-col bg-gray-50">
           <!-- Chat Header -->
-          <div class="bg-white px-8 py-6 border-b border-gray-200 shadow-sm">
+          <div class="bg-white px-4 md:px-8 py-4 md:py-6 border-b border-gray-200 shadow-sm">
             <div class="flex items-center gap-3">
               <svg
-                class="w-6 h-6 text-aic-orange"
+                class="w-5 h-5 md:w-6 md:h-6 text-aic-orange"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -805,15 +881,15 @@
                   d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
                 ></path>
               </svg>
-              <h1 class="text-2xl font-semibold text-gray-800">
+              <h1 class="text-lg md:text-2xl font-semibold text-gray-800">
                 Quiz 1: Senior Engagement Fundamentals
               </h1>
             </div>
           </div>
 
           <!-- Messages Container -->
-          <div class="flex-1 overflow-y-auto px-8 py-6">
-            <div class="max-w-4xl mx-auto space-y-6">
+          <div class="flex-1 overflow-y-auto px-4 md:px-8 py-4 md:py-6">
+            <div class="max-w-4xl mx-auto space-y-4 md:space-y-6">
               <!-- Introduction Message -->
               <div class="flex items-start gap-4 message-animate">
                 <div
@@ -843,70 +919,70 @@
 
               <!-- Question 1 -->
               <div
-                class="bg-white rounded-2xl shadow-md p-6 border border-gray-200"
+                class="bg-white rounded-2xl shadow-md p-4 md:p-6 border border-gray-200"
               >
                 <div class="mb-4">
                   <img
                     src="/images/quiz-images/module1.jpg"
                     alt="Question 1"
-                    class="w-full h-48 object-cover rounded-lg"
+                    class="w-full h-32 md:h-48 object-cover rounded-lg"
                   />
                 </div>
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                <h3 class="text-base md:text-lg font-semibold text-gray-800 mb-4">
                   Question 1: What is the primary mission of the Silver
                   Generation Office (SGO)?
                 </h3>
                 <div class="space-y-3">
                   <label
-                    class="flex items-center p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
+                    class="flex items-center p-3 md:p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
                   >
                     <input
                       type="radio"
                       name="q1"
                       value="a"
-                      class="w-5 h-5 text-aic-orange border-gray-300 focus:ring-aic-orange"
+                      class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-3 text-gray-700"
+                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
                       >To provide medical treatment to seniors at home</span
                     >
                   </label>
                   <label
-                    class="flex items-center p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
+                    class="flex items-center p-3 md:p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
                   >
                     <input
                       type="radio"
                       name="q1"
                       value="b"
-                      class="w-5 h-5 text-aic-orange border-gray-300 focus:ring-aic-orange"
+                      class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-3 text-gray-700"
+                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
                       >To engage seniors through door-to-door visits and help
                       them access healthcare benefits</span
                     >
                   </label>
                   <label
-                    class="flex items-center p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
+                    class="flex items-center p-3 md:p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
                   >
                     <input
                       type="radio"
                       name="q1"
                       value="c"
-                      class="w-5 h-5 text-aic-orange border-gray-300 focus:ring-aic-orange"
+                      class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-3 text-gray-700"
+                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
                       >To organize recreational activities for seniors</span
                     >
                   </label>
                   <label
-                    class="flex items-center p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
+                    class="flex items-center p-3 md:p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
                   >
                     <input
                       type="radio"
                       name="q1"
                       value="d"
-                      class="w-5 h-5 text-aic-orange border-gray-300 focus:ring-aic-orange"
+                      class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-3 text-gray-700"
+                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
                       >To sell insurance products to elderly residents</span
                     >
                   </label>
@@ -915,133 +991,133 @@
 
               <!-- Question 2 -->
               <div
-                class="bg-white rounded-2xl shadow-md p-6 border border-gray-200"
+                class="bg-white rounded-2xl shadow-md p-4 md:p-6 border border-gray-200"
               >
                 <div class="mb-4">
                   <img
                     src="/images/quiz-images/module2.png"
                     alt="Question 2"
-                    class="w-full h-48 object-cover rounded-lg"
+                    class="w-full h-32 md:h-48 object-cover rounded-lg"
                   />
                 </div>
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                <h3 class="text-base md:text-lg font-semibold text-gray-800 mb-4">
                   Question 2: How long should a typical Preventive Health Visit
                   (PHV) last?
                 </h3>
                 <div class="space-y-3">
                   <label
-                    class="flex items-center p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
+                    class="flex items-center p-3 md:p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
                   >
                     <input
                       type="radio"
                       name="q2"
                       value="a"
-                      class="w-5 h-5 text-aic-orange border-gray-300 focus:ring-aic-orange"
+                      class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-3 text-gray-700">15 minutes</span>
+                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700">15 minutes</span>
                   </label>
                   <label
-                    class="flex items-center p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
+                    class="flex items-center p-3 md:p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
                   >
                     <input
                       type="radio"
                       name="q2"
                       value="b"
-                      class="w-5 h-5 text-aic-orange border-gray-300 focus:ring-aic-orange"
+                      class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-3 text-gray-700">30 minutes</span>
+                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700">30 minutes</span>
                   </label>
                   <label
-                    class="flex items-center p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
+                    class="flex items-center p-3 md:p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
                   >
                     <input
                       type="radio"
                       name="q2"
                       value="c"
-                      class="w-5 h-5 text-aic-orange border-gray-300 focus:ring-aic-orange"
+                      class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-3 text-gray-700">Up to 45 minutes</span>
+                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700">Up to 45 minutes</span>
                   </label>
                   <label
-                    class="flex items-center p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
+                    class="flex items-center p-3 md:p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
                   >
                     <input
                       type="radio"
                       name="q2"
                       value="d"
-                      class="w-5 h-5 text-aic-orange border-gray-300 focus:ring-aic-orange"
+                      class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-3 text-gray-700">2 hours</span>
+                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700">2 hours</span>
                   </label>
                 </div>
               </div>
 
               <!-- Question 3 -->
               <div
-                class="bg-white rounded-2xl shadow-md p-6 border border-gray-200"
+                class="bg-white rounded-2xl shadow-md p-4 md:p-6 border border-gray-200"
               >
                 <div class="mb-4">
                   <img
                     src="/images/quiz-images/module3.jpg"
                     alt="Question 3"
-                    class="w-full h-48 object-cover rounded-lg"
+                    class="w-full h-32 md:h-48 object-cover rounded-lg"
                   />
                 </div>
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                <h3 class="text-base md:text-lg font-semibold text-gray-800 mb-4">
                   Question 3: What does the LISTEN framework stand for in active
                   listening?
                 </h3>
                 <div class="space-y-3">
                   <label
-                    class="flex items-center p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
+                    class="flex items-center p-3 md:p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
                   >
                     <input
                       type="radio"
                       name="q3"
                       value="a"
-                      class="w-5 h-5 text-aic-orange border-gray-300 focus:ring-aic-orange"
+                      class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-3 text-gray-700"
+                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
                       >Learn, Instruct, Speak, Talk, Educate, Notify</span
                     >
                   </label>
                   <label
-                    class="flex items-center p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
+                    class="flex items-center p-3 md:p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
                   >
                     <input
                       type="radio"
                       name="q3"
                       value="b"
-                      class="w-5 h-5 text-aic-orange border-gray-300 focus:ring-aic-orange"
+                      class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-3 text-gray-700"
+                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
                       >Look, Involve, Show interest, Take time, Echo back, Note
                       non-verbal cues</span
                     >
                   </label>
                   <label
-                    class="flex items-center p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
+                    class="flex items-center p-3 md:p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
                   >
                     <input
                       type="radio"
                       name="q3"
                       value="c"
-                      class="w-5 h-5 text-aic-orange border-gray-300 focus:ring-aic-orange"
+                      class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-3 text-gray-700"
+                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
                       >Lead, Interact, Support, Train, Engage, Network</span
                     >
                   </label>
                   <label
-                    class="flex items-center p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
+                    class="flex items-center p-3 md:p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
                   >
                     <input
                       type="radio"
                       name="q3"
                       value="d"
-                      class="w-5 h-5 text-aic-orange border-gray-300 focus:ring-aic-orange"
+                      class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-3 text-gray-700"
+                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
                       >Listen, Inform, Schedule, Track, Evaluate, Navigate</span
                     >
                   </label>
@@ -1050,70 +1126,70 @@
 
               <!-- Question 4 -->
               <div
-                class="bg-white rounded-2xl shadow-md p-6 border border-gray-200"
+                class="bg-white rounded-2xl shadow-md p-4 md:p-6 border border-gray-200"
               >
                 <div class="mb-4">
                   <img
                     src="/images/quiz-images/module4.jpg"
                     alt="Question 4"
-                    class="w-full h-48 object-cover rounded-lg"
+                    class="w-full h-32 md:h-48 object-cover rounded-lg"
                   />
                 </div>
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                <h3 class="text-base md:text-lg font-semibold text-gray-800 mb-4">
                   Question 4: Which of the following is TRUE about the
                   volunteer's role during PHV?
                 </h3>
                 <div class="space-y-3">
                   <label
-                    class="flex items-center p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
+                    class="flex items-center p-3 md:p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
                   >
                     <input
                       type="radio"
                       name="q4"
                       value="a"
-                      class="w-5 h-5 text-aic-orange border-gray-300 focus:ring-aic-orange"
+                      class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-3 text-gray-700"
+                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
                       >Volunteers can diagnose medical conditions</span
                     >
                   </label>
                   <label
-                    class="flex items-center p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
+                    class="flex items-center p-3 md:p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
                   >
                     <input
                       type="radio"
                       name="q4"
                       value="b"
-                      class="w-5 h-5 text-aic-orange border-gray-300 focus:ring-aic-orange"
+                      class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-3 text-gray-700"
+                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
                       >Volunteers provide information and support, not medical
                       advice</span
                     >
                   </label>
                   <label
-                    class="flex items-center p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
+                    class="flex items-center p-3 md:p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
                   >
                     <input
                       type="radio"
                       name="q4"
                       value="c"
-                      class="w-5 h-5 text-aic-orange border-gray-300 focus:ring-aic-orange"
+                      class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-3 text-gray-700"
+                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
                       >Volunteers can prescribe medications</span
                     >
                   </label>
                   <label
-                    class="flex items-center p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
+                    class="flex items-center p-3 md:p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
                   >
                     <input
                       type="radio"
                       name="q4"
                       value="d"
-                      class="w-5 h-5 text-aic-orange border-gray-300 focus:ring-aic-orange"
+                      class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-3 text-gray-700"
+                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
                       >Volunteers must charge a fee for their services</span
                     >
                   </label>
@@ -1122,69 +1198,69 @@
 
               <!-- Question 5 -->
               <div
-                class="bg-white rounded-2xl shadow-md p-6 border border-gray-200"
+                class="bg-white rounded-2xl shadow-md p-4 md:p-6 border border-gray-200"
               >
                 <div class="mb-4">
                   <img
                     src="/images/quiz-images/module5.jpg"
                     alt="Question 5"
-                    class="w-full h-48 object-cover rounded-lg"
+                    class="w-full h-32 md:h-48 object-cover rounded-lg"
                   />
                 </div>
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                <h3 class="text-base md:text-lg font-semibold text-gray-800 mb-4">
                   Question 5: When communicating with seniors, volunteers should
                   allow how much response time compared to normal conversations?
                 </h3>
                 <div class="space-y-3">
                   <label
-                    class="flex items-center p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
+                    class="flex items-center p-3 md:p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
                   >
                     <input
                       type="radio"
                       name="q5"
                       value="a"
-                      class="w-5 h-5 text-aic-orange border-gray-300 focus:ring-aic-orange"
+                      class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-3 text-gray-700"
+                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
                       >The same amount of time</span
                     >
                   </label>
                   <label
-                    class="flex items-center p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
+                    class="flex items-center p-3 md:p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
                   >
                     <input
                       type="radio"
                       name="q5"
                       value="b"
-                      class="w-5 h-5 text-aic-orange border-gray-300 focus:ring-aic-orange"
+                      class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-3 text-gray-700"
+                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
                       >Double the normal response time</span
                     >
                   </label>
                   <label
-                    class="flex items-center p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
+                    class="flex items-center p-3 md:p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
                   >
                     <input
                       type="radio"
                       name="q5"
                       value="c"
-                      class="w-5 h-5 text-aic-orange border-gray-300 focus:ring-aic-orange"
+                      class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-3 text-gray-700"
+                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
                       >Triple the normal response time</span
                     >
                   </label>
                   <label
-                    class="flex items-center p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
+                    class="flex items-center p-3 md:p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
                   >
                     <input
                       type="radio"
                       name="q5"
                       value="d"
-                      class="w-5 h-5 text-aic-orange border-gray-300 focus:ring-aic-orange"
+                      class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-3 text-gray-700"
+                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700"
                       >Half the normal response time to keep conversations
                       moving</span
                     >
@@ -1194,71 +1270,71 @@
 
               <!-- Question 6 -->
               <div
-                class="bg-white rounded-2xl shadow-md p-6 border border-gray-200"
+                class="bg-white rounded-2xl shadow-md p-4 md:p-6 border border-gray-200"
               >
                 <div class="mb-4">
                   <img
                     src="/images/quiz-images/Quiz.jpg"
                     alt="Question 6"
-                    class="w-full h-48 object-cover rounded-lg"
+                    class="w-full h-32 md:h-48 object-cover rounded-lg"
                   />
                 </div>
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                <h3 class="text-base md:text-lg font-semibold text-gray-800 mb-4">
                   Question 6: What is the most common dialect spoken by Chinese
                   Singaporean seniors?
                 </h3>
                 <div class="space-y-3">
                   <label
-                    class="flex items-center p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
+                    class="flex items-center p-3 md:p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
                   >
                     <input
                       type="radio"
                       name="q6"
                       value="a"
-                      class="w-5 h-5 text-aic-orange border-gray-300 focus:ring-aic-orange"
+                      class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-3 text-gray-700">Mandarin</span>
+                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700">Mandarin</span>
                   </label>
                   <label
-                    class="flex items-center p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
+                    class="flex items-center p-3 md:p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
                   >
                     <input
                       type="radio"
                       name="q6"
                       value="b"
-                      class="w-5 h-5 text-aic-orange border-gray-300 focus:ring-aic-orange"
+                      class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-3 text-gray-700">Cantonese</span>
+                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700">Cantonese</span>
                   </label>
                   <label
-                    class="flex items-center p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
+                    class="flex items-center p-3 md:p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
                   >
                     <input
                       type="radio"
                       name="q6"
                       value="c"
-                      class="w-5 h-5 text-aic-orange border-gray-300 focus:ring-aic-orange"
+                      class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-3 text-gray-700">Hokkien</span>
+                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700">Hokkien</span>
                   </label>
                   <label
-                    class="flex items-center p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
+                    class="flex items-center p-3 md:p-4 border-2 border-gray-200 rounded-full hover:border-aic-orange cursor-pointer transition-all"
                   >
                     <input
                       type="radio"
                       name="q6"
                       value="d"
-                      class="w-5 h-5 text-aic-orange border-gray-300 focus:ring-aic-orange"
+                      class="w-4 h-4 md:w-5 md:h-5 text-aic-orange border-gray-300 focus:ring-aic-orange flex-shrink-0"
                     />
-                    <span class="ml-3 text-gray-700">Teochew</span>
+                    <span class="ml-2 md:ml-3 text-sm md:text-base text-gray-700">Teochew</span>
                   </label>
                 </div>
               </div>
 
               <!-- Submit Button -->
-              <div class="flex justify-center py-6">
+              <div class="flex justify-center py-4 md:py-6">
                 <button
-                  class="bg-aic-orange hover:bg-aic-orange-dark text-white px-12 py-4 rounded-full font-semibold text-lg transition-colors duration-200 shadow-lg flex items-center gap-3"
+                  class="bg-aic-orange hover:bg-aic-orange-dark text-white px-6 md:px-12 py-3 md:py-4 rounded-full font-semibold text-base md:text-lg transition-colors duration-200 shadow-lg flex items-center gap-2 md:gap-3"
                 >
                   <span>Submit Quiz</span>
                   <svg
@@ -1283,6 +1359,35 @@
     </div>
 
     <script>
+      // Mobile sidebar toggle
+      function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        
+        sidebar.classList.toggle('mobile-open');
+        overlay.classList.toggle('active');
+      }
+
+      // Close sidebar when clicking on a link (mobile)
+      function closeMobileSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        
+        sidebar.classList.remove('mobile-open');
+        overlay.classList.remove('active');
+      }
+
+      // Close sidebar on window resize if it becomes desktop view
+      window.addEventListener('resize', function() {
+        if (window.innerWidth > 768) {
+          const sidebar = document.getElementById('sidebar');
+          const overlay = document.getElementById('sidebarOverlay');
+          
+          sidebar.classList.remove('mobile-open');
+          overlay.classList.remove('active');
+        }
+      });
+
       function toggleModule(moduleId) {
         const module = document.getElementById(moduleId);
         const icon = document.getElementById(moduleId + '-icon');

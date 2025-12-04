@@ -99,6 +99,25 @@
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         animation: slideUp 0.3s ease;
       }
+      @media (max-width: 768px) {
+        .modal-container {
+          width: 100vw;
+          height: 100vh;
+          border-radius: 0;
+        }
+        .pdf-toolbar {
+          flex-wrap: wrap;
+          gap: 0.5rem;
+        }
+        .toolbar-left,
+        .toolbar-right {
+          flex: 1 1 100%;
+          justify-content: center;
+        }
+        .pdf-viewer-container {
+          padding: 0.75rem;
+        }
+      }
       @keyframes slideUp {
         from {
           opacity: 0;
@@ -241,14 +260,65 @@
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         margin-bottom: 1rem;
       }
+      /* Mobile sidebar overlay */
+      .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 40;
+        transition: opacity 0.3s ease;
+      }
+      .sidebar-overlay.active {
+        display: block;
+      }
+      /* Sidebar mobile styles */
+      @media (max-width: 768px) {
+        aside {
+          position: fixed;
+          top: 0;
+          left: -100%;
+          height: 100vh;
+          z-index: 50;
+          transition: left 0.3s ease;
+          box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+        aside.mobile-open {
+          left: 0;
+        }
+      }
     </style>
   </head>
   <body class="h-screen overflow-hidden bg-gray-50">
     <div class="flex flex-col h-screen">
       <!-- Top Navigation -->
       <header
-        class="bg-aic-orange text-white px-8 py-4 shadow-md flex items-center"
+        class="bg-aic-orange text-white px-4 md:px-8 py-4 shadow-md flex items-center relative z-30"
       >
+        <!-- Hamburger Menu Button (Mobile Only) -->
+        <button
+          id="hamburgerBtn"
+          class="md:hidden mr-4 p-2 hover:bg-white/10 rounded transition-colors"
+          onclick="toggleSidebar()"
+          aria-label="Toggle sidebar"
+        >
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"
+            ></path>
+          </svg>
+        </button>
         <a
           href="/"
           class="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
@@ -256,10 +326,12 @@
           <img
             src="/images/logo-aic-white.svg"
             alt="AIC Logo"
-            class="h-10 w-auto"
+            class="h-8 md:h-10 w-auto"
           />
         </a>
-        <div class="ml-8 text-xl font-medium">SGO Volunteer Training Hub</div>
+        <div class="ml-4 md:ml-8 text-lg md:text-xl font-medium">
+          SGO Volunteer Training Hub
+        </div>
         <a
           href="/training-hub"
           class="ml-auto text-white hover:text-gray-200 flex items-center gap-2"
@@ -277,34 +349,66 @@
               d="M10 19l-7-7m0 0l7-7m-7 7h18"
             ></path>
           </svg>
-          <span>Back to Main</span>
+          <span class="hidden sm:inline">Back to Main</span>
         </a>
       </header>
+
+      <!-- Sidebar Overlay (Mobile Only) -->
+      <div
+        id="sidebarOverlay"
+        class="sidebar-overlay"
+        onclick="toggleSidebar()"
+      ></div>
 
       <!-- Main Content -->
       <div class="flex flex-1 overflow-hidden">
         <!-- Sidebar -->
-        <aside class="w-96 bg-white border-r border-gray-200 overflow-y-auto">
-          <div class="p-6">
+        <aside
+          id="sidebar"
+          class="w-80 md:w-96 bg-white border-r border-gray-200 overflow-y-auto"
+        >
+          <div class="p-4 md:p-6">
             <div
-              class="flex items-center gap-2 mb-6 pb-3 border-b-2 border-aic-orange"
+              class="flex items-center justify-between gap-2 mb-4 md:mb-6 pb-3 border-b-2 border-aic-orange"
             >
-              <svg
-                class="w-6 h-6 text-aic-orange"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+              <div class="flex items-center gap-2">
+                <svg
+                  class="w-6 h-6 text-aic-orange"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                  ></path>
+                </svg>
+                <h2 class="text-lg md:text-xl font-semibold text-gray-800">
+                  Training Modules
+                </h2>
+              </div>
+              <!-- Close button for mobile -->
+              <button
+                onclick="toggleSidebar()"
+                class="md:hidden p-1 hover:bg-gray-100 rounded transition-colors"
+                aria-label="Close sidebar"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                ></path>
-              </svg>
-              <h2 class="text-xl font-semibold text-gray-800">
-                Training Modules
-              </h2>
+                <svg
+                  class="w-6 h-6 text-gray-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  ></path>
+                </svg>
+              </button>
             </div>
 
             <nav class="space-y-4">
@@ -413,7 +517,10 @@
                     </li>
                     <li
                       class="lesson-item px-4 py-2 text-sm text-gray-700 hover:text-aic-orange cursor-pointer flex items-center gap-2 bg-aic-orange-light font-semibold"
-                      onclick="window.location.href = '/readings'"
+                      onclick="
+                        window.location.href = '/readings';
+                        closeMobileSidebar();
+                      "
                     >
                       <svg
                         class="w-4 h-4 text-aic-orange flex-shrink-0"
@@ -1009,7 +1116,9 @@
         <!-- Main Content Area -->
         <main class="flex-1 flex flex-col bg-gray-50 overflow-y-auto">
           <!-- Content Header -->
-          <div class="bg-white px-8 py-6 border-b border-gray-200 shadow-sm">
+          <div
+            class="bg-white px-4 md:px-8 py-4 md:py-6 border-b border-gray-200 shadow-sm"
+          >
             <div class="flex items-center gap-3">
               <svg
                 class="w-6 h-6 text-aic-orange"
@@ -1031,23 +1140,25 @@
           </div>
 
           <!-- Reading Cards Container -->
-          <div class="flex-1 overflow-y-auto px-8 py-6">
+          <div class="flex-1 overflow-y-auto px-4 md:px-8 py-4 md:py-6">
             <div class="max-w-7xl mx-auto">
-              <div class="mb-6">
-                <h2 class="text-xl font-semibold text-gray-800 mb-2">
+              <div class="mb-4 md:mb-6">
+                <h2 class="text-lg md:text-xl font-semibold text-gray-800 mb-2">
                   Additional Learning Resources
                 </h2>
-                <p class="text-gray-600">
+                <p class="text-sm md:text-base text-gray-600">
                   Explore these supplementary materials to deepen your
                   understanding of senior engagement and volunteer work.
                 </p>
               </div>
 
               <!-- Reading Cards Grid -->
-              <div class="grid grid-cols-3 gap-6 justify-items-center">
+              <div
+                class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 justify-items-center"
+              >
                 <!-- Reading Card 1: Heartful Conversations -->
                 <div
-                  class="reading-card bg-white rounded-lg border border-gray-200 overflow-hidden shadow-md hover:shadow-xl cursor-pointer w-64 transition-all duration-200"
+                  class="reading-card bg-white rounded-lg border border-gray-200 overflow-hidden shadow-md hover:shadow-xl cursor-pointer w-full max-w-64 transition-all duration-200"
                   onclick="
                     openPdfModal(
                       'Heartful-Conversations_print.pdf',
@@ -1070,7 +1181,7 @@
 
                 <!-- Reading Card 2: Financial Schemes Brochure -->
                 <div
-                  class="reading-card bg-white rounded-lg border border-gray-200 overflow-hidden shadow-md hover:shadow-xl cursor-pointer w-64 transition-all duration-200"
+                  class="reading-card bg-white rounded-lg border border-gray-200 overflow-hidden shadow-md hover:shadow-xl cursor-pointer w-full max-w-64 transition-all duration-200"
                   onclick="
                     openPdfModal(
                       'Sharity_Befriending_Seniors_Infokit_V2_FINAL.pdf',
@@ -1097,7 +1208,7 @@
 
                 <!-- Reading Card 3: ACP Brochure -->
                 <div
-                  class="reading-card bg-white rounded-lg border border-gray-200 overflow-hidden shadow-md hover:shadow-xl cursor-pointer w-64 transition-all duration-200"
+                  class="reading-card bg-white rounded-lg border border-gray-200 overflow-hidden shadow-md hover:shadow-xl cursor-pointer w-full max-w-64 transition-all duration-200"
                   onclick="openPdfModal('ACP-Brochure-EN.pdf', 'ACP Brochure')"
                 >
                   <img
@@ -1115,7 +1226,7 @@
 
                 <!-- Reading Card 4: Befriending Seniors Info Kit -->
                 <div
-                  class="reading-card bg-white rounded-lg border border-gray-200 overflow-hidden shadow-md hover:shadow-xl cursor-pointer w-64 transition-all duration-200"
+                  class="reading-card bg-white rounded-lg border border-gray-200 overflow-hidden shadow-md hover:shadow-xl cursor-pointer w-full max-w-64 transition-all duration-200"
                   onclick="
                     openPdfModal(
                       'Financial-Schemes-Brochure-Eng.pdf',
@@ -1142,7 +1253,7 @@
 
                 <!-- Reading Card 5: Healthier SG Brochure -->
                 <div
-                  class="reading-card bg-white rounded-lg border border-gray-200 overflow-hidden shadow-md hover:shadow-xl cursor-pointer w-64 transition-all duration-200"
+                  class="reading-card bg-white rounded-lg border border-gray-200 overflow-hidden shadow-md hover:shadow-xl cursor-pointer w-full max-w-64 transition-all duration-200"
                   onclick="
                     openPdfModal(
                       'Healthier-SG-brochure(english).pdf',
@@ -1306,6 +1417,35 @@
     </div>
 
     <script>
+      // Mobile sidebar toggle
+      function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+
+        sidebar.classList.toggle('mobile-open');
+        overlay.classList.toggle('active');
+      }
+
+      // Close sidebar when clicking on a link (mobile)
+      function closeMobileSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+
+        sidebar.classList.remove('mobile-open');
+        overlay.classList.remove('active');
+      }
+
+      // Close sidebar on window resize if it becomes desktop view
+      window.addEventListener('resize', function () {
+        if (window.innerWidth > 768) {
+          const sidebar = document.getElementById('sidebar');
+          const overlay = document.getElementById('sidebarOverlay');
+
+          sidebar.classList.remove('mobile-open');
+          overlay.classList.remove('active');
+        }
+      });
+
       function toggleModule(moduleId) {
         const module = document.getElementById(moduleId);
         const icon = document.getElementById(moduleId + '-icon');
