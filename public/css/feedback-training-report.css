@@ -189,6 +189,106 @@ body {
   margin: 0;
 }
 
+/* Chevron Steps Layout */
+.summary-trajectory {
+  overflow: visible;
+  margin-top: 20px;
+}
+
+.summary-card-chevron {
+  background-color: transparent !important;
+  padding: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.summary-card-chevron .summary-content {
+  padding-top: 0;
+}
+
+.steps {
+  max-width: 100%;
+  margin: 20px 0;
+  color: #333;
+  display: flex;
+  align-items: stretch;
+  position: relative;
+}
+
+.step {
+  margin-right: 3px;
+  flex: 1;
+}
+
+/* Chevrons */
+.chevron {
+  position: relative;
+  text-align: center;
+  padding: 24px 20px 12px;
+  min-height: 200px;
+}
+
+.chevron:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 50%;
+  width: 100%;
+  transform: skew(8deg, 0deg);
+  z-index: 0;
+  background: #ffffff;
+  border: 2px solid;
+  border-bottom: none;
+  box-sizing: border-box;
+}
+
+.chevron:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 50%;
+  width: 100%;
+  transform: skew(-8deg, 0deg);
+  z-index: 0;
+  background: #ffffff;
+  border: 2px solid;
+  border-top: none;
+  box-sizing: border-box;
+}
+
+/* Chevron Colors - White Background with AIC Orange Borders */
+.step:nth-child(1):before { 
+  border-color: #F59C00; 
+} /* AIC Orange */
+.step:nth-child(1):after  { 
+  border-color: #F59C00; 
+} /* AIC Orange */
+.step:nth-child(2):before { 
+  border-color: #F59C00; 
+} /* AIC Orange */
+.step:nth-child(2):after  { 
+  border-color: #F59C00; 
+} /* AIC Orange */
+.step:nth-child(3):before { 
+  border-color: #F59C00; 
+} /* AIC Orange */
+.step:nth-child(3):after  { 
+  border-color: #F59C00; 
+} /* AIC Orange */
+.step:nth-child(4):before { 
+  border-color: #F59C00; 
+} /* AIC Orange */
+.step:nth-child(4):after  { 
+  border-color: #F59C00; 
+} /* AIC Orange */
+
+.emotional-state-summary-item {
+  position: relative;
+  z-index: 1;
+}
+
 .emotional-states-summary {
   margin-top: 20px;
   padding: 15px;
@@ -201,22 +301,22 @@ body {
 
 .emotional-state-summary-item {
   margin: 0;
-  padding: 10px;
+  padding: 0;
   line-height: 1.6;
   font-size: 0.95rem;
-  color: #555;
-  border-right: 1px solid #e0e0e0;
+  color: #333;
   display: flex;
   flex-direction: column;
-}
-
-.emotional-state-summary-item:last-child {
-  border-right: none;
+  text-align: left;
 }
 
 .emotional-state-summary-item strong {
-  color: black;
+  color: #333;
   font-weight: 600;
+}
+
+.emotional-state-summary-item span {
+  color: #555;
 }
 
 .emotional-state-summary-item em {
@@ -242,6 +342,12 @@ body {
 .emotional-state-details li strong {
   color: #333;
   font-weight: 600;
+}
+
+.emotional-state-details blockquote {
+  color: #555;
+  background-color: #f5f5f5 !important;
+  border-left-color: #F59C00 !important;
 }
 
 .section-divider {
@@ -817,21 +923,25 @@ svg.sad .mouth {
     gap: 20px;
   }
 
-  .emotional-states-summary {
-    grid-template-columns: repeat(2, 1fr);
+  .steps {
+    flex-direction: column;
   }
 
-  .emotional-state-summary-item {
-    border-right: 1px solid #e0e0e0;
-    border-bottom: 1px solid #e0e0e0;
+  .step {
+    margin-right: 0;
+    margin-bottom: 10px;
   }
 
-  .emotional-state-summary-item:nth-child(2n) {
-    border-right: none;
+  .chevron {
+    padding: 20px 15px 12px;
   }
 
-  .emotional-state-summary-item:nth-child(n + 3) {
-    border-bottom: none;
+  .chevron:before {
+    transform: skew(0deg, 0deg);
+  }
+
+  .chevron:after {
+    transform: skew(0deg, 0deg);
   }
 
   .report-content {
@@ -861,17 +971,9 @@ svg.sad .mouth {
 }
 
 @media (max-width: 480px) {
-  .emotional-states-summary {
-    grid-template-columns: 1fr;
-  }
-
-  .emotional-state-summary-item {
-    border-right: none;
-    border-bottom: 1px solid #e0e0e0;
-  }
-
-  .emotional-state-summary-item:last-child {
-    border-bottom: none;
+  .chevron {
+    padding: 15px 12px 10px;
+    min-height: auto;
   }
 
   .report-container {
