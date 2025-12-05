@@ -14,6 +14,8 @@ export class SpeechRecognitionManager {
     this.gladiaSessionId = null;
     this.audioContext = null;
     this.processor = null;
+    this.silenceGainNode = null;
+    this.audioWorkletUrl = null;
     this.interimTranscript = '';
     this.finalTranscript = '';
     this.languages = ['en', 'zh']; // English, Chinese
@@ -241,18 +243,19 @@ export class SpeechRecognitionManager {
         this.audioStream
       );
 
-      // Create ScriptProcessorNode to capture audio chunks
-      this.processor = this.audioContext.createScriptProcessor(4096, 1, 1);
+      const canUseAudioWorklet =
+        !!this.audioContext.audioWorklet &&
+        typeof AudioWorkletNode !== 'undefined';
 
       let audioChunkCount = 0;
-      this.processor.onaudioprocess = (event) => {
+      const handleAudioData = (audioData) => {
+        audioChunkCount++;
         if (
           this.isRecording &&
           this.gladiaWebSocket &&
-          this.gladiaWebSocket.readyState === WebSocket.OPEN
+          this.gladiaWebSocket.readyState === WebSocket.OPEN &&
+          audioData
         ) {
-          const audioData = event.inputBuffer.getChannelData(0);
-
           // Convert Float32Array to Int16Array (PCM format)
           const int16Array = new Int16Array(audioData.length);
           for (let i = 0; i < audioData.length; i++) {
@@ -284,8 +287,57 @@ export class SpeechRecognitionManager {
         }
       };
 
-      source.connect(this.processor);
-      this.processor.connect(this.audioContext.destination);
+      if (canUseAudioWorklet) {
+        // Prefer AudioWorkletNode (avoids ScriptProcessor deprecation)
+        const workletCode = `
+          class PCMProcessor extends AudioWorkletProcessor {
+            process(inputs) {
+              const input = inputs[0];
+              if (input && input[0]) {
+                this.port.postMessage(input[0]);
+              }
+              return true;
+            }
+          }
+          registerProcessor('pcm-processor', PCMProcessor);
+        `;
+
+        const blob = new Blob([workletCode], {
+          type: 'application/javascript',
+        });
+
+        this.audioWorkletUrl = URL.createObjectURL(blob);
+        await this.audioContext.audioWorklet.addModule(this.audioWorkletUrl);
+
+        this.processor = new AudioWorkletNode(
+          this.audioContext,
+          'pcm-processor',
+          {
+            numberOfInputs: 1,
+            numberOfOutputs: 1,
+            channelCount: 1,
+          }
+        );
+
+        this.processor.port.onmessage = (event) => handleAudioData(event.data);
+
+        // Silence output to avoid feedback while keeping the graph alive
+        this.silenceGainNode = this.audioContext.createGain();
+        this.silenceGainNode.gain.value = 0;
+
+        source.connect(this.processor);
+        this.processor.connect(this.silenceGainNode);
+        this.silenceGainNode.connect(this.audioContext.destination);
+      } else {
+        // Fallback for older browsers (may still warn about deprecation)
+        this.processor = this.audioContext.createScriptProcessor(4096, 1, 1);
+        this.processor.onaudioprocess = (event) => {
+          handleAudioData(event.inputBuffer.getChannelData(0));
+        };
+
+        source.connect(this.processor);
+        this.processor.connect(this.audioContext.destination);
+      }
 
       return true;
     } catch (error) {
@@ -297,12 +349,25 @@ export class SpeechRecognitionManager {
   stopAudioCapture(closeWebSocket = false) {
     if (this.processor) {
       this.processor.disconnect();
+      if (this.processor.port) {
+        this.processor.port.onmessage = null;
+      }
       this.processor = null;
+    }
+
+    if (this.silenceGainNode) {
+      this.silenceGainNode.disconnect();
+      this.silenceGainNode = null;
     }
 
     if (this.audioContext) {
       this.audioContext.close();
       this.audioContext = null;
+    }
+
+    if (this.audioWorkletUrl) {
+      URL.revokeObjectURL(this.audioWorkletUrl);
+      this.audioWorkletUrl = null;
     }
 
     if (this.audioStream) {

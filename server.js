@@ -9,6 +9,9 @@ import emotionalStateRoutes from './dist/api/emotional-state.js';
 import configRoutes from './dist/api/config.js';
 import elevenLabsRoutes from './dist/api/elevenlabs-tts.js';
 import gladiaRoutes from './dist/api/gladia-stt.js';
+import { WebSocketServer } from 'ws';
+import { Orchestrator } from './dist/emotion-engine/orchestrator.js';
+import { StateManager } from './dist/emotion-engine/utils/state-manager.js';
 
 // Load environment variables
 dotenv.config();
@@ -18,6 +21,8 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 8888;
+const wsOrchestrators = new Map(); // keyed by language
+const wsConversationHistories = new Map(); // keyed by conversationId
 
 // Detect if running on Vercel
 const isVercel =
@@ -174,6 +179,165 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/css', express.static(path.join(__dirname, 'public', 'css')));
 app.use('/js', express.static(path.join(__dirname, 'public', 'js')));
 
+// ================
+// WebSocket Helpers
+// ================
+const getWebSocketOrchestrator = async (language = 'en') => {
+  const lang = language === 'cn' ? 'cn' : 'en';
+  if (!wsOrchestrators.has(lang)) {
+    const orchestrator = new Orchestrator(undefined, lang);
+    await orchestrator.initialize();
+    wsOrchestrators.set(lang, orchestrator);
+  }
+  const instance = wsOrchestrators.get(lang);
+  if (!instance) {
+    throw new Error('Failed to initialize orchestrator');
+  }
+  return instance;
+};
+
+const extractAvatarEmoji = (agentType, responseContent) => {
+  const emojiRegex =
+    /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F900}-\u{1F9FF}]|[\u{1FA70}-\u{1FAFF}]/gu;
+  const emojis = responseContent.match(emojiRegex) || [];
+  if (emojis[0]) {
+    return emojis[0];
+  }
+  const agentEmojiMap = {
+    normal: '😐',
+    pleased: '😊',
+    cheerful: '😄',
+    ecstatic: '😍',
+    melancholy: '😔',
+    sorrowful: '😢',
+    depressed: '😞',
+    irritated: '😤',
+    agitated: '😠',
+    enraged: '😡',
+  };
+  return agentEmojiMap[agentType] || '😐';
+};
+
+const startWebSocketServer = (httpServer) => {
+  const wss = new WebSocketServer({ server: httpServer });
+  console.log('🔌 WebSocket server attached to HTTP server');
+
+  wss.on('connection', (ws) => {
+    console.log('🔗 WebSocket client connected');
+    ws.send(JSON.stringify({ type: 'connected' }));
+
+    ws.on('message', async (rawData) => {
+      try {
+        const data = JSON.parse(rawData.toString());
+        const { type, message, conversationId, language } = data || {};
+
+        if (!type) {
+          ws.send(
+            JSON.stringify({ type: 'error', error: 'Missing message type' })
+          );
+          return;
+        }
+
+        if (type === 'chat') {
+          if (!message || !message.trim()) {
+            ws.send(
+              JSON.stringify({
+                type: 'error',
+                error: 'Message is required',
+              })
+            );
+            return;
+          }
+
+          const convoId = conversationId || `conv-${Date.now()}`;
+          const lang = language || 'en';
+          const history = wsConversationHistories.get(convoId) || [];
+          const orchestrator = await getWebSocketOrchestrator(lang);
+
+          // Reset orchestrator if starting fresh
+          if (StateManager.isNewConversation(history)) {
+            orchestrator.resetState();
+          }
+
+          // Prepare history for orchestrator
+          const historyForEngine = history.map((h) => ({
+            role: h.role,
+            content: h.content,
+          }));
+
+          // Process the message
+          const [responseContent, agentType, analysisData, updatedState] =
+            await orchestrator.processMessage(message, historyForEngine);
+
+          // Update history
+          const updatedHistory = [
+            ...history,
+            { role: 'user', content: message },
+            { role: 'assistant', content: responseContent },
+          ];
+          wsConversationHistories.set(convoId, updatedHistory);
+
+          const avatarEmoji = extractAvatarEmoji(agentType, responseContent);
+
+          ws.send(
+            JSON.stringify({
+              type: 'response',
+              response: responseContent,
+              avatarEmoji,
+              usedKnowledgeBase: false,
+              usedEvents: false,
+              timing: analysisData?.timing || null,
+              conversationId: convoId,
+              emotionState: StateManager.serializeState(updatedState),
+            })
+          );
+          return;
+        }
+
+        if (type === 'clear') {
+          const convoId = conversationId || 'default';
+          wsConversationHistories.delete(convoId);
+          // Reset all orchestrators to avoid stale state
+          wsOrchestrators.forEach((orchestrator) => orchestrator.resetState());
+          ws.send(
+            JSON.stringify({
+              type: 'response',
+              response: 'Conversation cleared.',
+              avatarEmoji: '😐',
+              usedKnowledgeBase: false,
+              usedEvents: false,
+              timing: null,
+              conversationId: convoId,
+            })
+          );
+          return;
+        }
+
+        ws.send(
+          JSON.stringify({
+            type: 'error',
+            error: `Unknown message type: ${type}`,
+          })
+        );
+      } catch (error) {
+        console.error('❌ WebSocket message error:', error);
+        ws.send(
+          JSON.stringify({
+            type: 'error',
+            error: error?.message || 'Server error',
+          })
+        );
+      }
+    });
+
+    ws.on('close', () => {
+      console.log('🔌 WebSocket client disconnected');
+    });
+  });
+
+  return wss;
+};
+
 // Public routes (no authentication required)
 app.get('/login', (req, res) => {
   // If already authenticated, redirect to home
@@ -296,7 +460,7 @@ export default app;
 
 // Start server locally (only if not in Vercel environment)
 if (process.env.VERCEL !== '1') {
-  app.listen(PORT, () => {
+  const server = app.listen(PORT, () => {
     console.log(`🚀 SASI-KORA Server Started!`);
     console.log(`📡 Server: http://localhost:${PORT}`);
     console.log(`🔐 Login: http://localhost:${PORT}/login`);
@@ -315,4 +479,7 @@ if (process.env.VERCEL !== '1') {
     console.log('✨ Emotion Engine Ready!');
     console.log('🔒 All routes are protected. Login required to access.');
   });
+
+  // Attach WebSocket server to the same HTTP server/port
+  startWebSocketServer(server);
 }

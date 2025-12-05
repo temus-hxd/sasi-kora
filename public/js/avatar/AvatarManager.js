@@ -10,7 +10,6 @@ export class AvatarManager {
     // Dependencies (set via dependency injection)
     this.configManager = null;
     this.uiManager = null;
-    this.voiceStateManager = null;
     this.emojiManager = null;
     this.speechBubbleManager = null;
     this.speechRecognitionManager = null;
@@ -29,7 +28,6 @@ export class AvatarManager {
   setDependencies({
     configManager,
     uiManager,
-    voiceStateManager,
     emojiManager,
     speechBubbleManager,
     speechRecognitionManager,
@@ -40,7 +38,6 @@ export class AvatarManager {
   }) {
     this.configManager = configManager;
     this.uiManager = uiManager;
-    this.voiceStateManager = voiceStateManager;
     this.emojiManager = emojiManager;
     this.speechBubbleManager = speechBubbleManager;
     this.speechRecognitionManager = speechRecognitionManager;
@@ -169,10 +166,6 @@ export class AvatarManager {
   // =====================================================
   async initializeOtherManagers() {
     // Initialize managers that depend on avatar
-    this.voiceStateManager?.setUpdateStatusFunction(
-      this.uiManager?.updateStatus.bind(this.uiManager)
-    );
-
     this.emojiManager?.setDependencies(this.head, this.currentMoodRef, () => {});
 
     // Initialize AnimationManager with TalkingHead instance
@@ -187,7 +180,6 @@ export class AvatarManager {
       this.head,
       this.isLoaded,
       this.configManager,
-      this.voiceStateManager,
       this.speechBubbleManager,
       this.animationManager,
       this.uiManager
@@ -271,9 +263,6 @@ export class AvatarManager {
 
     // Initialize ChatManager
     this.chatManager?.init();
-
-    // Initialize voice state
-    this.voiceStateManager?.getVoiceState();
   }
 
   // =====================================================
@@ -482,7 +471,6 @@ export class AvatarManager {
     // Reset dependencies
     this.configManager = null;
     this.uiManager = null;
-    this.voiceStateManager = null;
     this.emojiManager = null;
     this.speechBubbleManager = null;
     this.speechRecognitionManager = null;

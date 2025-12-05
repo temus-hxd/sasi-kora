@@ -3,7 +3,6 @@ export class TTSManager {
     this.isInitialized = false;
     this.audioContext = null;
     this.configManager = null;
-    this.voiceStateManager = null;
     this.speechBubbleManager = null;
     this.animationManager = null;
     this.uiManager = null;
@@ -26,7 +25,6 @@ export class TTSManager {
     head,
     isLoaded,
     configManager,
-    voiceStateManager,
     speechBubbleManager,
     animationManager = null,
     uiManager = null
@@ -34,7 +32,6 @@ export class TTSManager {
     this.head = head;
     this.isLoaded = isLoaded;
     this.configManager = configManager;
-    this.voiceStateManager = voiceStateManager;
     this.speechBubbleManager = speechBubbleManager;
     this.animationManager = animationManager;
     this.uiManager = uiManager;
@@ -205,9 +202,7 @@ export class TTSManager {
       const requestBody = {
         text: cleanText,
         voice: this.configManager ? this.configManager.getVoiceId() : null,
-        sessionId: this.voiceStateManager
-          ? this.voiceStateManager.getSessionId()
-          : 'fallback-session',
+        sessionId: 'default-session',
         userMessage: this.lastUserMessage || '',
       };
 
