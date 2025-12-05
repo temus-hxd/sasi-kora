@@ -22,9 +22,6 @@ export class ConfigManager {
       // Get language from parameter or localStorage
       const lang = language || this.getLanguage() || 'en';
 
-      console.log(
-        `📡 Loading configuration from /api/config (language: ${lang})...`
-      );
       const response = await fetch(`/api/config?lang=${lang}`);
 
       if (!response.ok) {

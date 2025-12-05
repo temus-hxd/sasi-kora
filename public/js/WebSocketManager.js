@@ -68,29 +68,49 @@ export class WebSocketManager {
         this.handleWebSocketMessage(data);
       };
 
-      this.ws.onclose = () => {
-        console.log('🔌 WebSocket disconnected');
+      this.ws.onclose = (event) => {
+        // Store previous connection state before resetting
+        const wasConnected = this.isConnected;
         this.isConnected = false;
-        if (this.onStatusUpdate) {
-          this.onStatusUpdate('Disconnected', 'error');
-        }
         this.useWebSocket = false;
 
-        // Try to reconnect after 3 seconds
-        this.reconnectTimeout = setTimeout(() => {
-          if (!this.useWebSocket) {
-            this.initWebSocket();
+        // Only log and update status if we were previously connected
+        if (wasConnected) {
+          console.log('🔌 WebSocket disconnected');
+          if (this.onStatusUpdate) {
+            this.onStatusUpdate('Disconnected', 'warning');
           }
-        }, 3000);
+
+          // Try to reconnect after 3 seconds if we were previously connected
+          this.reconnectTimeout = setTimeout(() => {
+            if (!this.useWebSocket) {
+              this.initWebSocket();
+            }
+          }, 3000);
+        } else {
+          // Initial connection failure - expected if server doesn't support WebSocket
+          // Don't try to reconnect, just silently fall back to HTTP
+          console.log(
+            'ℹ️ WebSocket server not available - using HTTP fallback'
+          );
+        }
       };
 
       this.ws.onerror = (error) => {
-        console.error('❌ WebSocket error:', error);
+        // Store previous connection state before resetting
+        const wasConnected = this.isConnected;
         this.isConnected = false;
         this.useWebSocket = false;
-        if (this.onStatusUpdate) {
-          this.onStatusUpdate('Error', 'error');
+
+        // Silently handle WebSocket errors - HTTP fallback is available
+        // Only log if WebSocket was previously connected (unexpected error)
+        if (wasConnected) {
+          console.error('❌ WebSocket error (was connected):', error);
+          if (this.onStatusUpdate) {
+            this.onStatusUpdate('Disconnected', 'warning');
+          }
         }
+        // Initial connection failure is handled silently - HTTP fallback will be used
       };
     } catch (error) {
       console.error('❌ WebSocket init error:', error);

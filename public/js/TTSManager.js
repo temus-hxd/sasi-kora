@@ -3,7 +3,6 @@ export class TTSManager {
     this.isInitialized = false;
     this.audioContext = null;
     this.configManager = null;
-    this.voiceStateManager = null;
     this.speechBubbleManager = null;
     this.animationManager = null;
     this.uiManager = null;
@@ -26,7 +25,6 @@ export class TTSManager {
     head,
     isLoaded,
     configManager,
-    voiceStateManager,
     speechBubbleManager,
     animationManager = null,
     uiManager = null
@@ -34,7 +32,6 @@ export class TTSManager {
     this.head = head;
     this.isLoaded = isLoaded;
     this.configManager = configManager;
-    this.voiceStateManager = voiceStateManager;
     this.speechBubbleManager = speechBubbleManager;
     this.animationManager = animationManager;
     this.uiManager = uiManager;
@@ -170,8 +167,6 @@ export class TTSManager {
       };
 
       try {
-        const apiStartTime = Date.now();
-
         const response = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -205,9 +200,7 @@ export class TTSManager {
       const requestBody = {
         text: cleanText,
         voice: this.configManager ? this.configManager.getVoiceId() : null,
-        sessionId: this.voiceStateManager
-          ? this.voiceStateManager.getSessionId()
-          : 'fallback-session',
+        sessionId: 'fallback-session',
         userMessage: this.lastUserMessage || '',
       };
 
@@ -271,8 +264,14 @@ export class TTSManager {
     }
 
     // OPTIMIZATION: Resume audio context if suspended (browser autoplay policy)
+    // CRITICAL: Must resume after user interaction (click, keypress, etc.)
     if (this.audioContext.state === 'suspended') {
-      await this.audioContext.resume();
+      try {
+        await this.audioContext.resume();
+      } catch (error) {
+        console.warn('⚠️ Failed to resume audio context:', error);
+        // Try again on next user interaction
+      }
     }
 
     let audioBuffer = await this.base64ToAudioBuffer(data.audio);
@@ -303,6 +302,7 @@ export class TTSManager {
 
       if (Math.abs(durationScaleFactor - 1.0) > 0.05) {
         // Only scale if difference > 5%
+
         // Scale all viseme timings to match actual audio duration
         const scaledVtimes = (lipSync.visemeTimes || []).map(
           (t) => t * durationScaleFactor
@@ -427,8 +427,14 @@ export class TTSManager {
       data.duration &&
       Math.abs(actualAudioDuration - data.duration) > 0.1
     ) {
+      console.log(
+        `⏱️ Using actual audio duration: ${actualAudioDuration.toFixed(3)}s (was ${data.duration.toFixed(3)}s)`
+      );
       data.duration = actualAudioDuration; // Update for fallback timers
     }
+
+    // Use actual duration for fallback timers (most reliable)
+    const durationForTimers = actualAudioDuration || data.duration || 0;
 
     // Mark as speaking
     this.isSpeaking = true;
@@ -582,7 +588,8 @@ export class TTSManager {
     }
 
     // Setup fallback timers with improved monitoring
-    this.setupFallbackTimers(data.duration, speechStartTime);
+    // Use actual audio duration for more accurate timing
+    this.setupFallbackTimers(durationForTimers, speechStartTime);
   }
 
   // =====================================================
@@ -627,19 +634,27 @@ export class TTSManager {
       const elapsed = Date.now() - startTime;
 
       // Check if we've exceeded expected duration significantly
-      if (elapsed > speechDuration + 3000) {
+      // Use a more lenient threshold (5 seconds) to account for TalkingHead processing delays
+      // and ensure onComplete callback has time to fire
+      if (elapsed > speechDuration + 5000) {
         console.warn(
-          `⚠️ Speech duration exceeded expectation by ${
-            elapsed - speechDuration
-          }ms`
+          `⚠️ Speech duration exceeded expectation by ${elapsed - speechDuration}ms (expected: ${speechDuration}ms, actual: ${elapsed}ms)`
         );
-        clearInterval(monitorInterval);
-        clearTimeout(fallbackTimeout);
-        monitoringActive = false;
+        // Only warn, don't force cleanup - let onComplete handle it if possible
+        // This prevents premature cleanup if TalkingHead is still processing
+        if (elapsed > speechDuration + 10000) {
+          // Only force cleanup if we're way over (10+ seconds)
+          console.error(
+            `❌ Speech significantly exceeded duration, forcing cleanup`
+          );
+          clearInterval(monitorInterval);
+          clearTimeout(fallbackTimeout);
+          monitoringActive = false;
 
-        if (this.speechBubbleManager) {
-          this.speechBubbleManager.clearAllTimers();
-          this.speechBubbleManager.hideSpeechBubble();
+          if (this.speechBubbleManager) {
+            this.speechBubbleManager.clearAllTimers();
+            this.speechBubbleManager.hideSpeechBubble();
+          }
         }
       }
     }, 1000); // Check every second
@@ -731,8 +746,6 @@ export class TTSManager {
     }
 
     try {
-      const ttsStartTime = Date.now();
-
       // CRITICAL: Initialize and resume AudioContext BEFORE API call
       if (!this.audioContext) {
         this.audioContext = new (
@@ -745,16 +758,8 @@ export class TTSManager {
         try {
           await this.audioContext.resume();
         } catch (error) {
-          console.error('❌ CRITICAL: Failed to resume audio context:', error);
-          // Try to create a new context
-          try {
-            this.audioContext.close();
-          } catch (closeError) {
-            // Ignore close errors
-          }
-          this.audioContext = new (
-            window.AudioContext || window.webkitAudioContext
-          )();
+          console.warn('⚠️ Failed to resume audio context:', error);
+          // Will retry on next user interaction
         }
       }
 

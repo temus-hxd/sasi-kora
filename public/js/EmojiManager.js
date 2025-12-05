@@ -192,7 +192,6 @@ export class EmojiManager {
 
   triggerEmojiAction(emoji) {
     if (this.emojiToAction[emoji] && this.head) {
-      console.log('🎭 Triggering avatar action for:', emoji);
       this.emojiToAction[emoji]();
       return true;
     }
@@ -208,13 +207,6 @@ export class EmojiManager {
       console.error('🎭 No TalkingHead instance available for dance');
       return;
     }
-
-    console.log('🎭 Starting REAL dance sequence in EmojiManager!');
-    console.log('🎭 Current URL:', window.location.href);
-    console.log(
-      '🎭 TalkingHead methods available:',
-      Object.getOwnPropertyNames(Object.getPrototypeOf(this.head))
-    );
 
     // Set happy mood and speak emoji
     this.head.speakEmoji('💃');
@@ -241,54 +233,39 @@ export class EmojiManager {
       }
 
       const currentPath = animationPaths[pathIndex];
-      console.log(
-        `🎭 Trying animation path ${pathIndex + 1}/${animationPaths.length}: ${currentPath}`
-      );
 
       try {
         // Check if playAnimation method exists
         if (typeof this.head.playAnimation !== 'function') {
-          console.warn('🎭 playAnimation method not available, using fallback');
           this.fallbackDanceSequence();
           return;
         }
 
         // Try to play the animation
         const result = this.head.playAnimation(currentPath, null, 8, 0, 0.01);
-        console.log('🎭 playAnimation call result:', result);
 
         if (result !== false) {
-          console.log(
-            '🎭 Animation loaded successfully with path:',
-            currentPath
-          );
           animationLoaded = true;
 
           // Add some celebratory gestures during the dance
           setTimeout(() => {
             if (this.head && typeof this.head.playGesture === 'function') {
               this.head.playGesture('thumbup', 2, false, 500);
-              console.log('🎭 Adding thumbup gesture during dance');
             }
           }, 2000);
 
           setTimeout(() => {
             if (this.head && typeof this.head.playGesture === 'function') {
               this.head.playGesture('handup', 2, true, 500); // Right hand
-              console.log('🎭 Adding handup gesture during dance');
             }
           }, 4000);
 
           setTimeout(() => {
             if (this.head && typeof this.head.playGesture === 'function') {
               this.head.playGesture('ok', 2, false, 500);
-              console.log('🎭 Adding ok gesture during dance');
             }
           }, 6000);
         } else {
-          console.log(
-            `🎭 Animation path ${currentPath} failed, trying next...`
-          );
           setTimeout(() => tryLoadAnimation(pathIndex + 1), 100);
         }
       } catch (error) {
@@ -303,16 +280,12 @@ export class EmojiManager {
     // Fallback timeout - if no animation loads in 2 seconds, use gesture sequence
     setTimeout(() => {
       if (!animationLoaded) {
-        console.log(
-          '🎭 Animation timeout reached, using fallback dance sequence'
-        );
         this.fallbackDanceSequence();
       }
     }, 2000);
 
     // Stop dance after 8 seconds
     setTimeout(() => {
-      console.log('🎭 Dance sequence ending');
       if (this.head) {
         if (typeof this.head.stopAnimation === 'function') {
           this.head.stopAnimation();
@@ -327,8 +300,6 @@ export class EmojiManager {
   }
 
   fallbackDanceSequence() {
-    console.log('🎭 Starting fallback dance sequence');
-
     // Enhanced gesture sequence with better timing and variety
     const danceSteps = [
       { gesture: 'handup', duration: 1.5, mirror: false },
@@ -346,9 +317,6 @@ export class EmojiManager {
       if (stepIndex < danceSteps.length) {
         const step = danceSteps[stepIndex];
         this.head.playGesture(step.gesture, step.duration, step.mirror, 400);
-        console.log(
-          `🎭 Dance step ${stepIndex + 1}: ${step.gesture} (${step.mirror ? 'right' : 'left'} hand)`
-        );
 
         stepIndex++;
         setTimeout(executeStep, step.duration * 1000);
