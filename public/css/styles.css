@@ -197,7 +197,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #C77D00 0%, #F59C00 50%, #FFC34D 100%);
+  background: linear-gradient(135deg, #c77d00 0%, #f59c00 50%, #ffc34d 100%);
   background-size: 200% 200%;
   animation: gradientShift 8s ease infinite;
 }
@@ -224,7 +224,10 @@ body {
   background: rgba(0, 0, 0, 0.55);
   border-radius: 24px;
   border: 2px solid rgba(255, 195, 77, 0.6);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 195, 77, 0.3), inset 0 0 40px rgba(0, 0, 0, 0.2);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 195, 77, 0.3),
+    inset 0 0 40px rgba(0, 0, 0, 0.2);
   min-width: 400px;
   max-width: 500px;
 }
@@ -234,16 +237,14 @@ body {
   font-weight: 600;
   margin-bottom: 0.5rem;
   letter-spacing: 0.05em;
-  background: linear-gradient(
-    135deg,
-    #FFD966 0%,
-    #FFC34D 50%,
-    #F59C00 100%
-  );
+  background: linear-gradient(135deg, #ffd966 0%, #ffc34d 50%, #f59c00 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-shadow: 0 2px 25px rgba(255, 195, 77, 1), 0 0 15px rgba(255, 217, 102, 0.8), 0 0 5px rgba(245, 156, 0, 0.9);
+  text-shadow:
+    0 2px 25px rgba(255, 195, 77, 1),
+    0 0 15px rgba(255, 217, 102, 0.8),
+    0 0 5px rgba(245, 156, 0, 0.9);
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5)) brightness(1.1);
 }
 
@@ -252,9 +253,11 @@ body {
   font-weight: 400;
   margin-bottom: 2.5rem;
   opacity: 1;
-  color: #FFFFFF;
+  color: #ffffff;
   letter-spacing: 0.05em;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7), 0 1px 3px rgba(0, 0, 0, 0.5);
+  text-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.7),
+    0 1px 3px rgba(0, 0, 0, 0.5);
   filter: brightness(1.1);
 }
 
@@ -280,17 +283,15 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(
-    135deg,
-    #FFD966 0%,
-    #FFC34D 50%,
-    #F59C00 100%
-  );
+  background: linear-gradient(135deg, #ffd966 0%, #ffc34d 50%, #f59c00 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   animation: countdownPulse 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-  text-shadow: 0 0 50px rgba(255, 195, 77, 1), 0 0 30px rgba(255, 217, 102, 0.9), 0 0 10px rgba(245, 156, 0, 1);
+  text-shadow:
+    0 0 50px rgba(255, 195, 77, 1),
+    0 0 30px rgba(255, 217, 102, 0.9),
+    0 0 10px rgba(245, 156, 0, 1);
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6)) brightness(1.15);
   letter-spacing: -0.02em;
 }
@@ -299,10 +300,12 @@ body {
   font-size: 0.85rem;
   font-weight: 500;
   opacity: 1;
-  color: #FFFFFF;
+  color: #ffffff;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7), 0 1px 3px rgba(0, 0, 0, 0.5);
+  text-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.7),
+    0 1px 3px rgba(0, 0, 0, 0.5);
   filter: brightness(1.1);
 }
 
@@ -331,17 +334,14 @@ body {
 
 .progress-bar {
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    #FFC34D 0%,
-    #F59C00 50%,
-    #FFC34D 100%
-  );
+  background: linear-gradient(90deg, #ffc34d 0%, #f59c00 50%, #ffc34d 100%);
   background-size: 200% 100%;
   border-radius: 10px;
   width: 0%;
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 0 15px rgba(245, 156, 0, 0.8), 0 0 5px rgba(255, 195, 77, 0.6);
+  box-shadow:
+    0 0 15px rgba(245, 156, 0, 0.8),
+    0 0 5px rgba(255, 195, 77, 0.6);
   animation: progressShimmer 2s ease-in-out infinite;
 }
 
@@ -403,8 +403,10 @@ body {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: #F59C00;
-  box-shadow: 0 0 15px rgba(245, 156, 0, 0.9), 0 0 5px rgba(255, 195, 77, 0.7);
+  background: #f59c00;
+  box-shadow:
+    0 0 15px rgba(245, 156, 0, 0.9),
+    0 0 5px rgba(255, 195, 77, 0.7);
   animation: spinnerPulse 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
@@ -605,17 +607,27 @@ body {
   box-shadow: 4px 4px 30px rgba(102, 126, 234, 0.5);
 }
 
-/* End Call Button Component */
-.end-call-button {
+/* Action Buttons Container */
+.action-buttons-container {
   position: fixed;
   top: 20px;
   right: 20px;
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  z-index: 2000;
+}
+
+/* Action Button Base Styles */
+.action-button {
   padding: 12px 24px;
   border: none;
   border-radius: var(--border-radius-medium);
-  background: #ef4444;
   color: var(--text-white);
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
   font-size: 16px;
   font-weight: 600;
   display: flex;
@@ -623,22 +635,48 @@ body {
   justify-content: center;
   cursor: pointer;
   transition: all var(--transition-fast);
-  z-index: 2000;
-  box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(10px);
   border: 2px solid rgba(255, 255, 255, 0.2);
   white-space: nowrap;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
+.action-button:hover {
+  transform: translateY(-2px);
+}
+
+.action-button:active {
+  transform: translateY(0);
+}
+
+/* Emotion State Engine Button */
+.emotion-state-engine-button {
+  background: linear-gradient(135deg, #f59c00 0%, #ffc34d 100%);
+  box-shadow: 0 4px 20px rgba(245, 156, 0, 0.4);
+}
+
+.emotion-state-engine-button:hover {
+  background: linear-gradient(135deg, #c77d00 0%, #f59c00 100%);
+  box-shadow: 0 6px 30px rgba(245, 156, 0, 0.6);
+}
+
+.emotion-state-engine-button:active {
+  box-shadow: 0 2px 15px rgba(245, 156, 0, 0.5);
+}
+
+/* End Call Button Component */
+.end-call-button {
+  background: #ef4444;
+  box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+}
+
 .end-call-button:hover {
   background: #dc2626;
-  transform: translateY(-2px);
   box-shadow: 0 6px 30px rgba(239, 68, 68, 0.6);
 }
 
 .end-call-button:active {
-  transform: translateY(0);
   box-shadow: 0 2px 15px rgba(239, 68, 68, 0.5);
 }
 
@@ -1211,7 +1249,7 @@ body {
 
 /* State utilities */
 .u-hidden {
-  display: none !important;
+  display: none;
 }
 
 .loading-screen.hidden {
@@ -1464,12 +1502,22 @@ body {
     min-width: 160px;
   }
 
-  /* End Call Button Mobile Styles */
-  .end-call-button {
+  /* Action Buttons Container Mobile Styles */
+  .action-buttons-container {
     top: 15px;
     right: 15px;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .action-button {
     padding: 10px 18px;
     font-size: 14px;
+  }
+
+  /* Hide Emotion State Engine button on mobile */
+  .emotion-state-engine-button {
+    display: none;
   }
 }
 
@@ -1586,4 +1634,188 @@ body {
 
 /* ================================ */
 /* END CONFETTI SYSTEM CSS          */
+/* ================================ */
+
+/* ================================ */
+/* EMOTION STATE ENGINE MODAL       */
+/* ================================ */
+#emotionStateEngineModal {
+  animation: fadeIn 0.3s ease-out;
+  z-index: 99999;
+}
+
+#emotionStateEngineModal > div {
+  animation: slideUp 0.3s ease-out;
+  max-height: 90vh;
+  height: 90vh;
+  z-index: 100000;
+  position: relative;
+}
+
+/* Ensure modal content wrapper allows all panels to be visible */
+#emotionStateEngineModal > div > div {
+  max-height: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  display: flex;
+  width: 100%;
+}
+
+/* Ensure close button is always on top */
+#emotionStateEngineModal button[onclick='closeEmotionStateEngine()'] {
+  z-index: 100001;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Ensure modal content container doesn't overflow */
+#emotionStateEngineModal > div > div {
+  max-height: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Ensure modal panels fit properly */
+#emotionStateEngineModal aside {
+  max-height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Ensure right panel is always visible */
+#emotionStateEngineModal aside:last-child {
+  min-width: 384px;
+  flex-shrink: 0;
+  visibility: visible;
+}
+
+/* Style scrollbar for metrics container */
+#emotionStateEngineModal aside:last-child > div.flex-1 {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+  padding-right: 4px;
+}
+
+#emotionStateEngineModal aside:last-child > div.flex-1::-webkit-scrollbar {
+  width: 6px;
+}
+
+#emotionStateEngineModal
+  aside:last-child
+  > div.flex-1::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#emotionStateEngineModal
+  aside:last-child
+  > div.flex-1::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5);
+  border-radius: 3px;
+}
+
+#emotionStateEngineModal
+  aside:last-child
+  > div.flex-1::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.7);
+}
+
+#emotionStateEngineModal main {
+  max-height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Ensure chat section fits */
+#emotionStateEngineModal .flex.flex-col.flex-1 {
+  max-height: 100%;
+}
+
+/* Ensure messages container doesn't overflow */
+#emotionStateEngineModal .flex.flex-col.flex-1.min-h-0.overflow-hidden {
+  max-height: 100%;
+  overflow: hidden;
+}
+
+#emotionStateEngineModal #modal-chatMessages {
+  max-height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Ensure modal content is scrollable */
+#emotionStateEngineModal aside,
+#emotionStateEngineModal main {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+}
+
+#emotionStateEngineModal aside::-webkit-scrollbar,
+#emotionStateEngineModal main::-webkit-scrollbar {
+  width: 6px;
+}
+
+#emotionStateEngineModal aside::-webkit-scrollbar-track,
+#emotionStateEngineModal main::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#emotionStateEngineModal aside::-webkit-scrollbar-thumb,
+#emotionStateEngineModal main::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5);
+  border-radius: 3px;
+}
+
+#emotionStateEngineModal aside::-webkit-scrollbar-thumb:hover,
+#emotionStateEngineModal main::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.7);
+}
+
+/* Responsive modal */
+@media (max-width: 1024px) {
+  #emotionStateEngineModal > div {
+    width: 98vw;
+    height: 95vh;
+    max-height: 95vh;
+  }
+}
+
+@media (max-width: 768px) {
+  #emotionStateEngineModal > div {
+    flex-direction: column;
+    height: 100vh;
+    max-height: 100vh;
+    width: 100vw;
+    border-radius: 0;
+  }
+
+  #emotionStateEngineModal aside {
+    max-height: 200px;
+    overflow-x: auto;
+    overflow-y: auto;
+  }
+}
+/* ================================ */
+/* END EMOTION STATE ENGINE MODAL   */
 /* ================================ */

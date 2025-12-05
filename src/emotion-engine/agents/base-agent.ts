@@ -107,8 +107,8 @@ export abstract class BaseAgent {
       if (!skipPersonality) {
         const personalityFile =
           this.language === 'cn'
-            ? 'sassi_personality_cn.md'
-            : 'sassi_personality_en.md';
+            ? 'sassi_personality_chinese.md'
+            : 'sassi_personality_english.md';
         personalityPrompt = await loadPrompt(personalityFile, this.clientName);
       }
       const agentPrompt = await loadPrompt(promptFile, this.clientName);
