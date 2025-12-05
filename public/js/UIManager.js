@@ -13,21 +13,23 @@ export class UIManager {
     const statusText = document.getElementById('statusText');
     const statusDot = document.getElementById('statusDot');
 
-    statusText.textContent = status;
+    if (statusText) {
+      statusText.textContent = status;
+    }
 
-    // Show/hide status indicator
-    if (status === 'Ready') {
+    // Always hide status indicator
+    if (statusIndicator) {
       statusIndicator.style.display = 'none';
-    } else {
-      statusIndicator.style.display = 'flex';
     }
 
     // Update dot color and animation
-    statusDot.className = 'status-dot';
-    if (type === 'thinking') {
-      statusDot.classList.add('thinking');
-    } else if (type === 'knowledge-base') {
-      statusDot.classList.add('knowledge-base');
+    if (statusDot) {
+      statusDot.className = 'status-dot';
+      if (type === 'thinking') {
+        statusDot.classList.add('thinking');
+      } else if (type === 'knowledge-base') {
+        statusDot.classList.add('knowledge-base');
+      }
     }
   }
 
