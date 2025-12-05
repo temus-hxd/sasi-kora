@@ -4,7 +4,6 @@ export class TTSManager {
     this.audioContext = null;
     this.configManager = null;
     this.voiceStateManager = null;
-    this.idleTimerManager = null;
     this.speechBubbleManager = null;
     this.animationManager = null;
     this.uiManager = null;
@@ -28,7 +27,6 @@ export class TTSManager {
     isLoaded,
     configManager,
     voiceStateManager,
-    idleTimerManager,
     speechBubbleManager,
     animationManager = null,
     uiManager = null
@@ -37,7 +35,6 @@ export class TTSManager {
     this.isLoaded = isLoaded;
     this.configManager = configManager;
     this.voiceStateManager = voiceStateManager;
-    this.idleTimerManager = idleTimerManager;
     this.speechBubbleManager = speechBubbleManager;
     this.animationManager = animationManager;
     this.uiManager = uiManager;
@@ -714,11 +711,6 @@ export class TTSManager {
     if (!this.head || !this.isLoaded) {
       console.warn('Avatar not ready for speech');
       return false;
-    }
-
-    // Reset idle timer when avatar starts speaking
-    if (this.idleTimerManager) {
-      this.idleTimerManager.resetIdleTimer();
     }
 
     // Clean text for TTS

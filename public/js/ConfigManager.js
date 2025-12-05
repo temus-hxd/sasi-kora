@@ -45,11 +45,6 @@ export class ConfigManager {
       this.config.avatarUrl = serverConfig.avatarUrl;
       this.config.voiceId = serverConfig.voiceId;
       this.config.language = serverConfig.language || lang;
-      console.log('✅ Configuration loaded:', {
-        avatarUrl: this.config.avatarUrl?.substring(0, 50) + '...',
-        voiceId: this.config.voiceId,
-        language: this.config.language,
-      });
       return true;
     } catch (error) {
       console.error('❌ Failed to load config from server:', error);
@@ -74,7 +69,6 @@ export class ConfigManager {
   setLanguage(language) {
     localStorage.setItem('app_language', language);
     this.config.language = language;
-    console.log(`🌐 Language set to: ${language}`);
   }
 
   // =====================================================
@@ -110,7 +104,6 @@ export class ConfigManager {
   setTTSProvider(provider) {
     if (provider === 'polly' || provider === 'elevenlabs') {
       this.config.ttsProvider = provider;
-      console.log(`🎤 TTS Provider switched to: ${provider}`);
     } else {
       console.warn(`⚠️ Invalid TTS provider: ${provider}`);
     }
@@ -144,7 +137,6 @@ export class ConfigManager {
       ttsProvider: 'elevenlabs',
       language: currentLanguage,
     };
-    console.log('🔄 Configuration reset - reloading from server...');
     this.loadConfig(currentLanguage); // Reload from server with current language
   }
 }

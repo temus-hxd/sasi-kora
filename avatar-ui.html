@@ -105,11 +105,6 @@
           </div>
         </div>
 
-        <!-- Link Buttons Container -->
-        <div class="link-buttons-container" id="linkButtonsContainer">
-          <!-- Buttons will be dynamically generated here -->
-        </div>
-
         <!-- End Call Button -->
         <button
           id="endCallBtn"
@@ -238,7 +233,6 @@
     <!-- ================================ -->
 
     <!-- Main app initialization -->
-    <!-- app.js imports all managers (LinkButtonManager, etc.) -->
     <!-- No need to load them separately - ES modules handle dependencies automatically -->
     <!-- Cache busting: Use timestamp to force fresh load -->
     <script type="module" src="js/app.js?v=20250127-003"></script>
@@ -246,8 +240,28 @@
     <!-- End Call Button Handler -->
     <script>
       function endCall() {
-        // Navigate to feedback training report page
-        window.location.href = '/feedback-training-report';
+        console.log('🛑 Ending training - clearing conversation history and browser memory');
+        
+        // Clear conversation history and browser memory before navigating
+        if (window.chatManager) {
+          window.chatManager.clearConversationHistory();
+        } else {
+          // Fallback: clear browser memory directly if chatManager is not available
+          if (typeof BrowserMemory !== 'undefined' && BrowserMemory.initialized) {
+            try {
+              BrowserMemory.clearSession();
+              console.log('🧠 Browser memory cleared');
+            } catch (error) {
+              console.warn('⚠️ Failed to clear browser memory session:', error);
+            }
+          }
+        }
+        
+        // Small delay to ensure cleanup completes before navigation
+        setTimeout(() => {
+          // Navigate to feedback training report page
+          window.location.href = '/feedback-training-report';
+        }, 100);
       }
     </script>
   </body>

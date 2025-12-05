@@ -48,8 +48,6 @@ export class UIManager {
 
     // Update status indicator to knowledge base mode
     this.updateClaudeStatus('Searching...', 'knowledge-base');
-
-    console.log('🧠 Knowledge base thinking bubble shown:', message);
   }
 
   hideKnowledgeBaseThinking(delay = 8000) {
@@ -66,7 +64,6 @@ export class UIManager {
         kbThinking.classList.remove('visible');
       }
 
-      console.log('🧠 Knowledge base thinking bubble hidden after delay');
       this.knowledgeBaseThinkingTimeout = null;
     }, delay);
   }
@@ -84,8 +81,6 @@ export class UIManager {
     if (kbThinking) {
       kbThinking.classList.remove('visible');
     }
-
-    console.log('🧠 Knowledge base thinking bubble hidden immediately');
   }
 
   // Method to update the thinking bubble text
@@ -95,7 +90,6 @@ export class UIManager {
     );
     if (kbText) {
       kbText.textContent = text;
-      console.log('🧠 Knowledge base thinking text updated:', text);
     }
   }
 
@@ -105,7 +99,6 @@ export class UIManager {
   updateStatus(message) {
     const statusElement = document.getElementById('status');
     statusElement.textContent = message;
-    console.log(message);
   }
 
   // =====================================================
@@ -193,8 +186,6 @@ export class UIManager {
 
     // Update status indicator to events mode
     this.updateClaudeStatus('Checking events...', 'knowledge-base');
-
-    console.log('📅 Events thinking bubble shown:', message);
   }
 
   hideEventsThinking(delay = 3000) {
@@ -211,7 +202,6 @@ export class UIManager {
         eventsThinking.classList.remove('visible');
       }
 
-      console.log('📅 Events thinking bubble hidden after delay');
       this.eventsThinkingTimeout = null;
     }, delay);
   }
@@ -228,8 +218,6 @@ export class UIManager {
     if (eventsThinking) {
       eventsThinking.classList.remove('visible');
     }
-
-    console.log('📅 Events thinking bubble hidden immediately');
   }
 
   updateEventsThinkingText(text) {
@@ -238,7 +226,6 @@ export class UIManager {
     );
     if (eventsText) {
       eventsText.textContent = text;
-      console.log('📅 Events thinking text updated:', text);
     }
   }
 

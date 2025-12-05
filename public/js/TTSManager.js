@@ -4,7 +4,6 @@ export class TTSManager {
     this.audioContext = null;
     this.configManager = null;
     this.voiceStateManager = null;
-    this.idleTimerManager = null;
     this.speechBubbleManager = null;
     this.animationManager = null;
     this.uiManager = null;
@@ -28,7 +27,6 @@ export class TTSManager {
     isLoaded,
     configManager,
     voiceStateManager,
-    idleTimerManager,
     speechBubbleManager,
     animationManager = null,
     uiManager = null
@@ -37,7 +35,6 @@ export class TTSManager {
     this.isLoaded = isLoaded;
     this.configManager = configManager;
     this.voiceStateManager = voiceStateManager;
-    this.idleTimerManager = idleTimerManager;
     this.speechBubbleManager = speechBubbleManager;
     this.animationManager = animationManager;
     this.uiManager = uiManager;
@@ -52,12 +49,22 @@ export class TTSManager {
   // TEXT PREPROCESSING
   // =====================================================
   cleanTextForTTS(text) {
-    // Remove thinking tags <t>...</t> - these are for audit/debugging only, not for TTS
-    // Remove emojis from text before sending to TTS (comprehensive emoji removal)
-    const cleanText = text
-      // Remove thinking tags <t>...</t> (including multiline content)
-      .replace(/<t>[\s\S]*?<\/t>/gi, '') // Remove <t>...</t> tags and their content
-      // Remove all emoji ranges
+    if (!text || typeof text !== 'string') {
+      return '';
+    }
+
+    // Filter out content inside <t></t> tags - only use content outside these tags
+    // Remove properly closed <t>...</t> tags and their content
+    let contentOutsideTags = text
+      .replace(/<t>[\s\S]*?<\/t>/gi, '')
+      // Also handle unclosed <t> tags (remove everything from <t> to end if no closing tag)
+      .replace(/<t>[\s\S]*$/gi, '')
+      // Remove standalone opening <t> tags without content
+      .replace(/<t>\s*$/gi, '')
+      .trim();
+
+    // Remove all emoji ranges from the text
+    let cleaned = contentOutsideTags
       .replace(/[\u{1F600}-\u{1F64F}]/gu, '') // Emoticons
       .replace(/[\u{1F300}-\u{1F5FF}]/gu, '') // Misc Symbols and Pictographs
       .replace(/[\u{1F680}-\u{1F6FF}]/gu, '') // Transport and Map
@@ -73,7 +80,7 @@ export class TTSManager {
       .replace(/\s+/g, ' ')
       .trim();
 
-    return cleanText;
+    return cleaned;
   }
 
   // =====================================================
@@ -163,12 +170,6 @@ export class TTSManager {
       };
 
       try {
-        console.log(
-          `🎤 Calling ElevenLabs TTS API (streaming) for "${cleanText.substring(
-            0,
-            50
-          )}..."`
-        );
         const apiStartTime = Date.now();
 
         const response = await fetch(endpoint, {
@@ -181,13 +182,7 @@ export class TTSManager {
           throw new Error(`ElevenLabs API error: ${response.status}`);
         }
 
-        // OPTIMIZATION: Start processing as soon as we get response headers
-        const firstByteTime = Date.now() - apiStartTime;
-        console.log(`⚡ First byte received in ${firstByteTime}ms`);
-
         const data = await response.json();
-        const totalApiTime = Date.now() - apiStartTime;
-        console.log(`⚡ Full API response received in ${totalApiTime}ms`);
 
         if (!data.success) {
           throw new Error(data.error || 'ElevenLabs TTS API call failed');
@@ -195,11 +190,6 @@ export class TTSManager {
 
         // Mark as streaming if server indicates it
         data.streaming = requestBody.stream || false;
-        console.log(
-          `🎵 ElevenLabs Response: ${
-            data.streaming ? 'STREAMING' : 'standard'
-          }, ${data.duration}s duration`
-        );
         return data;
       } catch (error) {
         console.error('❌ ElevenLabs TTS error:', error);
@@ -222,13 +212,6 @@ export class TTSManager {
       };
 
       try {
-        console.log(
-          `🎤 Calling Polly TTS API: ${endpoint} for "${cleanText.substring(
-            0,
-            50
-          )}..."`
-        );
-
         const response = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -255,13 +238,7 @@ export class TTSManager {
           const syncInfo = data.lipSync.isSynchronized
             ? 'synchronized'
             : 'basic';
-          console.log(
-            `🎵 TTS Response: ${timingType} timing, ${syncInfo} lip sync, ${data.duration}s duration`
-          );
         } else {
-          console.log(
-            `🎵 TTS Response: audio-driven lip sync (no visemes), ${data.duration}s duration`
-          );
         }
 
         return data;
@@ -296,18 +273,12 @@ export class TTSManager {
     // OPTIMIZATION: Resume audio context if suspended (browser autoplay policy)
     if (this.audioContext.state === 'suspended') {
       await this.audioContext.resume();
-      console.log('⚡ Audio context resumed');
     }
 
     let audioBuffer = await this.base64ToAudioBuffer(data.audio);
-    const decodeTime = Date.now() - decodeStartTime;
-    console.log(`⚡ Audio decoded in ${decodeTime}ms`);
 
     // Boost volume for better audibility (2x gain = +6dB)
-    const boostStartTime = Date.now();
     audioBuffer = this.boostAudioVolume(audioBuffer, 2.0);
-    const boostTime = Date.now() - boostStartTime;
-    console.log(`⚡ Audio boosted in ${boostTime}ms (2x gain = +6dB)`);
 
     // Get ACTUAL audio duration from decoded buffer (most accurate)
     const actualAudioDuration = audioBuffer.duration; // in seconds
@@ -326,34 +297,12 @@ export class TTSManager {
       !data.lipSync;
 
     if (hasServerVisemes) {
-      const uniqueVisemes = [...new Set(lipSync.visemes)];
-      console.log(
-        '🎤 Using server-generated phonetic visemes (better control, smoother lip sync)'
-      );
-      console.log(
-        `💋 Viseme variety: ${
-          uniqueVisemes.length
-        } unique visemes [${uniqueVisemes.join(', ')}]`
-      );
-      console.log(
-        `💋 Total visemes: ${
-          lipSync.visemes.length
-        }, First 5: [${lipSync.visemes.slice(0, 5).join(', ')}]`
-      );
-
       // CRITICAL FIX: Rescale visemes to match ACTUAL audio duration
       // Server duration estimate may be inaccurate, causing visemes to finish too early
       const durationScaleFactor = actualAudioDuration / serverEstimatedDuration;
 
       if (Math.abs(durationScaleFactor - 1.0) > 0.05) {
         // Only scale if difference > 5%
-        console.log(`⏱️ Duration mismatch detected! Rescaling visemes:`);
-        console.log(
-          `   Server estimate: ${serverEstimatedDuration.toFixed(3)}s`
-        );
-        console.log(`   Actual duration: ${actualAudioDuration.toFixed(3)}s`);
-        console.log(`   Scale factor: ${durationScaleFactor.toFixed(3)}x`);
-
         // Scale all viseme timings to match actual audio duration
         const scaledVtimes = (lipSync.visemeTimes || []).map(
           (t) => t * durationScaleFactor
@@ -378,12 +327,6 @@ export class TTSManager {
           vdurations: scaledVdurations,
           actualDuration: actualAudioDuration, // Store for fallback timers
         };
-      } else {
-        console.log(
-          `⏱️ Duration match: ${actualAudioDuration.toFixed(
-            3
-          )}s (server: ${serverEstimatedDuration.toFixed(3)}s)`
-        );
       }
 
       // Use server-generated visemes for better control (no scaling needed)
@@ -398,9 +341,6 @@ export class TTSManager {
         actualDuration: actualAudioDuration, // Store for fallback timers
       };
     } else if (isAudioDriven || !data.lipSync) {
-      console.log(
-        '🎤 Using audio-driven lip sync (TalkingHead will analyze audio)'
-      );
       // Fallback: let TalkingHead analyze audio (less ideal)
       // Handle case where lipSync is missing or undefined
       return {
@@ -411,7 +351,6 @@ export class TTSManager {
         // NO viseme properties - TalkingHead will generate from audio
       };
     } else {
-      console.log('🎤 Using viseme-based lip sync (Polly data)');
       return {
         audio: audioBuffer,
         words: lipSync.words || [],
@@ -445,7 +384,6 @@ export class TTSManager {
       this.audioContext
         .resume()
         .then(() => {
-          console.log('✅ Audio context resumed in playSpeechWithLipSync');
           this.actuallyPlayAudio(audioObject, cleanText, data);
         })
         .catch((error) => {
@@ -462,7 +400,6 @@ export class TTSManager {
           this.audioContext = new (
             window.AudioContext || window.webkitAudioContext
           )();
-          console.log('✅ Created new audio context, retrying playback');
           this.actuallyPlayAudio(audioObject, cleanText, data);
         });
       return;
@@ -490,24 +427,11 @@ export class TTSManager {
       data.duration &&
       Math.abs(actualAudioDuration - data.duration) > 0.1
     ) {
-      console.log(
-        `⏱️ Using actual audio duration: ${actualAudioDuration.toFixed(
-          3
-        )}s (was ${data.duration.toFixed(3)}s)`
-      );
       data.duration = actualAudioDuration; // Update for fallback timers
     }
 
     // Mark as speaking
     this.isSpeaking = true;
-
-    // Notify idle timer manager that we're speaking
-    if (
-      this.idleTimerManager &&
-      typeof this.idleTimerManager.setSpeaking === 'function'
-    ) {
-      this.idleTimerManager.setSpeaking(true);
-    }
 
     // Hide knowledge base thinking bubble immediately when TTS starts
     if (this.uiManager) {
@@ -524,7 +448,6 @@ export class TTSManager {
       window.speechRecognitionManager &&
       window.speechRecognitionManager.isRecording
     ) {
-      console.log('🎤 Stopping voice recognition during TTS playback');
       window.speechRecognitionManager.stopVoiceRecognition();
     }
 
@@ -542,99 +465,23 @@ export class TTSManager {
       }
     }
 
-    // Enhanced speech data logging for debugging
-    const speechInfo = {
-      duration: data.duration,
-      wordCount: (data.lipSync?.words || []).length,
-      visemeCount: (data.lipSync?.visemes || []).length,
-      hasOnComplete: typeof this.head.speakAudio === 'function',
-      streaming: data.streaming || false, // Should be true if streaming enabled
-      synchronized: data.lipSync?.isSynchronized || false,
-      timingType: data.streaming ? 'estimated' : 'precise',
-      speedRate: data.lipSync?.speedRate || 100,
-      actualAudioDuration: data.duration,
-      estimatedDuration: data.lipSync?.estimatedDuration || data.duration,
-    };
-
-    console.log('🎤 Speech playback starting:', speechInfo);
     if (!data.streaming) {
       console.warn(
         '⚠️ Streaming is disabled - audio will wait for full buffer'
       );
     }
 
-    // Log lip sync timing details
-    const lipSync = data.lipSync || {};
-    if (lipSync.wordTimes && lipSync.wordTimes.length > 0) {
-      const firstWordTime = lipSync.wordTimes[0];
-      const lastWordTime = lipSync.wordTimes[lipSync.wordTimes.length - 1];
-      const lastWordDuration =
-        lipSync.wordDurations && lipSync.wordDurations.length > 0
-          ? lipSync.wordDurations[lipSync.wordDurations.length - 1]
-          : 500;
-      const totalLipSyncTime = lastWordTime + lastWordDuration;
-
-      console.log('💋 Lip sync timing:', {
-        firstWord:
-          lipSync.words && lipSync.words.length > 0
-            ? `"${lipSync.words[0]}" at ${firstWordTime}ms`
-            : 'N/A',
-        lastWord:
-          lipSync.words && lipSync.words.length > 0
-            ? `"${
-                lipSync.words[lipSync.words.length - 1]
-              }" at ${lastWordTime}ms`
-            : 'N/A',
-        totalLipSyncDuration: `${totalLipSyncTime}ms (${
-          totalLipSyncTime / 1000
-        }s)`,
-        audioDuration: `${data.duration * 1000}ms (${data.duration}s)`,
-        timingDiff: `${Math.abs(totalLipSyncTime - data.duration * 1000)}ms`,
-      });
-    }
-
     // Record start time for monitoring
     const speechStartTime = Date.now();
-
-    // Debug: Log what we're sending to TalkingHead
-    console.log('🎤 TalkingHead Input Debug:', {
-      hasVisemes: !!audioObject.visemes,
-      visemeCount: audioObject.visemes?.length || 0,
-      hasVtimes: !!audioObject.vtimes,
-      hasVdurations: !!audioObject.vdurations,
-      first5Visemes: audioObject.visemes?.slice(0, 5) || 'N/A',
-      first5Times: audioObject.vtimes?.slice(0, 5) || 'N/A',
-      first5Durations: audioObject.vdurations?.slice(0, 5) || 'N/A',
-      uniqueVisemes: audioObject.visemes
-        ? [...new Set(audioObject.visemes)].slice(0, 10)
-        : 'N/A',
-      wordCount: audioObject.words?.length || 0,
-      audioBufferLength: audioObject.audio?.length || 0,
-    });
 
     // Primary method: Use TalkingHead's onComplete callback (most reliable)
     // For audio-driven lip sync, TalkingHead will analyze the audio automatically
     const speakOptions = {
       lipsyncLang: 'en',
       onComplete: () => {
-        const actualDuration = Date.now() - speechStartTime;
-        console.log(
-          `🎤 Speech completed via onComplete callback after ${actualDuration}ms (expected: ${
-            data.duration * 1000
-          }ms)`
-        );
-
         // Mark as not speaking
         this.isSpeaking = false;
         this.currentAudioSource = null;
-
-        // Notify idle timer manager that we're done speaking
-        if (
-          this.idleTimerManager &&
-          typeof this.idleTimerManager.setSpeaking === 'function'
-        ) {
-          this.idleTimerManager.setSpeaking(false);
-        }
 
         // Clean up our monitoring timers
         if (this.cleanupCurrentTimers) {
@@ -648,7 +495,6 @@ export class TTSManager {
           !window.speechRecognitionManager.isRecording
         ) {
           setTimeout(() => {
-            console.log('🎤 Restarting voice recognition after TTS');
             window.speechRecognitionManager.startVoiceRecognition();
           }, 500); // Small delay to ensure TTS is fully stopped
         }
@@ -671,14 +517,6 @@ export class TTSManager {
         this.isSpeaking = false;
         this.currentAudioSource = null;
 
-        // Notify idle timer manager that we're done speaking
-        if (
-          this.idleTimerManager &&
-          typeof this.idleTimerManager.setSpeaking === 'function'
-        ) {
-          this.idleTimerManager.setSpeaking(false);
-        }
-
         // Clean up our monitoring timers
         if (this.cleanupCurrentTimers) {
           this.cleanupCurrentTimers();
@@ -691,7 +529,6 @@ export class TTSManager {
           !window.speechRecognitionManager.isRecording
         ) {
           setTimeout(() => {
-            console.log('🎤 Restarting voice recognition after TTS error');
             window.speechRecognitionManager.startVoiceRecognition();
           }, 500);
         }
@@ -714,11 +551,9 @@ export class TTSManager {
       console.error(
         '❌ CRITICAL: AudioContext is suspended - audio will not play!'
       );
-      console.error('Attempting to resume AudioContext...');
       this.audioContext
         .resume()
         .then(() => {
-          console.log('✅ AudioContext resumed, calling speakAudio');
           this.head.speakAudio(audioObject, speakOptions);
         })
         .catch((error) => {
@@ -737,13 +572,7 @@ export class TTSManager {
     } else {
       // AudioContext is running, proceed normally
       try {
-        console.log(
-          `🔊 Calling speakAudio (AudioContext state: ${
-            this.audioContext?.state || 'unknown'
-          })`
-        );
         this.head.speakAudio(audioObject, speakOptions);
-        console.log('✅ speakAudio called successfully');
       } catch (error) {
         console.error('❌ speakAudio threw error:', error);
         if (speakOptions.onError) {
@@ -763,13 +592,7 @@ export class TTSManager {
     const speechDuration = duration * 1000; // Convert to milliseconds
 
     // Fallback method: Timeout based on estimated duration (in case onComplete fails)
-    console.log(`🎤 Setting timeout fallback for ${speechDuration + 1000}ms`);
     const fallbackTimeout = setTimeout(() => {
-      const elapsed = Date.now() - speechStartTime;
-      console.log(
-        `🎤 Speech completed via timeout fallback after ${elapsed}ms (expected: ${speechDuration}ms)`
-      );
-
       // Mark as not speaking
       this.isSpeaking = false;
       this.currentAudioSource = null;
@@ -781,7 +604,6 @@ export class TTSManager {
         !window.speechRecognitionManager.isRecording
       ) {
         setTimeout(() => {
-          console.log('🎤 Restarting voice recognition after TTS timeout');
           window.speechRecognitionManager.startVoiceRecognition();
         }, 500);
       }
@@ -803,14 +625,6 @@ export class TTSManager {
       }
 
       const elapsed = Date.now() - startTime;
-      const progressPercent = ((elapsed / speechDuration) * 100).toFixed(1);
-
-      // Log progress every 2 seconds or at key milestones
-      if (elapsed % 2000 < 1000 || progressPercent >= 90) {
-        console.log(
-          `🎤 Speech monitor: ${elapsed}ms elapsed (${progressPercent}% of ${speechDuration}ms)`
-        );
-      }
 
       // Check if we've exceeded expected duration significantly
       if (elapsed > speechDuration + 3000) {
@@ -853,11 +667,8 @@ export class TTSManager {
   // =====================================================
   interruptSpeech() {
     if (!this.isSpeaking) {
-      console.log('🔇 No speech to interrupt');
       return false;
     }
-
-    console.log('🛑 Interrupting current speech');
 
     // Stop TalkingHead speech if possible
     if (this.head && this.head.stopSpeaking) {
@@ -868,7 +679,6 @@ export class TTSManager {
     if (this.currentAudioSource) {
       try {
         this.currentAudioSource.stop();
-        console.log('🔇 Audio source stopped');
       } catch (error) {
         console.warn('⚠️ Could not stop audio source:', error);
       }
@@ -894,7 +704,6 @@ export class TTSManager {
     // Reset speaking state
     this.isSpeaking = false;
 
-    console.log('✅ Speech interrupted successfully');
     return true;
   }
 
@@ -907,40 +716,34 @@ export class TTSManager {
       return false;
     }
 
-    // Reset idle timer when avatar starts speaking
-    if (this.idleTimerManager) {
-      this.idleTimerManager.resetIdleTimer();
-    }
-
     // Clean text for TTS
     const cleanText = this.cleanTextForTTS(text);
 
-    // Don't speak if only emojis were in the text
-    if (!cleanText) {
-      console.warn('No clean text to speak after emoji removal');
+    // Don't speak if only emojis or thinking tags were in the text
+    if (!cleanText || cleanText.length === 0) {
+      console.warn('⚠️ No clean text to speak after cleaning:', {
+        originalLength: text?.length || 0,
+        originalPreview: text?.substring(0, 100) || 'N/A',
+        cleanedLength: cleanText?.length || 0,
+        cleanedPreview: cleanText || 'N/A',
+      });
       return false;
     }
 
     try {
-      // OPTIMIZATION: Track timing to identify bottlenecks
       const ttsStartTime = Date.now();
-      console.log(`⚡ TTS request started at ${new Date().toISOString()}`);
 
       // CRITICAL: Initialize and resume AudioContext BEFORE API call
       if (!this.audioContext) {
         this.audioContext = new (
           window.AudioContext || window.webkitAudioContext
         )();
-        console.log(
-          `🔊 Created new AudioContext (state: ${this.audioContext.state})`
-        );
       }
 
       // CRITICAL: Resume AudioContext on user interaction (required by browser autoplay policy)
       if (this.audioContext.state === 'suspended') {
         try {
           await this.audioContext.resume();
-          console.log('✅ Audio context resumed for TTS (before API call)');
         } catch (error) {
           console.error('❌ CRITICAL: Failed to resume audio context:', error);
           // Try to create a new context
@@ -952,23 +755,11 @@ export class TTSManager {
           this.audioContext = new (
             window.AudioContext || window.webkitAudioContext
           )();
-          console.log('✅ Created new audio context after resume failure');
         }
-      } else {
-        console.log(
-          `✅ AudioContext already running (state: ${this.audioContext.state})`
-        );
       }
 
       // Call TTS API
       const data = await this.callTTSAPI(cleanText);
-      const apiTime = Date.now() - ttsStartTime;
-      console.log(`⚡ TTS API response received in ${apiTime}ms`);
-      console.log(
-        `⏱️ [TIMING] ElevenLabs API call took ${apiTime}ms (${(
-          apiTime / 1000
-        ).toFixed(2)}s)`
-      );
 
       if (data.success) {
         // CRITICAL: Double-check AudioContext state before creating audio object
@@ -976,7 +767,6 @@ export class TTSManager {
           console.warn('⚠️ AudioContext suspended after API call, resuming...');
           try {
             await this.audioContext.resume();
-            console.log('✅ Audio context resumed after API call');
           } catch (error) {
             console.error(
               '❌ Failed to resume audio context after API call:',
@@ -987,21 +777,6 @@ export class TTSManager {
 
         // OPTIMIZATION: Create audio object and start playback ASAP
         const audioObject = await this.createAudioObject(data);
-        const totalTime = Date.now() - ttsStartTime;
-        console.log(
-          `⚡ Audio ready and starting playback in ${totalTime}ms total`
-        );
-        console.log(
-          `⚡ Breakdown: API=${apiTime}ms, Processing=${totalTime - apiTime}ms`
-        );
-        console.log(
-          `⏱️ [TIMING] TTS processing breakdown: API=${apiTime}ms, Audio decode=${
-            totalTime - apiTime
-          }ms`
-        );
-        console.log(
-          `🔊 AudioContext state before playback: ${this.audioContext.state}`
-        );
 
         // Verify audio object is valid
         if (!audioObject || !audioObject.audio) {
@@ -1053,11 +828,6 @@ export class TTSManager {
       this.audioContext = new (
         window.AudioContext || window.webkitAudioContext
       )();
-      console.log(
-        '🔥 AudioContext pre-warmed (state:',
-        this.audioContext.state,
-        ')'
-      );
     }
     return this.audioContext;
   }

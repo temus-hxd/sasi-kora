@@ -30,8 +30,6 @@ class AnimationManager {
         triggers: ['dance', 'music', 'celebration', 'party', 'fun'],
       },
     };
-
-    console.log('🎭 AnimationManager initialized');
   }
 
   /**
@@ -39,8 +37,6 @@ class AnimationManager {
    */
   initialize(talkingHeadInstance) {
     this.head = talkingHeadInstance;
-    console.log('🎭 AnimationManager connected to TalkingHead');
-
     // Start with idle animation
     this.triggerAnimation('idle');
   }
@@ -60,7 +56,6 @@ class AnimationManager {
     }
 
     try {
-      console.log(`🎭 Loading animation: ${animationName}`);
       this.isLoading = true;
 
       // For now, we'll use TalkingHead's built-in animation system
@@ -72,7 +67,6 @@ class AnimationManager {
       };
 
       this.animations.set(animationName, animationData);
-      console.log(`✅ Animation "${animationName}" loaded successfully`);
 
       return animationData;
     } catch (error) {
@@ -104,7 +98,6 @@ class AnimationManager {
     }
 
     try {
-      console.log(`🎭 Triggering animation: ${animationName}`);
       this.currentAnimation = animationName;
 
       // Map our animations to TalkingHead poses/moods
@@ -145,7 +138,6 @@ class AnimationManager {
   analyzeAndTrigger(text) {
     if (!text) return;
 
-    console.log(`🎭 AnimationManager analyzing text: "${text}"`);
     const lowerText = text.toLowerCase();
 
     // Check for dance emojis first
@@ -155,7 +147,6 @@ class AnimationManager {
       text.includes('🎵') ||
       text.includes('🎉')
     ) {
-      console.log('🎭 Dance emoji detected, triggering dance animation');
       this.triggerAnimation('dance');
       return;
     }
@@ -173,7 +164,6 @@ class AnimationManager {
       lowerText.includes('shimmy') ||
       lowerText.includes('bust out')
     ) {
-      console.log('🎭 Dance keyword detected, triggering dance animation');
       this.triggerAnimation('dance');
       return;
     }
@@ -185,14 +175,12 @@ class AnimationManager {
       lowerText.includes('welcome') ||
       lowerText.includes('greet')
     ) {
-      console.log('🎭 Greeting detected, triggering talking animation');
       this.triggerAnimation('talking');
       return;
     }
 
     // Default to talking animation for responses
     if (text.length > 20) {
-      console.log('🎭 Long text detected, triggering talking animation');
       this.triggerAnimation('talking');
     }
   }
@@ -203,8 +191,6 @@ class AnimationManager {
   danceSequence() {
     if (!this.head) return;
 
-    console.log('🎭 Starting dance sequence!');
-
     // Set excited mood for dancing
     this.head.setMood('excited');
 
@@ -213,11 +199,9 @@ class AnimationManager {
 
     // Start with first pose
     this.head.setPose(poses[currentPose]);
-    console.log(`🎭 Dance pose: ${poses[currentPose]}`);
 
     const danceInterval = setInterval(() => {
       if (this.currentAnimation !== 'dance') {
-        console.log('🎭 Dance sequence interrupted');
         clearInterval(danceInterval);
         return;
       }
@@ -225,12 +209,10 @@ class AnimationManager {
       // Move to next pose
       currentPose = (currentPose + 1) % poses.length;
       this.head.setPose(poses[currentPose]);
-      console.log(`🎭 Dance pose: ${poses[currentPose]}`);
     }, 800); // Change pose every 800ms for more dynamic movement
 
     // Stop dance sequence after animation duration
     setTimeout(() => {
-      console.log('🎭 Dance sequence ending');
       clearInterval(danceInterval);
       this.head.setPose('straight'); // Return to normal pose
       this.head.setMood('neutral'); // Return to neutral mood
@@ -271,13 +253,10 @@ class AnimationManager {
    * Preload all animations
    */
   async preloadAnimations() {
-    console.log('🎭 Preloading animations...');
-
     const animationNames = Object.keys(this.animationConfig);
     const loadPromises = animationNames.map((name) => this.loadAnimation(name));
 
     await Promise.all(loadPromises);
-    console.log('✅ All animations preloaded');
   }
 }
 

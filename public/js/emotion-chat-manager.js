@@ -14,7 +14,6 @@ export class EmotionChatManager {
     this.emojiManager = null;
     this.speechBubbleManager = null;
     this.uiManager = null;
-    this.idleTimerManager = null;
     this.head = null;
   }
 
@@ -23,14 +22,12 @@ export class EmotionChatManager {
     emojiManager,
     speechBubbleManager,
     uiManager,
-    idleTimerManager,
     head,
   }) {
     this.ttsManager = ttsManager;
     this.emojiManager = emojiManager;
     this.speechBubbleManager = speechBubbleManager;
     this.uiManager = uiManager;
-    this.idleTimerManager = idleTimerManager;
     this.head = head;
   }
 
@@ -45,11 +42,6 @@ export class EmotionChatManager {
     // Update TTS manager with the last user message
     if (this.ttsManager) {
       this.ttsManager.setLastUserMessage(message);
-    }
-
-    // Reset idle timer on user interaction
-    if (this.idleTimerManager) {
-      this.idleTimerManager.resetIdleTimer();
     }
 
     this.uiManager?.updateClaudeStatus('Thinking...', 'thinking');

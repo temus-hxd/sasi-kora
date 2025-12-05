@@ -44,10 +44,6 @@ class ConfettiManager {
       'outstanding',
       'superb',
     ];
-
-    console.log(
-      '🎊 ConfettiManager initialized - Appreciation detection active'
-    );
   }
 
   /**
@@ -189,7 +185,3 @@ const CONFETTI_ENABLED = true; // Change to false to disable
 // Export for use in other modules
 window.ConfettiManager = ConfettiManager;
 window.CONFETTI_ENABLED = CONFETTI_ENABLED;
-
-console.log(
-  '🎊 ConfettiManager class loaded - Ready for appreciation detection!'
-);

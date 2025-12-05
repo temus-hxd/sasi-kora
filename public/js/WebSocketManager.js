@@ -11,7 +11,6 @@ export class WebSocketManager {
 
     if (this.environment.httpOnly) {
       this.useWebSocket = false;
-      console.log('🌐 HTTP-only mode enabled:', this.environment.reason);
     }
 
     // Callback functions
@@ -44,16 +43,6 @@ export class WebSocketManager {
     this.onLoading = onLoading;
     this.onKnowledgeBaseThinking = onKnowledgeBaseThinking;
     this.onEventsThinking = onEventsThinking;
-
-    // Debug logging for Vercel
-    console.log('🔌 WebSocket callbacks set:', {
-      onStatusUpdate: !!onStatusUpdate,
-      onMessage: !!onMessage,
-      onClaudeResponse: !!onClaudeResponse,
-      onLoading: !!onLoading,
-      onKnowledgeBaseThinking: !!onKnowledgeBaseThinking,
-      onEventsThinking: !!onEventsThinking,
-    });
   }
 
   // =====================================================
@@ -61,7 +50,6 @@ export class WebSocketManager {
   // =====================================================
   initWebSocket() {
     if (!this.useWebSocket) {
-      console.log('🌐 initWebSocket skipped (HTTP-only mode)');
       return;
     }
     try {
@@ -141,9 +129,6 @@ export class WebSocketManager {
 
           // Trigger Checking 💡 animation simultaneously
           if (window.triggerExpression) {
-            console.log(
-              '💡 Triggering Checking animation for knowledge base search'
-            );
             window.triggerExpression('💡');
           }
         } else {
@@ -163,7 +148,6 @@ export class WebSocketManager {
 
           // Trigger Checking 💡 animation simultaneously
           if (window.triggerExpression) {
-            console.log('💡 Triggering Checking animation for events search');
             window.triggerExpression('💡');
           }
         } else {
@@ -342,31 +326,20 @@ export class WebSocketManager {
 
       // Show knowledge base thinking bubble if library keywords detected
       if (containsLibraryKeywords && this.onKnowledgeBaseThinking) {
-        console.log(
-          '🧠 HTTP: Detected library keywords, showing thinking bubble'
-        );
         this.onKnowledgeBaseThinking(true, 'give me a moment while i check');
 
         // Trigger Checking 💡 animation simultaneously
         if (window.triggerExpression) {
-          console.log(
-            '💡 HTTP: Triggering Checking animation for knowledge base search'
-          );
           window.triggerExpression('💡');
         }
       }
 
       // Show events thinking bubble if events keywords detected
       if (containsEventsKeywords && this.onEventsThinking) {
-        console.log('📅 HTTP: Detected events keywords in message:', message);
-        console.log('📅 HTTP: Showing events thinking bubble');
         this.onEventsThinking(true, 'let me check the calendar');
 
         // Trigger Checking 💡 animation simultaneously
         if (window.triggerExpression) {
-          console.log(
-            '💡 HTTP: Triggering Checking animation for events search'
-          );
           window.triggerExpression('💡');
         }
       }
@@ -398,10 +371,8 @@ export class WebSocketManager {
       // Hide knowledge base thinking bubble after response (with delay if knowledge base was used)
       if (containsLibraryKeywords && this.onKnowledgeBaseThinking) {
         if (data.usedKnowledgeBase) {
-          console.log('🧠 HTTP: Knowledge base was used, hiding with delay');
           this.onKnowledgeBaseThinking(false, 'delayed');
         } else {
-          console.log('🧠 HTTP: Knowledge base not used, hiding immediately');
           this.onKnowledgeBaseThinking(false, 'immediate');
         }
       }
@@ -418,10 +389,8 @@ export class WebSocketManager {
               data.response.toLowerCase().includes('activity')));
 
         if (eventsWasUsed) {
-          console.log('📅 HTTP: Events was used, hiding with delay');
           this.onEventsThinking(false, 'delayed');
         } else {
-          console.log('📅 HTTP: Events not used, hiding immediately');
           this.onEventsThinking(false, 'immediate');
         }
       }
@@ -567,7 +536,6 @@ export class WebSocketManager {
   // =====================================================
   connect() {
     if (!this.useWebSocket) {
-      console.log('🌐 connect() skipped - HTTP-only mode');
       return;
     }
     this.initWebSocket();
@@ -626,7 +594,6 @@ export class WebSocketManager {
     }
     this.isConnected = false;
     this.useWebSocket = false;
-    console.log('🌐 WebSocket disabled:', reason);
   }
 
   // =====================================================

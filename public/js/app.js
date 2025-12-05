@@ -1,8 +1,6 @@
 // Import modules
 import { EmojiManager } from './EmojiManager.js';
-import { LinkButtonManager } from './LinkButtonManager.js';
 import { VoiceStateManager } from './VoiceStateManager.js';
-import { IdleTimerManager } from './IdleTimerManager.js';
 import { ConfigManager } from './ConfigManager.js';
 import { UIManager } from './UIManager.js';
 import { SpeechBubbleManager } from './SpeechBubbleManager.js';
@@ -18,10 +16,8 @@ import { AvatarManager } from './AvatarManager.js';
 // Avatar variables moved to AvatarManager
 
 // Manager instances
-let linkButtonManager = null;
 let emojiManager = null;
 let voiceStateManager = null;
-let idleTimerManager = null;
 let configManager = null;
 let uiManager = null;
 let speechBubbleManager = null;
@@ -67,10 +63,8 @@ async function initializeApp() {
   ttsManager = new TTSManager();
   configManager = new ConfigManager();
   configManager.setUIManager(uiManager); // Allow ConfigManager to update UI on errors
-  idleTimerManager = new IdleTimerManager();
   voiceStateManager = new VoiceStateManager();
   emojiManager = new EmojiManager();
-  linkButtonManager = new LinkButtonManager();
   webSocketManager = new WebSocketManager();
   chatManager = new ChatManager();
 
@@ -93,7 +87,6 @@ async function initializeApp() {
   if (window.CONFETTI_ENABLED && window.ConfettiManager) {
     confettiManager = new window.ConfettiManager();
     window.confettiManager = confettiManager; // Make globally accessible
-    console.log('🎊 ConfettiManager initialized - Ready for appreciation!');
   } else {
     console.log('🎊 ConfettiManager disabled or not loaded');
   }
@@ -102,7 +95,6 @@ async function initializeApp() {
   let animationManager = null;
   if (window.AnimationManager) {
     animationManager = new window.AnimationManager();
-    console.log('🎭 AnimationManager created:', animationManager);
   } else {
     console.warn('⚠️ AnimationManager not available on window');
   }
@@ -112,10 +104,8 @@ async function initializeApp() {
   avatarManager.setDependencies({
     configManager,
     uiManager,
-    idleTimerManager,
     voiceStateManager,
     emojiManager,
-    linkButtonManager,
     speechBubbleManager,
     speechRecognitionManager,
     ttsManager,
@@ -135,7 +125,6 @@ async function initializeApp() {
   window.ttsManager = ttsManager;
   window.chatManager = chatManager;
   window.configManager = configManager;
-  window.linkButtonManager = linkButtonManager;
   window.speechRecognitionManager = speechRecognitionManager;
   window.speechBubbleManager = speechBubbleManager;
 
@@ -245,11 +234,22 @@ function initializeLanguageToggle() {
 window.setLanguage = function (language) {
   console.log(`🌐 Switching language to: ${language}`);
 
+  // Get previous language to detect language switch
+  const previousLanguage = localStorage.getItem('app_language') || 'en';
+
   // Save language preference
   localStorage.setItem('app_language', language);
 
   // Update UI
   updateLanguageToggleUI(language);
+
+  // If switching to Chinese, clear conversation history and browser memory
+  if (language === 'cn' && previousLanguage !== 'cn') {
+    console.log('🔄 Switching to Chinese - clearing conversation history and browser memory');
+    if (window.chatManager) {
+      window.chatManager.clearConversationHistory();
+    }
+  }
 
   // Reload config with new language (to get correct voice ID)
   if (window.configManager) {

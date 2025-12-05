@@ -117,7 +117,6 @@ export class SpeechRecognitionManager {
     try {
       // Handle binary data (audio acknowledgments) - ignore
       if (event.data instanceof ArrayBuffer || event.data instanceof Blob) {
-        console.log('📦 [GLADIA] Received binary data (audio acknowledgment)');
         return;
       }
 
@@ -125,120 +124,49 @@ export class SpeechRecognitionManager {
       const message =
         typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
 
-      console.log('📥 [GLADIA] Received message:', {
-        type: message.type,
-        hasData: !!message.data,
-        messageKeys: Object.keys(message),
-      });
+      // Extract transcript data based on message format
+      let transcript = '';
+      let isFinal = false;
 
-      // Handle transcript messages
       if (message.type === 'transcript' && message.data) {
-        const transcript = message.data.utterance?.text || '';
-        const isFinal = message.data.is_final || false;
-        const detectedLanguage =
-          message.data.language || message.data.detected_language || 'unknown';
-        const confidence =
-          message.data.confidence || message.data.confidence_score || 'unknown';
-
-        console.log('🎯 [GLADIA] Transcript received:', {
-          transcript,
-          isFinal,
-          detectedLanguage,
-          confidence,
-          fullMessage: message.data,
-        });
-
-        if (isFinal) {
-          this.finalTranscript = transcript;
-          this.interimTranscript = '';
-
-          console.log('✅ [GLADIA] Final transcript:', {
-            text: transcript,
-            language: detectedLanguage,
-            confidence,
-          });
-
-          // Call callback if provided, otherwise handle directly
-          if (this.onResultCallback) {
-            this.onResultCallback(this.finalTranscript, '');
-          } else {
-            this.handleResult(this.finalTranscript, '');
-          }
-        } else {
-          // Interim result
-          this.interimTranscript = transcript;
-
-          console.log('⏳ [GLADIA] Interim transcript:', {
-            text: transcript,
-            language: detectedLanguage,
-            confidence,
-          });
-
-          if (this.onResultCallback) {
-            this.onResultCallback('', this.interimTranscript);
-          } else {
-            this.handleResult('', this.interimTranscript);
-          }
-        }
+        // Standard Gladia format
+        transcript = message.data.utterance?.text || '';
+        isFinal = message.data.is_final || false;
       } else if (message.type === 'transcription' || message.transcript) {
         // Alternative message format
-        const transcript = message.transcript || message.text || '';
-        const isFinal = message.is_final || message.final || false;
-        const detectedLanguage =
-          message.language || message.detected_language || 'unknown';
-
-        console.log('🎯 [GLADIA] Alternative format transcript:', {
-          transcript,
-          isFinal,
-          detectedLanguage,
-          fullMessage: message,
-        });
-
-        if (isFinal) {
-          this.finalTranscript = transcript;
-          console.log(
-            '✅ [GLADIA] Final transcript (alt format):',
-            transcript,
-            'Language:',
-            detectedLanguage
-          );
-          if (this.onResultCallback) {
-            this.onResultCallback(this.finalTranscript, '');
-          } else {
-            this.handleResult(this.finalTranscript, '');
-          }
-        } else {
-          this.interimTranscript = transcript;
-          console.log(
-            '⏳ [GLADIA] Interim transcript (alt format):',
-            transcript,
-            'Language:',
-            detectedLanguage
-          );
-          if (this.onResultCallback) {
-            this.onResultCallback('', this.interimTranscript);
-          } else {
-            this.handleResult('', this.interimTranscript);
-          }
-        }
+        transcript = message.transcript || message.text || '';
+        isFinal = message.is_final || message.final || false;
       } else {
-        // Log other message types for debugging
-        console.log('ℹ️ [GLADIA] Other message type:', {
-          type: message.type,
-          message: message,
-        });
+        // Unknown message type - ignore
+        return;
+      }
+
+      // Process transcript result
+      if (isFinal) {
+        this.finalTranscript = transcript;
+        this.interimTranscript = '';
+        this.processTranscript(this.finalTranscript, '');
+      } else {
+        this.interimTranscript = transcript;
+        this.processTranscript('', this.interimTranscript);
       }
     } catch (error) {
       // Not JSON or parsing error - might be binary data, ignore
       if (event.data instanceof ArrayBuffer || event.data instanceof Blob) {
         return;
       }
-      console.error(
-        '❌ [GLADIA] Error parsing message:',
-        error,
-        'Raw data:',
-        event.data
-      );
+    }
+  }
+
+  /**
+   * Process transcript result (final or interim)
+   * @private
+   */
+  processTranscript(finalTranscript, interimTranscript) {
+    if (this.onResultCallback) {
+      this.onResultCallback(finalTranscript, interimTranscript);
+    } else {
+      this.handleResult(finalTranscript, interimTranscript);
     }
   }
 
@@ -378,7 +306,6 @@ export class SpeechRecognitionManager {
     this.recognition.lang = 'en-US';
 
     this.recognition.onstart = () => {
-      console.log('🎤 Browser voice recognition started (fallback)');
       this.updateMicButtonState(true);
     };
 
@@ -410,7 +337,6 @@ export class SpeechRecognitionManager {
     };
 
     this.recognition.onend = () => {
-      console.log('🎤 Voice recognition ended');
       this.stopVoiceRecognition();
     };
 
@@ -446,16 +372,10 @@ export class SpeechRecognitionManager {
   async startVoiceRecognition() {
     // Check if avatar is currently speaking - wait for speech to end instead of interrupting
     if (window.ttsManager && window.ttsManager.isSpeaking) {
-      console.log(
-        '⏸️ Avatar is speaking - voice recognition will start after speech ends'
-      );
       // Wait for speech to end, then start
       const checkSpeaking = setInterval(() => {
         if (!window.ttsManager.isSpeaking) {
           clearInterval(checkSpeaking);
-          console.log(
-            '✅ Avatar finished speaking, starting voice recognition'
-          );
           this.startVoiceRecognition();
         }
       }, 500);
@@ -514,7 +434,6 @@ export class SpeechRecognitionManager {
         this.recognition.start();
         this.isRecording = true;
         this.updateMicButtonState(true);
-        console.log('🎤 Browser voice recognition started (fallback)');
       }
 
       // Auto-stop after 10 seconds
@@ -563,9 +482,6 @@ export class SpeechRecognitionManager {
       window.ttsManager.isSpeaking &&
       !this.isRecording
     ) {
-      console.log(
-        '⏸️ Avatar is speaking - cannot start voice recognition. Wait for speech to end.'
-      );
       return;
     }
 

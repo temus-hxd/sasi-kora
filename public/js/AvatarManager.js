@@ -10,10 +10,8 @@ export class AvatarManager {
     // Dependencies (set via dependency injection)
     this.configManager = null;
     this.uiManager = null;
-    this.idleTimerManager = null;
     this.voiceStateManager = null;
     this.emojiManager = null;
-    this.linkButtonManager = null;
     this.speechBubbleManager = null;
     this.speechRecognitionManager = null;
     this.ttsManager = null;
@@ -32,10 +30,8 @@ export class AvatarManager {
   setDependencies({
     configManager,
     uiManager,
-    idleTimerManager,
     voiceStateManager,
     emojiManager,
-    linkButtonManager,
     speechBubbleManager,
     speechRecognitionManager,
     ttsManager,
@@ -47,10 +43,8 @@ export class AvatarManager {
     this.ttsManager = ttsManager;
     this.configManager = configManager;
     this.uiManager = uiManager;
-    this.idleTimerManager = idleTimerManager;
     this.voiceStateManager = voiceStateManager;
     this.emojiManager = emojiManager;
-    this.linkButtonManager = linkButtonManager;
     this.speechBubbleManager = speechBubbleManager;
     this.speechRecognitionManager = speechRecognitionManager;
     this.ttsManager = ttsManager;
@@ -179,28 +173,20 @@ export class AvatarManager {
   // =====================================================
   async initializeOtherManagers() {
     // Initialize managers that depend on avatar
-    this.idleTimerManager?.setDependencies(
-      this.head,
-      this.isLoaded,
-      this.currentMoodRef,
-      this.currentMood,
-      this.chatManager,
-      this.ttsManager
-    );
-
     this.voiceStateManager?.setUpdateStatusFunction(
       this.uiManager?.updateStatus.bind(this.uiManager)
     );
 
-    this.emojiManager?.setDependencies(this.head, this.currentMoodRef, () =>
-      this.idleTimerManager?.resetIdleTimer()
+    this.emojiManager?.setDependencies(
+      this.head,
+      this.currentMoodRef,
+      () => {}
     );
 
     // Initialize AnimationManager with TalkingHead instance
     if (this.animationManager && this.head) {
       this.animationManager.initialize(this.head);
       await this.animationManager.preloadAnimations();
-      console.log('🎭 AnimationManager initialized with avatar');
     }
 
     // Initialize TTS manager with dependencies
@@ -209,7 +195,6 @@ export class AvatarManager {
       this.isLoaded,
       this.configManager,
       this.voiceStateManager,
-      this.idleTimerManager,
       this.speechBubbleManager,
       this.animationManager,
       this.uiManager
@@ -219,10 +204,8 @@ export class AvatarManager {
     this.chatManager?.setDependencies({
       webSocketManager: this.webSocketManager,
       uiManager: this.uiManager,
-      idleTimerManager: this.idleTimerManager,
       ttsManager: this.ttsManager,
       emojiManager: this.emojiManager,
-      linkButtonManager: this.linkButtonManager,
       head: this.head,
       isLoaded: this.isLoaded,
       animationManager: this.animationManager, // Pass AnimationManager to ChatManager
@@ -295,9 +278,6 @@ export class AvatarManager {
 
     // Initialize ChatManager
     this.chatManager?.init();
-
-    // Start idle timer for mood management
-    this.idleTimerManager?.startIdleTimer();
 
     // Initialize voice state
     this.voiceStateManager?.getVoiceState();
@@ -387,17 +367,12 @@ export class AvatarManager {
   // LIGHTING MANAGEMENT
   // =====================================================
   zeroAllLights(scene) {
-    console.log('🌑 ZEROING ALL LIGHTS');
-
     scene.traverse((child) => {
       if (child.isLight && child.intensity !== undefined) {
         const original = child.intensity;
         child.intensity = 0; // Completely off
-        console.log(`💡 ${child.type}: ${original} → 0`);
       }
     });
-
-    console.log('🌑 ALL LIGHTS ZEROED');
   }
 
   // =====================================================
@@ -497,17 +472,12 @@ export class AvatarManager {
   // Pre-warm ElevenLabs TTS system
   async preWarmTTS() {
     try {
-      console.log('🔥 Pre-warming ElevenLabs TTS...');
-
       // Initialize AudioContext early (will be suspended until user interaction, but ready)
       if (this.ttsManager && !this.ttsManager.audioContext) {
         // Create AudioContext (will be suspended, but ready to resume on first user interaction)
         this.ttsManager.audioContext = new (
           window.AudioContext || window.webkitAudioContext
         )();
-        console.log(
-          '✅ AudioContext initialized (suspended until user interaction)'
-        );
       }
 
       // Make a small test API call to warm up the connection
@@ -610,8 +580,6 @@ export class AvatarManager {
         if (window.BrowserMemory) {
           window.BrowserMemory.storeMessage('assistant', greetingMessage);
         }
-
-        console.log('🤝 Automatic greeting sent:', greetingMessage);
       }
     }
   }
@@ -643,7 +611,6 @@ export class AvatarManager {
     // Reset dependencies
     this.configManager = null;
     this.uiManager = null;
-    this.idleTimerManager = null;
     this.voiceStateManager = null;
     this.emojiManager = null;
     this.speechBubbleManager = null;

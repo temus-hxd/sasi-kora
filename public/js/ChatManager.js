@@ -9,10 +9,8 @@ export class ChatManager {
     // Dependencies (set via dependency injection)
     this.webSocketManager = null; // Not used, but kept for compatibility
     this.uiManager = null;
-    this.idleTimerManager = null;
     this.ttsManager = null;
     this.emojiManager = null;
-    this.linkButtonManager = null;
     this.animationManager = null;
 
     // Avatar dependencies
@@ -26,20 +24,16 @@ export class ChatManager {
   setDependencies({
     webSocketManager,
     uiManager,
-    idleTimerManager,
     ttsManager,
     emojiManager,
-    linkButtonManager,
     head,
     isLoaded,
     animationManager,
   }) {
     this.webSocketManager = webSocketManager;
     this.uiManager = uiManager;
-    this.idleTimerManager = idleTimerManager;
     this.ttsManager = ttsManager;
     this.emojiManager = emojiManager;
-    this.linkButtonManager = linkButtonManager;
     this.head = head;
     this.isLoaded = isLoaded;
     this.animationManager = animationManager;
@@ -77,13 +71,27 @@ export class ChatManager {
       this.ttsManager.setLastUserMessage(message);
     }
 
+    // Add user message to conversation history
+    this.conversationHistory.push({
+      role: 'user',
+      content: message,
+      timestamp: new Date().toISOString(),
+    });
+
+    // Save user message to BrowserMemory for persistent storage
+    if (typeof BrowserMemory !== 'undefined' && BrowserMemory.initialized) {
+      try {
+        BrowserMemory.storeMessage('user', message);
+      } catch (error) {
+        console.warn(
+          '⚠️ Failed to store user message in browser memory:',
+          error
+        );
+      }
+    }
+
     messageInput.value = '';
     this.uiManager?.setLoading(true);
-
-    // Reset idle timer on user interaction
-    if (this.idleTimerManager) {
-      this.idleTimerManager.resetIdleTimer();
-    }
 
     this.uiManager?.updateClaudeStatus('Thinking...', 'thinking');
 
@@ -144,6 +152,18 @@ export class ChatManager {
       timestamp: data.timestamp,
     });
 
+    // Save assistant response to BrowserMemory for persistent storage
+    if (typeof BrowserMemory !== 'undefined' && BrowserMemory.initialized) {
+      try {
+        BrowserMemory.storeMessage('assistant', data.response);
+      } catch (error) {
+        console.warn(
+          '⚠️ Failed to store assistant message in browser memory:',
+          error
+        );
+      }
+    }
+
     // Handle response like WebSocket would
     const avatarEmoji = data.avatar_emoji || '😐';
     this.handleClaudeResponse(data.response, avatarEmoji, false, false, null);
@@ -171,7 +191,7 @@ export class ChatManager {
   ) {
     const responseReceivedTime = Date.now();
     console.log('🎭 ChatManager.handleClaudeResponse called with:', {
-      response: response.substring(0, 50) + '...',
+      response: response + '...',
       avatarEmoji,
       usedKnowledgeBase,
       usedEvents: usedEvents || false,
@@ -179,28 +199,18 @@ export class ChatManager {
       timing: timing || 'N/A',
     });
 
-    // ⏱️ TIMING: Log if timing data available
-    if (timing) {
-      console.log(`⏱️ [TIMING] Server timing breakdown:`, timing);
-      console.log(
-        `⏱️ [TIMING] Response received at ${new Date().toISOString()}`
-      );
-    }
-
     // 🚀 PRIORITY 1: START TTS IMMEDIATELY FOR FASTEST RESPONSE
     if (this.autoSpeak && this.head && this.isLoaded && this.ttsManager) {
-      const ttsStartTime = Date.now();
-      console.log('🎤 🚀 Starting TTS IMMEDIATELY (highest priority)');
-      console.log(`⏱️ [TIMING] TTS starting at ${new Date().toISOString()}`);
-
-      // Filter out bracketed content before speaking
-      const filteredResponse = this.linkButtonManager
-        ? this.linkButtonManager.filterBracketedContent(response)
-        : response;
-
       // Track TTS timing (speakText returns a boolean, so we track it differently)
       // The actual TTS timing is logged inside TTSManager
-      this.ttsManager.speakText(filteredResponse);
+      const ttsResult = this.ttsManager.speakText(response);
+      if (!ttsResult) {
+        console.warn('⚠️ TTS failed to start. Response preview:', {
+          responseLength: response?.length || 0,
+          responsePreview: response?.substring(0, 150) || 'N/A',
+          hasTTags: response?.includes('<t>') || false,
+        });
+      }
     }
 
     // PRIORITY 2: Visual processing can happen in parallel while TTS is generating
@@ -211,11 +221,13 @@ export class ChatManager {
     }
 
     // Trigger context-aware animation based on response content (parallel to TTS)
+    // Filter out <t></t> tags to match what the avatar is actually saying
     if (this.animationManager) {
-      console.log(
-        '🎭 Calling animationManager.analyzeAndTrigger (parallel to TTS)'
-      );
-      this.animationManager.analyzeAndTrigger(response);
+      const filteredResponse = response
+        .replace(/<t>[\s\S]*?<\/t>/gi, '')
+        .replace(/<t>[\s\S]*$/gi, '')
+        .trim();
+      this.animationManager.analyzeAndTrigger(filteredResponse);
     } else {
       console.warn('🎭 AnimationManager not available in ChatManager');
     }
@@ -229,12 +241,6 @@ export class ChatManager {
       this.isLoaded
     ) {
       this.emojiManager.triggerEmojiAction(avatarEmoji);
-    }
-
-    // Handle link buttons (parallel to TTS)
-    if (this.linkButtonManager) {
-      console.log('🔗 Processing text for link buttons (parallel to TTS)');
-      this.linkButtonManager.processTextForLinks(response);
     }
   }
 
@@ -282,6 +288,33 @@ export class ChatManager {
     } catch (error) {
       console.error('Failed to clear chat:', error);
     }
+  }
+
+  /**
+   * Clear conversation history and browser memory (used when switching languages)
+   */
+  clearConversationHistory() {
+    // Clear conversation history
+    this.conversationHistory = [];
+    console.log('🗑️ Conversation history cleared');
+
+    // Clear browser memory
+    if (typeof BrowserMemory !== 'undefined' && BrowserMemory.initialized) {
+      try {
+        BrowserMemory.clearSession();
+        console.log('🧠 Browser memory cleared');
+      } catch (error) {
+        console.warn('⚠️ Failed to clear browser memory session:', error);
+      }
+    }
+
+    // Create new conversation ID and save it
+    this.conversationId = 'claude-' + Date.now();
+    localStorage.setItem('chatbot_conversation_id', this.conversationId);
+    console.log('🆔 New conversation ID created:', this.conversationId);
+
+    // Reset emotion state
+    this.emotionState = null;
   }
 
   async reloadPrompt() {
@@ -401,7 +434,6 @@ export class ChatManager {
     // Reset dependencies
     this.webSocketManager = null;
     this.uiManager = null;
-    this.idleTimerManager = null;
     this.ttsManager = null;
     this.emojiManager = null;
     this.head = null;

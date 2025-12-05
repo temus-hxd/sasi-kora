@@ -2,14 +2,13 @@ export class EmojiManager {
   constructor() {
     this.head = null;
     this.currentMood = 'neutral';
-    this.resetIdleTimer = null;
   }
 
   setDependencies(head, currentMoodRef, resetIdleTimerFn) {
     this.head = head;
     this.getCurrentMood = () => currentMoodRef.current;
     this.setCurrentMood = (mood) => (currentMoodRef.current = mood);
-    this.resetIdleTimer = resetIdleTimerFn;
+    // resetIdleTimerFn parameter kept for compatibility but not used
   }
 
   // Emoji to avatar action mapping
@@ -19,49 +18,41 @@ export class EmojiManager {
       this.head.speakEmoji('😊');
       this.head.setMood('happy');
       this.setCurrentMood('happy');
-      this.resetIdleTimer();
     },
     '😢': () => {
       this.head.speakEmoji('😢');
       this.head.setMood('sad');
       this.setCurrentMood('sad');
-      this.resetIdleTimer();
     },
     '😠': () => {
       this.head.speakEmoji('😠');
       this.head.setMood('angry');
       this.setCurrentMood('angry');
-      this.resetIdleTimer();
     },
     '😴': () => {
       this.head.speakEmoji('😴');
       this.head.setMood('sleep');
       this.setCurrentMood('sleep');
-      this.resetIdleTimer();
     },
     '😍': () => {
       this.head.speakEmoji('😍');
       this.head.setMood('love');
       this.setCurrentMood('love');
-      this.resetIdleTimer();
     },
     '😱': () => {
       this.head.speakEmoji('😱');
       this.head.setMood('fear');
       this.setCurrentMood('fear');
-      this.resetIdleTimer();
     },
     '🤔': () => {
       this.head.speakEmoji('🤔');
       this.head.setMood('neutral');
       this.setCurrentMood('neutral');
-      this.resetIdleTimer();
     },
     '😐': () => {
       this.head.speakEmoji('😐');
       this.head.setMood('neutral');
       this.setCurrentMood('neutral');
-      this.resetIdleTimer();
     },
 
     // Advanced Emotions
@@ -69,95 +60,79 @@ export class EmojiManager {
       this.head.speakEmoji('🥺');
       this.head.setMood('sad');
       this.setCurrentMood('sad');
-      this.resetIdleTimer();
     },
     '😤': () => {
       this.head.speakEmoji('😤');
       this.head.setMood('angry');
       this.setCurrentMood('angry');
-      this.resetIdleTimer();
     },
     '🤗': () => {
       this.head.speakEmoji('🤗');
       this.head.setMood('happy');
       this.setCurrentMood('happy');
-      this.resetIdleTimer();
       setTimeout(() => this.head.playGesture('handup', 2), 500);
     },
     '🙄': () => {
       this.head.speakEmoji('🙄');
       this.head.setMood('neutral');
       this.setCurrentMood('neutral');
-      this.resetIdleTimer();
     },
     '😏': () => {
       this.head.speakEmoji('😏');
       this.head.setMood('happy');
       this.setCurrentMood('happy');
-      this.resetIdleTimer();
     },
     '🤨': () => {
       this.head.speakEmoji('🤨');
       this.head.setMood('neutral');
       this.setCurrentMood('neutral');
-      this.resetIdleTimer();
     },
     '😵': () => {
       this.head.speakEmoji('😵');
       this.head.setMood('neutral');
       this.setCurrentMood('neutral');
-      this.resetIdleTimer();
     },
     '🤩': () => {
       this.head.speakEmoji('🤩');
       this.head.setMood('happy');
       this.setCurrentMood('happy');
-      this.resetIdleTimer();
     },
 
     // Actions & Gestures
     '👋': () => {
       this.head.playGesture('handup', 3);
       this.head.speakEmoji('👋');
-      this.resetIdleTimer();
     },
     '👍': () => {
       this.head.playGesture('thumbup', 2);
       this.head.speakEmoji('👍');
-      this.resetIdleTimer();
     },
     '👎': () => {
       this.head.playGesture('thumbdown', 2);
       this.head.speakEmoji('👎');
-      this.resetIdleTimer();
     },
     '🤝': () => {
       this.head.playGesture('handup', 2);
       this.head.speakEmoji('🤝');
-      this.resetIdleTimer();
     },
     '🤷': () => {
       this.head.playGesture('shrug', 3);
       this.head.speakEmoji('🤷');
-      this.resetIdleTimer();
     },
     '👏': () => {
       this.head.playGesture('thumbup', 2);
       this.head.speakEmoji('👏');
-      this.resetIdleTimer();
     },
     '🤦': () => {
       this.head.speakEmoji('🤦');
       this.head.setMood('sad');
       this.setCurrentMood('sad');
-      this.resetIdleTimer();
     },
     '💪': () => {
       this.head.playGesture('thumbup', 3);
       this.head.speakEmoji('💪');
       this.head.setMood('happy');
       this.setCurrentMood('happy');
-      this.resetIdleTimer();
     },
 
     // Special States
@@ -166,55 +141,47 @@ export class EmojiManager {
       this.head.setMood('neutral');
       this.setCurrentMood('neutral');
       this.head.lookAtCamera(2000);
-      this.resetIdleTimer();
     },
     '💡': () => {
       this.head.speakEmoji('😊');
       this.head.playGesture('index', 2);
       this.head.setMood('happy');
       this.setCurrentMood('happy');
-      this.resetIdleTimer();
     },
     '🔥': () => {
       this.head.speakEmoji('😄');
       this.head.setMood('happy');
       this.setCurrentMood('happy');
       this.head.playGesture('thumbup', 2);
-      this.resetIdleTimer();
     },
     '⚡': () => {
       this.head.speakEmoji('😲');
       this.head.setMood('happy');
       this.setCurrentMood('happy');
       this.head.lookAtCamera(1000);
-      this.resetIdleTimer();
     },
     '🎯': () => {
       this.head.speakEmoji('🤔');
       this.head.playGesture('index', 2);
       this.head.lookAtCamera(2000);
-      this.resetIdleTimer();
     },
     '🚀': () => {
       this.head.speakEmoji('🤩');
       this.head.setMood('happy');
       this.setCurrentMood('happy');
       this.head.playGesture('thumbup', 2);
-      this.resetIdleTimer();
     },
     '💎': () => {
       this.head.speakEmoji('😍');
       this.head.setMood('love');
       this.setCurrentMood('love');
       this.head.makeEyeContact(2000);
-      this.resetIdleTimer();
     },
     '🌟': () => {
       this.head.speakEmoji('🤩');
       this.head.setMood('happy');
       this.setCurrentMood('happy');
       this.head.playGesture('ok', 2);
-      this.resetIdleTimer();
     },
     // Dance animations
     '💃': () => this.triggerDanceSequence(),
@@ -253,7 +220,6 @@ export class EmojiManager {
     this.head.speakEmoji('💃');
     this.head.setMood('happy');
     this.setCurrentMood('happy');
-    this.resetIdleTimer();
 
     // Test multiple animation file paths for Vercel compatibility
     const animationPaths = [

@@ -10,10 +10,8 @@ export class AvatarManager {
     // Dependencies (set via dependency injection)
     this.configManager = null;
     this.uiManager = null;
-    this.idleTimerManager = null;
     this.voiceStateManager = null;
     this.emojiManager = null;
-    this.linkButtonManager = null;
     this.speechBubbleManager = null;
     this.speechRecognitionManager = null;
     this.ttsManager = null;
@@ -31,10 +29,8 @@ export class AvatarManager {
   setDependencies({
     configManager,
     uiManager,
-    idleTimerManager,
     voiceStateManager,
     emojiManager,
-    linkButtonManager,
     speechBubbleManager,
     speechRecognitionManager,
     ttsManager,
@@ -44,10 +40,8 @@ export class AvatarManager {
   }) {
     this.configManager = configManager;
     this.uiManager = uiManager;
-    this.idleTimerManager = idleTimerManager;
     this.voiceStateManager = voiceStateManager;
     this.emojiManager = emojiManager;
-    this.linkButtonManager = linkButtonManager;
     this.speechBubbleManager = speechBubbleManager;
     this.speechRecognitionManager = speechRecognitionManager;
     this.ttsManager = ttsManager;
@@ -175,20 +169,11 @@ export class AvatarManager {
   // =====================================================
   async initializeOtherManagers() {
     // Initialize managers that depend on avatar
-    this.idleTimerManager?.setDependencies(
-      this.head,
-      this.isLoaded,
-      this.currentMoodRef,
-      this.currentMood
-    );
-
     this.voiceStateManager?.setUpdateStatusFunction(
       this.uiManager?.updateStatus.bind(this.uiManager)
     );
 
-    this.emojiManager?.setDependencies(this.head, this.currentMoodRef, () =>
-      this.idleTimerManager?.resetIdleTimer()
-    );
+    this.emojiManager?.setDependencies(this.head, this.currentMoodRef, () => {});
 
     // Initialize AnimationManager with TalkingHead instance
     if (this.animationManager && this.head) {
@@ -203,7 +188,6 @@ export class AvatarManager {
       this.isLoaded,
       this.configManager,
       this.voiceStateManager,
-      this.idleTimerManager,
       this.speechBubbleManager,
       this.animationManager,
       this.uiManager
@@ -213,10 +197,8 @@ export class AvatarManager {
     this.chatManager?.setDependencies({
       webSocketManager: this.webSocketManager,
       uiManager: this.uiManager,
-      idleTimerManager: this.idleTimerManager,
       ttsManager: this.ttsManager,
       emojiManager: this.emojiManager,
-      linkButtonManager: this.linkButtonManager,
       head: this.head,
       isLoaded: this.isLoaded,
       animationManager: this.animationManager, // Pass AnimationManager to ChatManager
@@ -289,9 +271,6 @@ export class AvatarManager {
 
     // Initialize ChatManager
     this.chatManager?.init();
-
-    // Start idle timer for mood management
-    this.idleTimerManager?.startIdleTimer();
 
     // Initialize voice state
     this.voiceStateManager?.getVoiceState();
@@ -503,7 +482,6 @@ export class AvatarManager {
     // Reset dependencies
     this.configManager = null;
     this.uiManager = null;
-    this.idleTimerManager = null;
     this.voiceStateManager = null;
     this.emojiManager = null;
     this.speechBubbleManager = null;

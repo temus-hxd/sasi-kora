@@ -133,13 +133,6 @@ export class SpeechBubbleManager {
 
       // Apply the best fit - make sure we end properly
       textElement.textContent = bestFit;
-
-      // Log truncation for debugging
-      if (bestFit !== originalText) {
-        console.log(
-          `💬 Speech bubble text truncated: ${originalText.length} -> ${bestFit.length} chars`
-        );
-      }
     }
   }
 
@@ -198,16 +191,9 @@ export class SpeechBubbleManager {
         const minTiming = i * 2500;
         timing = Math.max(timing, minTiming);
 
-        console.log(
-          `Chunk ${i}: Will show at ${timing}ms (word index: ${wordIndex})`
-        );
-
         const timer = setTimeout(() => {
           if (this.currentChunkIndex < this.currentChunks.length - 1) {
             this.currentChunkIndex++;
-            console.log(
-              `Showing chunk ${this.currentChunkIndex}: "${this.currentChunks[this.currentChunkIndex]}"`
-            );
             this.showSpeechBubble(this.currentChunks[this.currentChunkIndex]);
           }
         }, timing);
