@@ -10,6 +10,7 @@ import { loadPrompt } from '../utils/prompt-loader.js';
 
 export class SentimentAgent extends BaseAgent {
   private personalityContext: string = '';
+  private includeAdditionalPrompts: boolean = false;
 
   constructor(clientName?: string) {
     super({
@@ -18,6 +19,15 @@ export class SentimentAgent extends BaseAgent {
       modelEnvVar: 'MODEL_SENTIMENT',
       clientName,
     });
+  }
+
+  /**
+   * Enable or disable including additional prompts
+   */
+  setIncludeAdditionalPrompts(include: boolean): void {
+    this.includeAdditionalPrompts = include;
+    // Reset initialization so prompts are reloaded
+    (this as any).initialized = false;
   }
 
   /**
@@ -45,7 +55,42 @@ export class SentimentAgent extends BaseAgent {
       );
       const falseMemoryPrompt = await loadPrompt('false-memory.md', clientName);
 
+      // Load additional prompts if enabled
+      let negativeScenarioPrompt: string = '';
+      let angryEnragedPrompt: string = '';
+      let personalityEnglishPrompt: string = '';
+
+      if (this.includeAdditionalPrompts) {
+        try {
+          negativeScenarioPrompt = await loadPrompt(
+            'negative-scenario-prompt.md',
+            clientName
+          );
+        } catch (error) {
+          console.warn('Failed to load negative-scenario-prompt.md:', error);
+        }
+
+        try {
+          angryEnragedPrompt = await loadPrompt(
+            'angry-3-enraged.md',
+            clientName
+          );
+        } catch (error) {
+          console.warn('Failed to load angry-3-enraged.md:', error);
+        }
+
+        try {
+          personalityEnglishPrompt = await loadPrompt(
+            'sassi_personality_english.md',
+            clientName
+          );
+        } catch (error) {
+          console.warn('Failed to load sassi_personality_english.md:', error);
+        }
+      }
+
       // Combine prompts: personality_mini + linguistic engine + false memory + agent prompt
+      // + additional prompts (if enabled)
       const promptParts: string[] = [];
 
       if (this.personalityContext) {
@@ -58,6 +103,19 @@ export class SentimentAgent extends BaseAgent {
 
       if (falseMemoryPrompt) {
         promptParts.push(falseMemoryPrompt);
+      }
+
+      // Include additional prompts if enabled
+      if (this.includeAdditionalPrompts) {
+        if (negativeScenarioPrompt) {
+          promptParts.push(negativeScenarioPrompt);
+        }
+        if (angryEnragedPrompt) {
+          promptParts.push(angryEnragedPrompt);
+        }
+        if (personalityEnglishPrompt) {
+          promptParts.push(personalityEnglishPrompt);
+        }
       }
 
       if (agentPrompt) {

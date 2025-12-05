@@ -191,14 +191,23 @@
             </button>
 
             <!-- Text Input -->
-            <input
-              type="text"
-              id="messageInput"
-              class="main-text-input"
-              placeholder="Talk to me..."
-              maxlength="500"
-              onkeypress="handleKeyPress(event)"
-            />
+            <div class="relative flex-1" style="min-width: 0">
+              <input
+                type="text"
+                id="messageInput"
+                class="main-text-input"
+                placeholder="Talk to me..."
+                maxlength="500"
+                onkeypress="handleKeyPress(event)"
+                style="width: 100%; padding-right: 24px"
+              />
+              <button
+                id="promptToggleButton"
+                class="absolute right-2 top-1/2 transform -translate-y-1/2 w-2 h-2 rounded-full bg-gray-400 hover:bg-blue-500 transition-colors cursor-pointer"
+                title="Include additional prompts (negative-scenario, angry-3-enraged, sassi_personality_english)"
+                style="opacity: 0.5"
+              ></button>
+            </div>
 
             <!-- Send Button -->
             <button
@@ -617,14 +626,22 @@
               </main>
               <!-- Input -->
               <footer
-                class="px-8 py-4 border-t bg-white flex gap-3 flex-shrink-0"
+                class="px-8 py-4 border-t bg-white flex gap-3 flex-shrink-0 relative"
               >
-                <input
-                  id="modal-messageInput"
-                  type="text"
-                  placeholder="Type your message..."
-                  class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                />
+                <div class="flex-1 relative">
+                  <input
+                    id="modal-messageInput"
+                    type="text"
+                    placeholder="Type your message..."
+                    class="w-full border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                  <button
+                    id="modal-promptToggleButton"
+                    class="absolute right-2 top-1/2 transform -translate-y-1/2 w-2 h-2 rounded-full bg-gray-400 hover:bg-blue-500 transition-colors cursor-pointer"
+                    title="Include additional prompts (negative-scenario, angry-3-enraged, sassi_personality_english)"
+                    style="opacity: 0.5"
+                  ></button>
+                </div>
                 <button
                   id="modal-sendButton"
                   class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium"

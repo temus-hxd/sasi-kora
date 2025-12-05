@@ -245,7 +245,9 @@ window.setLanguage = function (language) {
 
   // If switching to Chinese, clear conversation history and browser memory
   if (language === 'cn' && previousLanguage !== 'cn') {
-    console.log('🔄 Switching to Chinese - clearing conversation history and browser memory');
+    console.log(
+      '🔄 Switching to Chinese - clearing conversation history and browser memory'
+    );
     if (window.chatManager) {
       window.chatManager.clearConversationHistory();
     }
@@ -277,8 +279,69 @@ function updateLanguageToggleUI(language) {
   }
 }
 
+// =====================================================
+// PROMPT TOGGLE FUNCTIONALITY
+// =====================================================
+let additionalPromptsEnabled = false;
+
+async function toggleAdditionalPrompts() {
+  additionalPromptsEnabled = !additionalPromptsEnabled;
+  const mainButton = document.getElementById('promptToggleButton');
+  const modalButton = document.getElementById('modal-promptToggleButton');
+
+  try {
+    const language = localStorage.getItem('app_language') || 'en';
+    const response = await fetch('/api/emotional-state/sentiment-prompts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        include: additionalPromptsEnabled,
+        language: language,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('✅ Prompt toggle:', data.message);
+
+    const updateButton = (button) => {
+      if (button) {
+        button.style.opacity = additionalPromptsEnabled ? '1' : '0.5';
+        button.style.backgroundColor = additionalPromptsEnabled
+          ? '#3b82f6'
+          : '#9ca3af';
+        button.title = additionalPromptsEnabled
+          ? 'Additional prompts enabled (negative-scenario, angry-3-enraged, sassi_personality_english)'
+          : 'Include additional prompts (negative-scenario, angry-3-enraged, sassi_personality_english)';
+      }
+    };
+
+    updateButton(mainButton);
+    updateButton(modalButton);
+  } catch (error) {
+    console.error('Error toggling prompts:', error);
+    additionalPromptsEnabled = !additionalPromptsEnabled;
+  }
+}
+
 // Initialize everything when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   initializeLanguageToggle();
   initializeApp();
+
+  // Initialize prompt toggle buttons
+  const mainButton = document.getElementById('promptToggleButton');
+  const modalButton = document.getElementById('modal-promptToggleButton');
+
+  if (mainButton) {
+    mainButton.addEventListener('click', toggleAdditionalPrompts);
+  }
+  if (modalButton) {
+    modalButton.addEventListener('click', toggleAdditionalPrompts);
+  }
 });

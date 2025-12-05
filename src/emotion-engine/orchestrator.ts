@@ -590,4 +590,13 @@ export class Orchestrator {
     this.ended = state.ended || false;
     this.angerMeter.deserializeState(state);
   }
+
+  /**
+   * Set whether to include additional prompts in sentiment agent
+   */
+  async setSentimentAgentAdditionalPrompts(include: boolean): Promise<void> {
+    this.sentimentAgent.setIncludeAdditionalPrompts(include);
+    // Reinitialize to reload prompts
+    await this.sentimentAgent.initialize();
+  }
 }

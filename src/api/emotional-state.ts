@@ -210,4 +210,44 @@ router.post('/reset', async (req, res) => {
   }
 });
 
+/**
+ * POST /api/emotional-state/sentiment-prompts
+ * Toggle/include additional prompts in sentiment agent
+ */
+router.post('/sentiment-prompts', async (req, res) => {
+  try {
+    const { include, language } = req.body as {
+      include: boolean;
+      language?: string;
+    };
+
+    if (typeof include !== 'boolean') {
+      res.status(400).json({
+        error: 'Invalid request',
+        message: 'include must be a boolean',
+        success: false,
+      });
+      return;
+    }
+
+    const lang = language || 'en';
+    const orchestrator = await getOrchestrator(lang);
+    await orchestrator.setSentimentAgentAdditionalPrompts(include);
+
+    res.json({
+      success: true,
+      message: `Additional prompts ${include ? 'enabled' : 'disabled'}`,
+      timestamp: new Date().toISOString(),
+      include,
+    });
+  } catch (error: unknown) {
+    const err = error as Error;
+    res.status(500).json({
+      error: 'Error setting sentiment agent prompts',
+      message: err.message,
+      success: false,
+    });
+  }
+});
+
 export default router;
