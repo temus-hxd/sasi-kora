@@ -628,13 +628,40 @@ export class TTSManager {
             elapsed - speechDuration
           }ms`
         );
+
+        // Stop monitoring and the fallback timeout to avoid duplicate cleanup
         clearInterval(monitorInterval);
         clearTimeout(fallbackTimeout);
         monitoringActive = false;
 
+        // Force-stop current speech if the engine is still marked as speaking
+        if (this.head && this.head.stopSpeaking) {
+          try {
+            this.head.stopSpeaking();
+          } catch (err) {
+            console.warn('⚠️ Could not force-stop speech after timeout:', err);
+          }
+        }
+
+        // Mark speaking state and audio source as cleared
+        this.isSpeaking = false;
+        this.currentAudioSource = null;
+
+        // Hide speech UI immediately
         if (this.speechBubbleManager) {
           this.speechBubbleManager.clearAllTimers();
           this.speechBubbleManager.hideSpeechBubble();
+        }
+
+        // Restart voice recognition so the mic comes back even if TTS hung
+        if (
+          window.speechRecognitionManager &&
+          window.speechRecognitionManager.isSupported &&
+          !window.speechRecognitionManager.isRecording
+        ) {
+          setTimeout(() => {
+            window.speechRecognitionManager.startVoiceRecognition();
+          }, 500);
         }
       }
     }, 1000); // Check every second

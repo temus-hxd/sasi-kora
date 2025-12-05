@@ -18,10 +18,13 @@ export class SpeechRecognitionManager {
     this.audioWorkletUrl = null;
     this.interimTranscript = '';
     this.finalTranscript = '';
+    this.silenceDelayMs = 2500; // Wait a bit longer before auto-sending
+    this.inactivityTimeoutMs = 30000; // Stop only after prolonged silence
+    this.lastTranscriptTime = 0;
     this.languages = ['en', 'zh']; // English, Chinese
     this.codeSwitching = true;
     this.reconnectAttempts = 0;
-    this.maxReconnectAttempts = 3;
+    this.maxReconnectAttempts = 5;
   }
 
   // =====================================================
@@ -138,6 +141,8 @@ export class SpeechRecognitionManager {
                   this.isRecording = false;
                   this.updateMicButtonState(false);
                   this.stopAudioCapture();
+                  // Force full re-init on next attempt
+                  this.recognition = null;
                 }
               }, 1000);
             } else {
@@ -148,7 +153,15 @@ export class SpeechRecognitionManager {
               this.isRecording = false;
               this.updateMicButtonState(false);
               this.stopAudioCapture();
+              // Force fresh session next time
+              this.recognition = null;
               this.reconnectAttempts = 0; // Reset for next time
+              // Attempt a fresh start automatically to keep mic alive
+              setTimeout(() => {
+                if (!this.isRecording) {
+                  this.startVoiceRecognition();
+                }
+              }, 1500);
             }
           } else {
             // Not recording, just reset
@@ -192,13 +205,23 @@ export class SpeechRecognitionManager {
 
       // Process transcript result
       if (isFinal) {
-        this.finalTranscript = transcript;
+        const trimmedTranscript = transcript?.trim() || '';
+        if (trimmedTranscript) {
+          this.finalTranscript = this.finalTranscript
+            ? `${this.finalTranscript} ${trimmedTranscript}`
+            : trimmedTranscript;
+        }
         this.interimTranscript = '';
         this.processTranscript(this.finalTranscript, '');
       } else {
-        this.interimTranscript = transcript;
-        this.processTranscript('', this.interimTranscript);
+        this.interimTranscript = transcript?.trim() || '';
+        const combinedInterim = this.finalTranscript
+          ? `${this.finalTranscript} ${this.interimTranscript}`.trim()
+          : this.interimTranscript;
+        this.processTranscript('', combinedInterim);
       }
+      this.refreshInactivityTimer();
+      this.scheduleAutoSendIfIdle();
     } catch (error) {
       // Not JSON or parsing error - might be binary data, ignore
       if (event.data instanceof ArrayBuffer || event.data instanceof Blob) {
@@ -217,6 +240,49 @@ export class SpeechRecognitionManager {
     } else {
       this.handleResult(finalTranscript, interimTranscript);
     }
+  }
+
+  refreshInactivityTimer() {
+    if (this.recordingTimeout) {
+      clearTimeout(this.recordingTimeout);
+    }
+    this.recordingTimeout = setTimeout(() => {
+      this.stopVoiceRecognition();
+    }, this.inactivityTimeoutMs);
+  }
+
+  scheduleAutoSendIfIdle() {
+    // Always clear existing timers to avoid multiple pending sends
+    if (this.autoSendTimeout) {
+      clearTimeout(this.autoSendTimeout);
+      this.autoSendTimeout = null;
+    }
+
+    // Only schedule if we have a stable final transcript and no active interim
+    if (!this.finalTranscript || this.interimTranscript) {
+      return;
+    }
+
+    this.autoSendTimeout = setTimeout(() => {
+      // Bail out if user resumed speaking
+      if (this.interimTranscript || !this.finalTranscript) {
+        this.autoSendTimeout = null;
+        return;
+      }
+
+      const messageInput = document.getElementById('messageInput');
+      if (messageInput) {
+        messageInput.value = this.finalTranscript.trim();
+      }
+
+      // Stop recording before sending to avoid cutting the last word
+      this.stopVoiceRecognition();
+
+      if (messageInput?.value.trim() && window.sendMessage) {
+        window.sendMessage();
+      }
+      this.autoSendTimeout = null;
+    }, this.silenceDelayMs);
   }
 
   async startAudioCapture() {
@@ -447,11 +513,38 @@ export class SpeechRecognitionManager {
         }
       }
 
-      if (this.onResultCallback) {
-        this.onResultCallback(finalTranscript, interimTranscript);
+      finalTranscript = finalTranscript.trim();
+      interimTranscript = interimTranscript.trim();
+
+      if (finalTranscript) {
+        this.finalTranscript = this.finalTranscript
+          ? `${this.finalTranscript} ${finalTranscript}`
+          : finalTranscript;
+        this.interimTranscript = '';
+
+        if (this.onResultCallback) {
+          this.onResultCallback(this.finalTranscript, '');
+        } else {
+          this.handleResult(this.finalTranscript, '');
+        }
+      } else if (interimTranscript) {
+        this.interimTranscript = interimTranscript;
+        const combinedInterim = this.finalTranscript
+          ? `${this.finalTranscript} ${interimTranscript}`.trim()
+          : interimTranscript;
+
+        if (this.onResultCallback) {
+          this.onResultCallback('', combinedInterim);
+        } else {
+          this.handleResult('', combinedInterim);
+        }
       } else {
-        this.handleResult(finalTranscript, interimTranscript);
+        // No transcript update
+        return;
       }
+
+      this.refreshInactivityTimer();
+      this.scheduleAutoSendIfIdle();
     };
 
     this.recognition.onerror = (event) => {
@@ -470,43 +563,22 @@ export class SpeechRecognitionManager {
   // DEFAULT RESULT HANDLER
   // =====================================================
   handleResult(finalTranscript, interimTranscript) {
-    // Update input field with current transcript
     const messageInput = document.getElementById('messageInput');
-    if (finalTranscript) {
-      messageInput.value = finalTranscript.trim();
 
-      // Don't auto-stop recording immediately - allow user to continue speaking
-      // Only stop if user hasn't spoken for 2 seconds (handled by silence detection)
-      // This prevents cutting off speech prematurely
-
-      // Auto-send after a longer delay (2 seconds) to allow continued speech
-      // Clear any existing auto-send timeout
-      if (this.autoSendTimeout) {
-        clearTimeout(this.autoSendTimeout);
-      }
-
-      this.autoSendTimeout = setTimeout(() => {
-        // Only auto-send if recording has stopped or no new speech detected
-        if (!this.isRecording || !this.interimTranscript) {
-          if (messageInput.value.trim()) {
-            // Stop recording before sending
-            this.stopVoiceRecognition();
-            // Trigger send message event
-            if (window.sendMessage) {
-              window.sendMessage();
-            }
-          }
-        }
-        this.autoSendTimeout = null;
-      }, 2000); // 2 second delay before auto-sending
-    } else if (interimTranscript) {
-      messageInput.value = interimTranscript.trim();
-      // If we get new interim results, cancel auto-send
-      if (this.autoSendTimeout) {
-        clearTimeout(this.autoSendTimeout);
-        this.autoSendTimeout = null;
+    // Update input with the most complete transcript we have
+    if (messageInput) {
+      if (finalTranscript) {
+        messageInput.value = finalTranscript.trim();
+      } else if (interimTranscript) {
+        messageInput.value = interimTranscript.trim();
       }
     }
+
+    // Every transcript event counts as activity
+    this.refreshInactivityTimer();
+
+    // Manage auto-send based on silence + stable final text
+    this.scheduleAutoSendIfIdle();
   }
 
   // =====================================================
@@ -579,10 +651,8 @@ export class SpeechRecognitionManager {
         this.updateMicButtonState(true);
       }
 
-      // Auto-stop after 15 seconds (increased from 10 to allow longer speech)
-      this.recordingTimeout = setTimeout(() => {
-        this.stopVoiceRecognition();
-      }, 15000);
+      // Auto-stop after prolonged silence (timer is refreshed on activity)
+      this.refreshInactivityTimer();
 
       return true;
     } catch (error) {
