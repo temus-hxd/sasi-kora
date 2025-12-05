@@ -259,29 +259,29 @@ body {
 }
 
 /* Chevron Colors - White Background with AIC Orange Borders */
-.step:nth-child(1):before { 
-  border-color: #F59C00; 
+.step:nth-child(1):before {
+  border-color: #f59c00;
 } /* AIC Orange */
-.step:nth-child(1):after  { 
-  border-color: #F59C00; 
+.step:nth-child(1):after {
+  border-color: #f59c00;
 } /* AIC Orange */
-.step:nth-child(2):before { 
-  border-color: #F59C00; 
+.step:nth-child(2):before {
+  border-color: #f59c00;
 } /* AIC Orange */
-.step:nth-child(2):after  { 
-  border-color: #F59C00; 
+.step:nth-child(2):after {
+  border-color: #f59c00;
 } /* AIC Orange */
-.step:nth-child(3):before { 
-  border-color: #F59C00; 
+.step:nth-child(3):before {
+  border-color: #f59c00;
 } /* AIC Orange */
-.step:nth-child(3):after  { 
-  border-color: #F59C00; 
+.step:nth-child(3):after {
+  border-color: #f59c00;
 } /* AIC Orange */
-.step:nth-child(4):before { 
-  border-color: #F59C00; 
+.step:nth-child(4):before {
+  border-color: #f59c00;
 } /* AIC Orange */
-.step:nth-child(4):after  { 
-  border-color: #F59C00; 
+.step:nth-child(4):after {
+  border-color: #f59c00;
 } /* AIC Orange */
 
 .emotional-state-summary-item {
@@ -347,7 +347,7 @@ body {
 .emotional-state-details blockquote {
   color: #555;
   background-color: #f5f5f5 !important;
-  border-left-color: #F59C00 !important;
+  border-left-color: #f59c00 !important;
 }
 
 .section-divider {
@@ -426,6 +426,9 @@ body {
   font-size: 0.85rem;
   margin-left: 0;
   align-self: flex-start;
+  white-space: nowrap;
+  word-break: keep-all;
+  overflow-wrap: normal;
 }
 
 .fail-badge-large {
