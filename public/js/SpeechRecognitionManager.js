@@ -3,6 +3,7 @@ export class SpeechRecognitionManager {
     this.isRecording = false;
     this.recognition = null; // Keep for compatibility, but will be Gladia session
     this.recordingTimeout = null;
+    this.autoSendTimeout = null; // Timeout for auto-sending after silence
     this.onResultCallback = null;
     this.isSupported = this.checkSupport();
 
@@ -17,6 +18,8 @@ export class SpeechRecognitionManager {
     this.finalTranscript = '';
     this.languages = ['en', 'zh']; // English, Chinese
     this.codeSwitching = true;
+    this.reconnectAttempts = 0;
+    this.maxReconnectAttempts = 3;
   }
 
   // =====================================================
@@ -80,6 +83,7 @@ export class SpeechRecognitionManager {
         this.gladiaWebSocket = new WebSocket(websocketUrl);
 
         this.gladiaWebSocket.onopen = () => {
+          this.reconnectAttempts = 0; // Reset on successful connection
           resolve(true);
         };
 
@@ -89,21 +93,64 @@ export class SpeechRecognitionManager {
 
         this.gladiaWebSocket.onerror = (error) => {
           console.error('❌ [GLADIA] WebSocket error:', error);
-          reject(error);
+          // Don't reject immediately - let onclose handle reconnection
+          // This prevents premature failure on transient errors
+          console.warn(
+            '⚠️ [GLADIA] WebSocket error occurred, will attempt reconnection on close'
+          );
         };
 
         this.gladiaWebSocket.onclose = (event) => {
           // Clear WebSocket reference so we create a new one next time
+          const wasRecording = this.isRecording;
           this.gladiaWebSocket = null;
           this.gladiaSessionId = null;
 
-          if (this.isRecording) {
-            // Unexpected close - stop recording
+          if (wasRecording) {
+            // Unexpected close during recording - try to reconnect
             console.warn(
-              '⚠️ [GLADIA] WebSocket closed unexpectedly during recording'
+              '⚠️ [GLADIA] WebSocket closed unexpectedly during recording, attempting to reconnect...'
             );
-            this.isRecording = false;
-            this.updateMicButtonState(false);
+
+            // Try to reconnect if we haven't exceeded max attempts
+            if (this.reconnectAttempts < this.maxReconnectAttempts) {
+              this.reconnectAttempts++;
+
+              // Attempt to reconnect after a short delay
+              setTimeout(async () => {
+                try {
+                  await this.initGladiaSession();
+                  // If reconnection successful, restart audio capture
+                  if (
+                    this.gladiaWebSocket &&
+                    this.gladiaWebSocket.readyState === WebSocket.OPEN
+                  ) {
+                    await this.startAudioCapture();
+                    this.isRecording = true;
+                    this.updateMicButtonState(true);
+                    this.reconnectAttempts = 0; // Reset on success
+                  }
+                } catch (error) {
+                  console.error('❌ [GLADIA] Reconnection failed:', error);
+                  // If reconnection fails, stop recording
+                  this.isRecording = false;
+                  this.updateMicButtonState(false);
+                  this.stopAudioCapture();
+                }
+              }, 1000);
+            } else {
+              // Max attempts reached, stop recording
+              console.error(
+                '❌ [GLADIA] Max reconnection attempts reached, stopping recording'
+              );
+              this.isRecording = false;
+              this.updateMicButtonState(false);
+              this.stopAudioCapture();
+              this.reconnectAttempts = 0; // Reset for next time
+            }
+          } else {
+            // Not recording, just reset
+            this.reconnectAttempts = 0;
           }
         };
       });
@@ -216,12 +263,23 @@ export class SpeechRecognitionManager {
 
           // Send audio chunk to Gladia as binary data
           // WebSocket.send() accepts ArrayBuffer, which int16Array.buffer provides
-          if (this.gladiaWebSocket.readyState === WebSocket.OPEN) {
-            this.gladiaWebSocket.send(int16Array.buffer);
+          if (
+            this.gladiaWebSocket &&
+            this.gladiaWebSocket.readyState === WebSocket.OPEN
+          ) {
+            try {
+              this.gladiaWebSocket.send(int16Array.buffer);
+            } catch (error) {
+              console.error('❌ [GLADIA] Error sending audio chunk:', error);
+              // If send fails, WebSocket might be closed - onclose will handle reconnection
+            }
           } else {
-            console.warn(
-              '⚠️ [GLADIA] WebSocket not open, cannot send audio chunk'
-            );
+            // WebSocket not open - log occasionally to avoid spam
+            if (audioChunkCount % 100 === 0) {
+              console.warn(
+                `⚠️ [GLADIA] WebSocket not open (state: ${this.gladiaWebSocket?.readyState}), cannot send audio chunk`
+              );
+            }
           }
         }
       };
@@ -351,18 +409,38 @@ export class SpeechRecognitionManager {
     const messageInput = document.getElementById('messageInput');
     if (finalTranscript) {
       messageInput.value = finalTranscript.trim();
-      this.stopVoiceRecognition();
-      // Auto-send after a short delay
-      setTimeout(() => {
-        if (messageInput.value.trim()) {
-          // Trigger send message event
-          if (window.sendMessage) {
-            window.sendMessage();
+
+      // Don't auto-stop recording immediately - allow user to continue speaking
+      // Only stop if user hasn't spoken for 2 seconds (handled by silence detection)
+      // This prevents cutting off speech prematurely
+
+      // Auto-send after a longer delay (2 seconds) to allow continued speech
+      // Clear any existing auto-send timeout
+      if (this.autoSendTimeout) {
+        clearTimeout(this.autoSendTimeout);
+      }
+
+      this.autoSendTimeout = setTimeout(() => {
+        // Only auto-send if recording has stopped or no new speech detected
+        if (!this.isRecording || !this.interimTranscript) {
+          if (messageInput.value.trim()) {
+            // Stop recording before sending
+            this.stopVoiceRecognition();
+            // Trigger send message event
+            if (window.sendMessage) {
+              window.sendMessage();
+            }
           }
         }
-      }, 500);
+        this.autoSendTimeout = null;
+      }, 2000); // 2 second delay before auto-sending
     } else if (interimTranscript) {
       messageInput.value = interimTranscript.trim();
+      // If we get new interim results, cancel auto-send
+      if (this.autoSendTimeout) {
+        clearTimeout(this.autoSendTimeout);
+        this.autoSendTimeout = null;
+      }
     }
   }
 
@@ -436,10 +514,10 @@ export class SpeechRecognitionManager {
         this.updateMicButtonState(true);
       }
 
-      // Auto-stop after 10 seconds
+      // Auto-stop after 15 seconds (increased from 10 to allow longer speech)
       this.recordingTimeout = setTimeout(() => {
         this.stopVoiceRecognition();
-      }, 10000);
+      }, 15000);
 
       return true;
     } catch (error) {
@@ -468,10 +546,17 @@ export class SpeechRecognitionManager {
     this.updateMicButtonState(false);
     this.interimTranscript = '';
     this.finalTranscript = '';
+    this.reconnectAttempts = 0; // Reset reconnection attempts
 
     if (this.recordingTimeout) {
       clearTimeout(this.recordingTimeout);
       this.recordingTimeout = null;
+    }
+
+    // Clear auto-send timeout if it exists
+    if (this.autoSendTimeout) {
+      clearTimeout(this.autoSendTimeout);
+      this.autoSendTimeout = null;
     }
   }
 
@@ -545,6 +630,16 @@ export class SpeechRecognitionManager {
   // CLEANUP
   // =====================================================
   cleanup() {
+    // Clear all timeouts
+    if (this.recordingTimeout) {
+      clearTimeout(this.recordingTimeout);
+      this.recordingTimeout = null;
+    }
+    if (this.autoSendTimeout) {
+      clearTimeout(this.autoSendTimeout);
+      this.autoSendTimeout = null;
+    }
+
     // Close WebSocket on cleanup
     this.stopVoiceRecognition(true);
     if (this.recognition) {
