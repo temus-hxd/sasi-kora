@@ -18,7 +18,6 @@ export class AvatarManager {
     this.webSocketManager = null;
     this.chatManager = null;
     this.animationManager = null;
-    this.countdownInterval = null;
 
     // Page visibility event handler bound to this instance
     this.handleVisibilityChange = this.handleVisibilityChange.bind(this);
@@ -39,8 +38,6 @@ export class AvatarManager {
     chatManager,
     animationManager,
   }) {
-    // Store TTSManager reference for pre-warming
-    this.ttsManager = ttsManager;
     this.configManager = configManager;
     this.uiManager = uiManager;
     this.voiceStateManager = voiceStateManager;
@@ -64,7 +61,9 @@ export class AvatarManager {
 
     try {
       // Initialize ConfigManager and load configuration first
-      const configLoaded = await this.configManager?.loadConfig();
+      // Load with saved language preference
+      const savedLanguage = localStorage.getItem('app_language') || 'en';
+      const configLoaded = await this.configManager?.loadConfig(savedLanguage);
       if (!configLoaded) {
         console.error(
           '❌ Failed to load configuration - check /api/config endpoint'
@@ -147,9 +146,6 @@ export class AvatarManager {
       this.isLoaded = true;
       this.uiManager?.hideLoadingScreen();
 
-      // Hide avatar loading screen (countdown or when avatar is ready)
-      this.hideAvatarLoadingScreen();
-
       // Initialize other managers with avatar dependencies
       await this.initializeOtherManagers();
 
@@ -177,16 +173,13 @@ export class AvatarManager {
       this.uiManager?.updateStatus.bind(this.uiManager)
     );
 
-    this.emojiManager?.setDependencies(
-      this.head,
-      this.currentMoodRef,
-      () => {}
-    );
+    this.emojiManager?.setDependencies(this.head, this.currentMoodRef, () => {});
 
     // Initialize AnimationManager with TalkingHead instance
     if (this.animationManager && this.head) {
       this.animationManager.initialize(this.head);
       await this.animationManager.preloadAnimations();
+      console.log('🎭 AnimationManager initialized with avatar');
     }
 
     // Initialize TTS manager with dependencies
@@ -367,12 +360,17 @@ export class AvatarManager {
   // LIGHTING MANAGEMENT
   // =====================================================
   zeroAllLights(scene) {
+    console.log('🌑 ZEROING ALL LIGHTS');
+
     scene.traverse((child) => {
       if (child.isLight && child.intensity !== undefined) {
         const original = child.intensity;
         child.intensity = 0; // Completely off
+        console.log(`💡 ${child.type}: ${original} → 0`);
       }
     });
+
+    console.log('🌑 ALL LIGHTS ZEROED');
   }
 
   // =====================================================
@@ -409,135 +407,6 @@ export class AvatarManager {
 
   getCurrentMood() {
     return this.currentMood;
-  }
-
-  // =====================================================
-  // AVATAR LOADING SCREEN MANAGEMENT
-  // =====================================================
-  startAvatarLoadingCountdown() {
-    const loadingScreen = document.getElementById('avatarLoadingScreen');
-    const countdownElement = document.getElementById('avatarLoadingCountdown');
-    const progressBar = document.getElementById('loadingProgressBar');
-
-    if (!loadingScreen || !countdownElement) {
-      console.warn('Avatar loading screen elements not found');
-      return;
-    }
-
-    // Show loading screen
-    loadingScreen.classList.remove('hidden');
-
-    let countdown = 4;
-    const totalSeconds = 4;
-    countdownElement.textContent = countdown;
-
-    // Reset progress bar
-    if (progressBar) {
-      progressBar.style.width = '0%';
-    }
-
-    // Pre-warm ElevenLabs TTS during countdown
-    this.preWarmTTS();
-
-    const countdownInterval = setInterval(() => {
-      countdown--;
-      const progress = ((totalSeconds - countdown) / totalSeconds) * 100;
-
-      // Update progress bar
-      if (progressBar) {
-        progressBar.style.width = `${progress}%`;
-        progressBar.style.transition = 'width 0.3s ease-out';
-      }
-
-      if (countdown > 0) {
-        countdownElement.textContent = countdown;
-      } else {
-        countdownElement.textContent = '0';
-        if (progressBar) {
-          progressBar.style.width = '100%';
-        }
-        clearInterval(countdownInterval);
-
-        // Hide after a brief moment
-        setTimeout(() => {
-          this.hideAvatarLoadingScreen();
-        }, 300);
-      }
-    }, 1000);
-
-    // Store interval ID for cleanup
-    this.countdownInterval = countdownInterval;
-  }
-
-  // Pre-warm ElevenLabs TTS system
-  async preWarmTTS() {
-    try {
-      // Initialize AudioContext early (will be suspended until user interaction, but ready)
-      if (this.ttsManager && !this.ttsManager.audioContext) {
-        // Create AudioContext (will be suspended, but ready to resume on first user interaction)
-        this.ttsManager.audioContext = new (
-          window.AudioContext || window.webkitAudioContext
-        )();
-      }
-
-      // Make a small test API call to warm up the connection
-      // This helps reduce latency on the first real TTS call
-      if (this.configManager) {
-        const config = await this.configManager.loadConfig();
-        if (config && config.voiceId) {
-          // Make a minimal test call (just to warm up the API connection)
-          // Using a very short text to minimize cost
-          try {
-            const response = await fetch('/api/elevenlabs/tts', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                text: 'Hi',
-                voiceId: config.voiceId,
-                speed: 0.8,
-                stream: false, // Don't stream for warm-up
-              }),
-            });
-
-            if (response.ok) {
-              console.log('✅ ElevenLabs API connection warmed up');
-            } else {
-              console.warn('⚠️ ElevenLabs warm-up call failed (non-critical)');
-            }
-          } catch (error) {
-            // Non-critical - warm-up failed, but TTS will still work
-            console.warn(
-              '⚠️ ElevenLabs warm-up error (non-critical):',
-              error.message
-            );
-          }
-        }
-      }
-    } catch (error) {
-      // Non-critical - warm-up failed, but TTS will still work
-      console.warn('⚠️ TTS pre-warming error (non-critical):', error.message);
-    }
-  }
-
-  hideAvatarLoadingScreen() {
-    const loadingScreen = document.getElementById('avatarLoadingScreen');
-
-    if (loadingScreen) {
-      loadingScreen.classList.add('hidden');
-
-      // Remove from DOM after animation
-      setTimeout(() => {
-        loadingScreen.style.display = 'none';
-      }, 500);
-    }
-
-    // Clear countdown interval if still running
-    if (this.countdownInterval) {
-      clearInterval(this.countdownInterval);
-      this.countdownInterval = null;
-    }
   }
 
   isAvatarReady() {
@@ -580,6 +449,8 @@ export class AvatarManager {
         if (window.BrowserMemory) {
           window.BrowserMemory.storeMessage('assistant', greetingMessage);
         }
+
+        console.log('🤝 Automatic greeting sent:', greetingMessage);
       }
     }
   }

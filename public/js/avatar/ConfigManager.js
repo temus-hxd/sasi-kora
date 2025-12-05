@@ -17,15 +17,10 @@ export class ConfigManager {
   // =====================================================
   // CONFIGURATION LOADING
   // =====================================================
-  async loadConfig(language = null) {
+  async loadConfig() {
     try {
-      // Get language from parameter or localStorage
-      const lang = language || this.getLanguage() || 'en';
-
-      console.log(
-        `📡 Loading configuration from /api/config (language: ${lang})...`
-      );
-      const response = await fetch(`/api/config?lang=${lang}`);
+      console.log('📡 Loading configuration from /api/config...');
+      const response = await fetch('/api/config');
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -44,7 +39,10 @@ export class ConfigManager {
 
       this.config.avatarUrl = serverConfig.avatarUrl;
       this.config.voiceId = serverConfig.voiceId;
-      this.config.language = serverConfig.language || lang;
+      console.log('✅ Configuration loaded:', {
+        avatarUrl: this.config.avatarUrl?.substring(0, 50) + '...',
+        voiceId: this.config.voiceId,
+      });
       return true;
     } catch (error) {
       console.error('❌ Failed to load config from server:', error);
@@ -57,18 +55,6 @@ export class ConfigManager {
       }
       return false;
     }
-  }
-
-  // =====================================================
-  // LANGUAGE MANAGEMENT
-  // =====================================================
-  getLanguage() {
-    return localStorage.getItem('app_language') || 'en';
-  }
-
-  setLanguage(language) {
-    localStorage.setItem('app_language', language);
-    this.config.language = language;
   }
 
   // =====================================================
@@ -104,6 +90,7 @@ export class ConfigManager {
   setTTSProvider(provider) {
     if (provider === 'polly' || provider === 'elevenlabs') {
       this.config.ttsProvider = provider;
+      console.log(`🎤 TTS Provider switched to: ${provider}`);
     } else {
       console.warn(`⚠️ Invalid TTS provider: ${provider}`);
     }
@@ -130,13 +117,12 @@ export class ConfigManager {
   // =====================================================
   resetToDefaults() {
     // Reset and reload from server (.env) - no hardcoded values
-    const currentLanguage = this.getLanguage();
     this.config = {
       avatarUrl: null, // Will be loaded from server (.env)
       voiceId: null, // Will be loaded from server (.env)
       ttsProvider: 'elevenlabs',
-      language: currentLanguage,
     };
-    this.loadConfig(currentLanguage); // Reload from server with current language
+    console.log('🔄 Configuration reset - reloading from server...');
+    this.loadConfig(); // Reload from server
   }
 }

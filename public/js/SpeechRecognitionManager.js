@@ -14,7 +14,6 @@ export class SpeechRecognitionManager {
     this.gladiaSessionId = null;
     this.audioContext = null;
     this.processor = null;
-    this.audioChunkCount = 0; // Counter for audio chunks (used for logging)
     this.interimTranscript = '';
     this.finalTranscript = '';
     this.languages = ['en', 'zh']; // English, Chinese
@@ -238,82 +237,55 @@ export class SpeechRecognitionManager {
         sampleRate: 16000,
       });
 
-      // Check if AudioWorklet is supported, fallback to ScriptProcessorNode if not
-      const useAudioWorklet =
-        this.audioContext.audioWorklet !== undefined &&
-        typeof this.audioContext.audioWorklet.addModule === 'function';
+      const source = this.audioContext.createMediaStreamSource(
+        this.audioStream
+      );
 
-      if (useAudioWorklet) {
-        // Use AudioWorkletNode (modern, non-deprecated approach)
-        try {
-          // Load the AudioWorklet processor module
-          await this.audioContext.audioWorklet.addModule(
-            '/js/audio-processor-worklet.js'
-          );
+      // Create ScriptProcessorNode to capture audio chunks
+      this.processor = this.audioContext.createScriptProcessor(4096, 1, 1);
 
-          const source = this.audioContext.createMediaStreamSource(
-            this.audioStream
-          );
+      let audioChunkCount = 0;
+      this.processor.onaudioprocess = (event) => {
+        if (
+          this.isRecording &&
+          this.gladiaWebSocket &&
+          this.gladiaWebSocket.readyState === WebSocket.OPEN
+        ) {
+          const audioData = event.inputBuffer.getChannelData(0);
 
-          // Create AudioWorkletNode
-          this.processor = new AudioWorkletNode(
-            this.audioContext,
-            'audio-processor-worklet'
-          );
+          // Convert Float32Array to Int16Array (PCM format)
+          const int16Array = new Int16Array(audioData.length);
+          for (let i = 0; i < audioData.length; i++) {
+            // Clamp and convert to 16-bit integer (multiply by 32767 for full range)
+            const s = Math.max(-1, Math.min(1, audioData[i]));
+            int16Array[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
+          }
 
-          // Track audio chunk count for logging (declared outside handler to persist)
-          this.audioChunkCount = 0;
-          // Handle messages from the AudioWorklet processor
-          this.processor.port.onmessage = (event) => {
-            if (event.data.type === 'audioData') {
-              if (
-                this.isRecording &&
-                this.gladiaWebSocket &&
-                this.gladiaWebSocket.readyState === WebSocket.OPEN
-              ) {
-                // Send audio chunk to Gladia as binary data
-                try {
-                  this.gladiaWebSocket.send(event.data.data);
-                } catch (error) {
-                  console.error(
-                    '❌ [GLADIA] Error sending audio chunk:',
-                    error
-                  );
-                  // If send fails, WebSocket might be closed - onclose will handle reconnection
-                }
-              } else {
-                // WebSocket not open - log occasionally to avoid spam
-                if (this.audioChunkCount % 100 === 0) {
-                  console.warn(
-                    `⚠️ [GLADIA] WebSocket not open (state: ${this.gladiaWebSocket?.readyState}), cannot send audio chunk`
-                  );
-                }
-                this.audioChunkCount++;
-              }
+          // Send audio chunk to Gladia as binary data
+          // WebSocket.send() accepts ArrayBuffer, which int16Array.buffer provides
+          if (
+            this.gladiaWebSocket &&
+            this.gladiaWebSocket.readyState === WebSocket.OPEN
+          ) {
+            try {
+              this.gladiaWebSocket.send(int16Array.buffer);
+            } catch (error) {
+              console.error('❌ [GLADIA] Error sending audio chunk:', error);
+              // If send fails, WebSocket might be closed - onclose will handle reconnection
             }
-          };
-
-          // Start recording in the worklet
-          this.processor.port.postMessage({ type: 'start' });
-
-          source.connect(this.processor);
-          // Note: AudioWorkletNode doesn't need to connect to destination
-          // It processes audio in the background
-        } catch (workletError) {
-          console.warn(
-            '⚠️ AudioWorklet failed, falling back to ScriptProcessorNode:',
-            workletError
-          );
-          // Fallback to ScriptProcessorNode if AudioWorklet fails
-          return this.startAudioCaptureWithScriptProcessor();
+          } else {
+            // WebSocket not open - log occasionally to avoid spam
+            if (audioChunkCount % 100 === 0) {
+              console.warn(
+                `⚠️ [GLADIA] WebSocket not open (state: ${this.gladiaWebSocket?.readyState}), cannot send audio chunk`
+              );
+            }
+          }
         }
-      } else {
-        // Fallback to ScriptProcessorNode for older browsers
-        console.warn(
-          '⚠️ AudioWorklet not supported, using ScriptProcessorNode (deprecated)'
-        );
-        return this.startAudioCaptureWithScriptProcessor();
-      }
+      };
+
+      source.connect(this.processor);
+      this.processor.connect(this.audioContext.destination);
 
       return true;
     } catch (error) {
@@ -322,72 +294,11 @@ export class SpeechRecognitionManager {
     }
   }
 
-  // Fallback method using ScriptProcessorNode (for older browsers)
-  startAudioCaptureWithScriptProcessor() {
-    const source = this.audioContext.createMediaStreamSource(this.audioStream);
-
-    // Create ScriptProcessorNode to capture audio chunks (deprecated but fallback)
-    this.processor = this.audioContext.createScriptProcessor(4096, 1, 1);
-
-    let audioChunkCount = 0;
-    this.processor.onaudioprocess = (event) => {
-      if (
-        this.isRecording &&
-        this.gladiaWebSocket &&
-        this.gladiaWebSocket.readyState === WebSocket.OPEN
-      ) {
-        const audioData = event.inputBuffer.getChannelData(0);
-
-        // Convert Float32Array to Int16Array (PCM format)
-        const int16Array = new Int16Array(audioData.length);
-        for (let i = 0; i < audioData.length; i++) {
-          // Clamp and convert to 16-bit integer (multiply by 32767 for full range)
-          const s = Math.max(-1, Math.min(1, audioData[i]));
-          int16Array[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
-        }
-
-        // Send audio chunk to Gladia as binary data
-        // WebSocket.send() accepts ArrayBuffer, which int16Array.buffer provides
-        if (
-          this.gladiaWebSocket &&
-          this.gladiaWebSocket.readyState === WebSocket.OPEN
-        ) {
-          try {
-            this.gladiaWebSocket.send(int16Array.buffer);
-          } catch (error) {
-            console.error('❌ [GLADIA] Error sending audio chunk:', error);
-            // If send fails, WebSocket might be closed - onclose will handle reconnection
-          }
-        } else {
-          // WebSocket not open - log occasionally to avoid spam
-          if (audioChunkCount % 100 === 0) {
-            console.warn(
-              `⚠️ [GLADIA] WebSocket not open (state: ${this.gladiaWebSocket?.readyState}), cannot send audio chunk`
-            );
-          }
-        }
-        audioChunkCount++;
-      }
-    };
-
-    source.connect(this.processor);
-    this.processor.connect(this.audioContext.destination);
-
-    return true;
-  }
-
   stopAudioCapture(closeWebSocket = false) {
     if (this.processor) {
-      // Stop recording in AudioWorklet if it's an AudioWorkletNode
-      if (this.processor instanceof AudioWorkletNode) {
-        this.processor.port.postMessage({ type: 'stop' });
-      }
       this.processor.disconnect();
       this.processor = null;
     }
-
-    // Reset audio chunk counter
-    this.audioChunkCount = 0;
 
     if (this.audioContext) {
       this.audioContext.close();

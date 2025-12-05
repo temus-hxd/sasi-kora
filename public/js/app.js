@@ -1,5 +1,6 @@
 // Import modules
 import { EmojiManager } from './EmojiManager.js';
+import { VoiceStateManager } from './VoiceStateManager.js';
 import { ConfigManager } from './ConfigManager.js';
 import { UIManager } from './UIManager.js';
 import { SpeechBubbleManager } from './SpeechBubbleManager.js';
@@ -16,6 +17,7 @@ import { AvatarManager } from './AvatarManager.js';
 
 // Manager instances
 let emojiManager = null;
+let voiceStateManager = null;
 let configManager = null;
 let uiManager = null;
 let speechBubbleManager = null;
@@ -61,6 +63,7 @@ async function initializeApp() {
   ttsManager = new TTSManager();
   configManager = new ConfigManager();
   configManager.setUIManager(uiManager); // Allow ConfigManager to update UI on errors
+  voiceStateManager = new VoiceStateManager();
   emojiManager = new EmojiManager();
   webSocketManager = new WebSocketManager();
   chatManager = new ChatManager();
@@ -101,6 +104,7 @@ async function initializeApp() {
   avatarManager.setDependencies({
     configManager,
     uiManager,
+    voiceStateManager,
     emojiManager,
     speechBubbleManager,
     speechRecognitionManager,
@@ -202,6 +206,7 @@ window.toggleVoice = () => speechRecognitionManager?.toggleVoice();
 window.triggerExpression = (emoji) => avatarManager?.triggerExpression(emoji);
 window.changeView = (view) => avatarManager?.changeView(view);
 window.resetAvatar = () => avatarManager?.resetAvatar();
+window.resetVoiceSettings = () => voiceStateManager?.resetVoiceSettings();
 
 // ================================
 // CONFETTI CONSOLE HELPERS
