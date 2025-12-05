@@ -204,7 +204,6 @@
               <button
                 id="promptToggleButton"
                 class="absolute right-2 top-1/2 transform -translate-y-1/2 w-2 h-2 rounded-full bg-gray-400 hover:bg-blue-500 transition-colors cursor-pointer"
-                title="Include additional prompts (negative-scenario, angry-3-enraged, sassi_personality_english)"
                 style="opacity: 0.5"
               ></button>
             </div>
@@ -635,12 +634,6 @@
                     placeholder="Type your message..."
                     class="w-full border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-blue-400"
                   />
-                  <button
-                    id="modal-promptToggleButton"
-                    class="absolute right-2 top-1/2 transform -translate-y-1/2 w-2 h-2 rounded-full bg-gray-400 hover:bg-blue-500 transition-colors cursor-pointer"
-                    title="Include additional prompts (negative-scenario, angry-3-enraged, sassi_personality_english)"
-                    style="opacity: 0.5"
-                  ></button>
                 </div>
                 <button
                   id="modal-sendButton"
@@ -772,7 +765,6 @@
     <!-- Action Buttons Handlers -->
     <script>
       function openEmotionStateEngine() {
-        console.log('🧠 Opening Emotion State Engine Modal');
         const modal = document.getElementById('emotionStateEngineModal');
         if (modal) {
           modal.classList.remove('hidden');
@@ -783,7 +775,6 @@
       }
 
       function closeEmotionStateEngine() {
-        console.log('🧠 Closing Emotion State Engine Modal');
         const modal = document.getElementById('emotionStateEngineModal');
         if (modal) {
           modal.classList.add('hidden');
