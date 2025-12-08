@@ -162,7 +162,7 @@ export class TTSManager {
         voiceId: voiceId, // From server (.env) - no hardcoded fallback
         stream: true, // Enable streaming for faster response
         modelId: 'eleven_multilingual_v2', // Multilingual model for Chinese/English mix
-        speed: 0.8, // Adjusted speed for Uncle Teo (70-year-old man)
+        speed: 0.7, // Slower speech pace (0.3-1.2 range, lower = slower)
         style: 0.0, // Less energetic (0.0 = calm, 1.0 = very energetic)
       };
 
