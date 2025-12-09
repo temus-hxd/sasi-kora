@@ -70,7 +70,6 @@ export class EmojiManager {
       this.head.speakEmoji('🤗');
       this.head.setMood('happy');
       this.setCurrentMood('happy');
-      setTimeout(() => this.head.playGesture('handup', 2), 500);
     },
     '🙄': () => {
       this.head.speakEmoji('🙄');
@@ -97,30 +96,19 @@ export class EmojiManager {
       this.head.setMood('happy');
       this.setCurrentMood('happy');
     },
-
-    // Actions & Gestures
-    '👋': () => {
-      this.head.playGesture('handup', 3);
-      this.head.speakEmoji('👋');
-    },
     '👍': () => {
-      this.head.playGesture('thumbup', 2);
       this.head.speakEmoji('👍');
     },
     '👎': () => {
-      this.head.playGesture('thumbdown', 2);
       this.head.speakEmoji('👎');
     },
     '🤝': () => {
-      this.head.playGesture('handup', 2);
       this.head.speakEmoji('🤝');
     },
     '🤷': () => {
-      this.head.playGesture('shrug', 3);
       this.head.speakEmoji('🤷');
     },
     '👏': () => {
-      this.head.playGesture('thumbup', 2);
       this.head.speakEmoji('👏');
     },
     '🤦': () => {
@@ -129,7 +117,6 @@ export class EmojiManager {
       this.setCurrentMood('sad');
     },
     '💪': () => {
-      this.head.playGesture('thumbup', 3);
       this.head.speakEmoji('💪');
       this.head.setMood('happy');
       this.setCurrentMood('happy');
@@ -144,7 +131,6 @@ export class EmojiManager {
     },
     '💡': () => {
       this.head.speakEmoji('😊');
-      this.head.playGesture('index', 2);
       this.head.setMood('happy');
       this.setCurrentMood('happy');
     },
@@ -152,7 +138,6 @@ export class EmojiManager {
       this.head.speakEmoji('😄');
       this.head.setMood('happy');
       this.setCurrentMood('happy');
-      this.head.playGesture('thumbup', 2);
     },
     '⚡': () => {
       this.head.speakEmoji('😲');
@@ -162,14 +147,12 @@ export class EmojiManager {
     },
     '🎯': () => {
       this.head.speakEmoji('🤔');
-      this.head.playGesture('index', 2);
       this.head.lookAtCamera(2000);
     },
     '🚀': () => {
       this.head.speakEmoji('🤩');
       this.head.setMood('happy');
       this.setCurrentMood('happy');
-      this.head.playGesture('thumbup', 2);
     },
     '💎': () => {
       this.head.speakEmoji('😍');
@@ -181,7 +164,6 @@ export class EmojiManager {
       this.head.speakEmoji('🤩');
       this.head.setMood('happy');
       this.setCurrentMood('happy');
-      this.head.playGesture('ok', 2);
     },
     // Dance animations
     '💃': () => this.triggerDanceSequence(),
@@ -265,26 +247,6 @@ export class EmojiManager {
           animationLoaded = true;
 
           // Add some celebratory gestures during the dance
-          setTimeout(() => {
-            if (this.head && typeof this.head.playGesture === 'function') {
-              this.head.playGesture('thumbup', 2, false, 500);
-              console.log('🎭 Adding thumbup gesture during dance');
-            }
-          }, 2000);
-
-          setTimeout(() => {
-            if (this.head && typeof this.head.playGesture === 'function') {
-              this.head.playGesture('handup', 2, true, 500); // Right hand
-              console.log('🎭 Adding handup gesture during dance');
-            }
-          }, 4000);
-
-          setTimeout(() => {
-            if (this.head && typeof this.head.playGesture === 'function') {
-              this.head.playGesture('ok', 2, false, 500);
-              console.log('🎭 Adding ok gesture during dance');
-            }
-          }, 6000);
         } else {
           console.log(
             `🎭 Animation path ${currentPath} failed, trying next...`
@@ -345,7 +307,6 @@ export class EmojiManager {
     const executeStep = () => {
       if (stepIndex < danceSteps.length) {
         const step = danceSteps[stepIndex];
-        this.head.playGesture(step.gesture, step.duration, step.mirror, 400);
         console.log(
           `🎭 Dance step ${stepIndex + 1}: ${step.gesture} (${step.mirror ? 'right' : 'left'} hand)`
         );
