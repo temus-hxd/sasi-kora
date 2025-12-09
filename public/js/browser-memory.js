@@ -107,6 +107,172 @@ const BrowserMemory = {
   },
 
   /**
+   * Archive completed session instead of deleting
+   * Moves conversation to archived storage for later retrieval
+   */
+  archiveSession() {
+    if (!this.initialized) return;
+
+    try {
+      const memory = this.getMemory();
+      if (memory.messages.length === 0) {
+        console.log('📦 No messages to archive');
+        return;
+      }
+
+      // Create archived session with metadata
+      const archivedSession = {
+        ...memory,
+        completedAt: new Date().toISOString(),
+        archived: true,
+        sessionId: memory.created || Date.now().toString(),
+      };
+
+      // Store in archived key (keep last 5 archived sessions)
+      const archiveKey = 'hr-chatbot-memory-archived';
+      let archivedSessions = [];
+
+      try {
+        const stored = localStorage.getItem(archiveKey);
+        if (stored) {
+          archivedSessions = JSON.parse(stored);
+        }
+      } catch (e) {
+        console.warn('⚠️ Failed to read archived sessions:', e);
+      }
+
+      // Add new archive and keep only last 5
+      archivedSessions.push(archivedSession);
+      archivedSessions = archivedSessions.slice(-5);
+
+      localStorage.setItem(archiveKey, JSON.stringify(archivedSessions));
+      console.log('📦 Session archived successfully');
+
+      // Clear active session
+      this.clearSession();
+    } catch (error) {
+      console.warn('⚠️ Failed to archive session:', error);
+      // Fallback to regular clear
+      this.clearSession();
+    }
+  },
+
+  /**
+   * Mark session as completed without deleting
+   * Adds completion metadata to existing session
+   */
+  markSessionCompleted() {
+    if (!this.initialized) return;
+
+    try {
+      const memory = this.getMemory();
+      if (memory.messages.length === 0) {
+        console.log('📝 No messages to mark as completed');
+        return;
+      }
+
+      // Add completion metadata
+      memory.completed = true;
+      memory.completedAt = new Date().toISOString();
+      memory.lastUpdated = new Date().toISOString();
+
+      localStorage.setItem(this.storageKey, JSON.stringify(memory));
+      console.log('✅ Session marked as completed');
+
+      // Create new active session
+      this.clearSession();
+    } catch (error) {
+      console.warn('⚠️ Failed to mark session as completed:', error);
+    }
+  },
+
+  /**
+   * Move session to sessionStorage (auto-clears on tab close)
+   * Keeps it available for current session but clears on browser close
+   */
+  moveToSessionStorage() {
+    if (!this.initialized) return;
+
+    try {
+      const memory = this.getMemory();
+      if (memory.messages.length === 0) {
+        console.log('📦 No messages to move');
+        return;
+      }
+
+      // Copy to sessionStorage
+      const sessionKey = 'hr-chatbot-memory-session';
+      sessionStorage.setItem(sessionKey, JSON.stringify(memory));
+      console.log('📦 Session moved to sessionStorage');
+
+      // Clear localStorage
+      this.clearSession();
+    } catch (error) {
+      console.warn('⚠️ Failed to move to sessionStorage:', error);
+      // Fallback to regular clear
+      this.clearSession();
+    }
+  },
+
+  /**
+   * Export conversation as JSON and download
+   * Allows user to save conversation before clearing
+   */
+  exportSession() {
+    if (!this.initialized) return null;
+
+    try {
+      const memory = this.getMemory();
+      if (memory.messages.length === 0) {
+        console.log('📝 No messages to export');
+        return null;
+      }
+
+      const exportData = {
+        ...memory,
+        exportedAt: new Date().toISOString(),
+        version: '1.0',
+      };
+
+      const dataStr = JSON.stringify(exportData, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `conversation-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      console.log('💾 Session exported successfully');
+      return exportData;
+    } catch (error) {
+      console.warn('⚠️ Failed to export session:', error);
+      return null;
+    }
+  },
+
+  /**
+   * Get completed/archived sessions
+   * @returns {Array} Array of archived sessions
+   */
+  getArchivedSessions() {
+    try {
+      const archiveKey = 'hr-chatbot-memory-archived';
+      const stored = localStorage.getItem(archiveKey);
+      if (stored) {
+        return JSON.parse(stored);
+      }
+      return [];
+    } catch (error) {
+      console.warn('⚠️ Failed to get archived sessions:', error);
+      return [];
+    }
+  },
+
+  /**
    * Get or create memory structure
    * @returns {Object} Memory object
    */
