@@ -1819,3 +1819,259 @@ body {
 /* ================================ */
 /* END EMOTION STATE ENGINE MODAL   */
 /* ================================ */
+
+/* ================================ */
+/* EXAMPLES MODAL                   */
+/* ================================ */
+.examples-modal-overlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  z-index: 10000;
+  padding: 10px 10px 20px 20px;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
+}
+
+.examples-modal-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.examples-modal-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.examples-modal-content {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  max-width: 600px;
+  width: 100%;
+  max-height: 85vh;
+  margin-right: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  pointer-events: auto;
+}
+
+.examples-modal-overlay.active .examples-modal-content {
+  transform: translateX(0);
+}
+
+.examples-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.examples-modal-header h2 {
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.examples-modal-close {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.examples-modal-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+
+.examples-modal-body {
+  padding: 16px 20px;
+  overflow-y: auto;
+  flex: 1;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.examples-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #ffffff;
+  font-size: 13px;
+}
+
+.examples-table thead {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.examples-table th {
+  padding: 10px 12px;
+  text-align: center;
+  font-weight: 600;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.examples-table th:first-child {
+  width: 120px;
+}
+
+.examples-table td {
+  padding: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  vertical-align: top;
+}
+
+.examples-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+.examples-table .label-cell {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.examples-table ol,
+.examples-table ul {
+  margin: 6px 0;
+  padding-left: 20px;
+}
+
+.examples-table li {
+  margin: 6px 0;
+  line-height: 1.5;
+}
+
+.examples-table ul {
+  list-style-type: disc;
+}
+
+.examples-table ol {
+  list-style-type: decimal;
+}
+
+.examples-table strong {
+  color: #ffffff;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Custom scrollbar for glass effect */
+.examples-modal-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.examples-modal-body::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.examples-modal-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.examples-modal-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Examples Button Styling */
+.examples-button {
+  background: linear-gradient(135deg, #f59c00 0%, #ffc34d 100%);
+  box-shadow: 0 4px 20px rgba(245, 156, 0, 0.4);
+}
+
+.examples-button:hover {
+  background: linear-gradient(135deg, #c77d00 0%, #f59c00 100%);
+  box-shadow: 0 6px 30px rgba(245, 156, 0, 0.6);
+}
+
+.examples-button:active {
+  box-shadow: 0 2px 15px rgba(245, 156, 0, 0.5);
+}
+
+/* Responsive adjustments for Examples Modal */
+@media (max-width: 768px) {
+  .examples-button {
+    display: none;
+  }
+
+  .examples-modal-overlay {
+    padding: 10px 5px 10px 10px;
+  }
+
+  .examples-modal-content {
+    max-width: calc(100% - 10px);
+    margin-top: 10px;
+    margin-right: 0;
+    max-height: 90vh;
+  }
+
+  .examples-modal-header {
+    padding: 12px 16px;
+  }
+
+  .examples-modal-header h2 {
+    font-size: 16px;
+  }
+
+  .examples-modal-body {
+    padding: 12px 16px;
+  }
+
+  .examples-table {
+    font-size: 11px;
+  }
+
+  .examples-table th,
+  .examples-table td {
+    padding: 8px;
+  }
+
+  .examples-table th:first-child {
+    width: 100px;
+  }
+
+  .examples-table ol,
+  .examples-table ul {
+    padding-left: 16px;
+  }
+}
+/* ================================ */
+/* END EXAMPLES MODAL               */
+/* ================================ */

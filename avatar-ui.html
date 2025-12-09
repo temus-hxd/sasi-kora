@@ -112,6 +112,14 @@
         <!-- Action Buttons Container -->
         <div class="action-buttons-container">
           <button
+            id="examplesBtn"
+            class="action-button examples-button"
+            onclick="openExamplesModal()"
+            title="View example scenarios"
+          >
+            Scenario Examples
+          </button>
+          <button
             id="endCallBtn"
             class="action-button end-call-button"
             onclick="endCall()"
@@ -196,6 +204,7 @@
                 id="promptToggleButton"
                 class="absolute right-2 top-1/2 transform -translate-y-1/2 w-2 h-2 rounded-full bg-gray-400 hover:bg-blue-500 transition-colors cursor-pointer"
                 style="opacity: 0.5"
+                onclick="clearCurrentSession()"
               ></button>
             </div>
 
@@ -230,6 +239,97 @@
       <div class="controls-section"></div>
     </div>
 
+    <!-- Examples Modal -->
+    <div class="examples-modal-overlay hidden" id="examplesModal">
+      <div class="examples-modal-content">
+        <div class="examples-modal-header">
+          <h2>Example Scenarios</h2>
+          <button
+            class="examples-modal-close"
+            onclick="closeExamplesModal()"
+            title="Close"
+          >
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="examples-modal-body">
+          <table class="examples-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>BEFRIENDING VISIT</th>
+                <th>INTRO TO ACP</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="label-cell"><strong>Approach</strong></td>
+                <td>Show Patience and Concern</td>
+                <td>Use Insensitive Language and Dismissive of Needs</td>
+              </tr>
+              <tr>
+                <td class="label-cell"><strong>Example Prompt</strong></td>
+                <td>
+                  <ol>
+                    <li>
+                      <strong>Introduce Yourself By Name</strong>
+                      <br />
+                      Example: "Hello Uncle Lim, I am &lt;name&gt;, a volunteer
+                      with AIC."
+                    </li>
+                    <li>
+                      <strong>Share Purpose of Visit</strong>
+                      <br />
+                      Example: "I am here to do a wellness check on you."
+                    </li>
+                    <li>
+                      <strong>Ask Wellbeing Question</strong>
+                      <br />
+                      Example: "Are you eating well?"
+                    </li>
+                  </ol>
+                </td>
+                <td>
+                  <ol>
+                    <li>
+                      <strong>Doubt Their Cognitive Competency</strong>
+                      <br />
+                      Example: "Hello ah gong...this might be hard for you to
+                      understand"
+                    </li>
+                    <li>
+                      <strong>Assume His Kid Can Speak for Him</strong>
+                      <br />
+                      Example: "...maybe your child can decide for you as it is
+                      quite complicated"
+                    </li>
+                    <li>
+                      <strong>Register Without His Consent</strong>
+                      <br />
+                      Example: "...I already put down your name for the ACP talk
+                      next Tuesday..."
+                    </li>
+                  </ol>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <!-- Authentication check - must be loaded first -->
     <script src="js/auth.js"></script>
 
@@ -252,6 +352,35 @@
 
     <!-- Action Buttons Handlers -->
     <script>
+      function openExamplesModal() {
+        const modal = document.getElementById('examplesModal');
+        if (modal) {
+          modal.classList.remove('hidden');
+          modal.classList.add('active');
+          // Don't block body scroll - allow interaction with avatar
+        }
+      }
+
+      function closeExamplesModal() {
+        const modal = document.getElementById('examplesModal');
+        if (modal) {
+          modal.classList.remove('active');
+          modal.classList.add('hidden');
+        }
+      }
+
+      // Close modal on Escape key
+      document.addEventListener('DOMContentLoaded', function () {
+        const modal = document.getElementById('examplesModal');
+        if (modal) {
+          document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && modal.classList.contains('active')) {
+              closeExamplesModal();
+            }
+          });
+        }
+      });
+
       function openEmotionStateEngine() {
         const modal = document.getElementById('emotionStateEngineModal');
         if (modal) {
@@ -292,26 +421,64 @@
         }
       });
 
-      function endCall() {
-        console.log(
-          '🛑 Ending training - clearing conversation history and browser memory'
-        );
+      /**
+       * End training session with configurable cleanup strategy
+       * @param {string} strategy - 'clear' | 'archive' | 'mark-completed' | 'session-storage' | 'export-then-clear'
+       */
+      function endCall(strategy = 'archive') {
+        console.log(`🛑 Ending training - using strategy: ${strategy}`);
 
-        // Clear conversation history and browser memory before navigating
+        // Handle cleanup based on strategy
         if (window.chatManager) {
-          window.chatManager.clearConversationHistory();
-        } else {
-          // Fallback: clear browser memory directly if chatManager is not available
-          if (
-            typeof BrowserMemory !== 'undefined' &&
-            BrowserMemory.initialized
-          ) {
-            try {
-              BrowserMemory.clearSession();
-              console.log('🧠 Browser memory cleared');
-            } catch (error) {
-              console.warn('⚠️ Failed to clear browser memory session:', error);
+          // Clear in-memory conversation history
+          window.chatManager.conversationHistory = [];
+          window.chatManager.emotionState = null;
+        }
+
+        // Handle browser memory based on strategy
+        if (typeof BrowserMemory !== 'undefined' && BrowserMemory.initialized) {
+          try {
+            switch (strategy) {
+              case 'archive':
+                // Archive session for later retrieval (recommended)
+                BrowserMemory.archiveSession();
+                console.log('📦 Session archived');
+                break;
+
+              case 'mark-completed':
+                // Mark as completed, keep in localStorage
+                BrowserMemory.markSessionCompleted();
+                console.log('✅ Session marked as completed');
+                // Still clear for new session
+                BrowserMemory.clearSession();
+                break;
+
+              case 'session-storage':
+                // Move to sessionStorage (clears on tab close)
+                BrowserMemory.moveToSessionStorage();
+                console.log('📦 Session moved to sessionStorage');
+                break;
+
+              case 'export-then-clear':
+                // Export first, then clear
+                const exported = BrowserMemory.exportSession();
+                if (exported) {
+                  console.log('💾 Session exported, now clearing');
+                }
+                BrowserMemory.clearSession();
+                break;
+
+              case 'clear':
+              default:
+                // Original behavior - complete deletion
+                BrowserMemory.clearSession();
+                console.log('🗑️ Session cleared');
+                break;
             }
+          } catch (error) {
+            console.warn('⚠️ Failed to handle browser memory:', error);
+            // Fallback to clear
+            BrowserMemory.clearSession();
           }
         }
 
@@ -320,6 +487,61 @@
           // Navigate to feedback training report page
           window.location.href = '/feedback-training-report';
         }, 100);
+      }
+
+      // Alternative: Simple archive function (most recommended)
+      function endCallWithArchive() {
+        endCall('archive');
+      }
+
+      // Alternative: Export before clearing
+      function endCallWithExport() {
+        endCall('export-then-clear');
+      }
+
+      /**
+       * Clear current session - clears conversation history and browser memory
+       */
+      function clearCurrentSession() {
+        console.log('🗑️ Clearing current session');
+
+        // Clear ChatManager conversation history if available
+        if (window.chatManager) {
+          if (window.chatManager.clearConversationHistory) {
+            window.chatManager.clearConversationHistory();
+          } else {
+            // Fallback: clear manually
+            window.chatManager.conversationHistory = [];
+            window.chatManager.emotionState = null;
+            if (window.chatManager.conversationId) {
+              window.chatManager.conversationId = 'claude-' + Date.now();
+              localStorage.setItem(
+                'chatbot_conversation_id',
+                window.chatManager.conversationId
+              );
+            }
+          }
+          console.log('✅ ChatManager session cleared');
+        }
+
+        // Clear BrowserMemory session
+        if (typeof BrowserMemory !== 'undefined' && BrowserMemory.initialized) {
+          try {
+            BrowserMemory.clearSession();
+            console.log('✅ BrowserMemory session cleared');
+          } catch (error) {
+            console.warn('⚠️ Failed to clear browser memory session:', error);
+          }
+        }
+
+        // Optional: Clear input field
+        const messageInput = document.getElementById('messageInput');
+        if (messageInput) {
+          messageInput.value = '';
+        }
+
+        // Optional: Show feedback to user
+        console.log('🔄 Session cleared. Ready for new conversation.');
       }
     </script>
   </body>
