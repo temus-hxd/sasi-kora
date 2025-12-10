@@ -79,12 +79,39 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectButton = card.querySelector('.select-scenario-button');
 
     if (selectButton) {
-      selectButton.addEventListener('click', (e) => {
+      selectButton.addEventListener('click', async (e) => {
         e.stopPropagation(); // Prevent any card-level events
 
         const persona = card.getAttribute('data-persona');
+        
         // Store selected persona in localStorage
         localStorage.setItem('selectedPersona', persona);
+        
+        // Clear all previously loaded prompts and reload initial prompts
+        try {
+          console.log('🔄 Reloading prompts for new scenario...');
+          const response = await fetch('/api/emotional-state/reload-prompts', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+              language: 'en', // Default to 'en', can be made dynamic if needed
+            }),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            console.log('✅ Prompts reloaded:', data.message);
+          } else {
+            console.warn('⚠️ Failed to reload prompts, continuing anyway');
+          }
+        } catch (error) {
+          console.error('❌ Error reloading prompts:', error);
+          // Continue anyway - prompts will be loaded on first use
+        }
+        
         // Redirect to avatar page
         window.location.href = '/avatar';
       });

@@ -92,11 +92,6 @@ export async function loadPrompt(
     // Try each path until one works
     for (const promptPath of possiblePaths) {
       try {
-        console.log(
-          `📄 Trying to load prompt: ${promptFile} (client: ${client})`
-        );
-        console.log(`   Attempting path: ${promptPath}`);
-
         content = await readFile(promptPath, 'utf-8');
         successfulPath = promptPath;
         break;

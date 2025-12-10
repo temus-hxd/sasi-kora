@@ -245,4 +245,12 @@ export abstract class BaseAgent {
   getModel(): string {
     return this.model;
   }
+
+  /**
+   * Reset initialization state to allow prompts to be reloaded
+   */
+  resetInitialization(): void {
+    this.initialized = false;
+    this.systemPrompt = '';
+  }
 }

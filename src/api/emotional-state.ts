@@ -250,4 +250,33 @@ router.post('/sentiment-prompts', async (req, res) => {
   }
 });
 
+/**
+ * POST /api/emotional-state/reload-prompts
+ * Clear all previously loaded prompts and reload initial prompts
+ * Useful when starting a new scenario to ensure fresh prompts
+ */
+router.post('/reload-prompts', async (req, res) => {
+  try {
+    const language = (req.body as any)?.language || 'en';
+    const orchestrator = await getOrchestrator(language);
+
+    // Reload all prompts
+    await orchestrator.reloadPrompts();
+
+    res.json({
+      success: true,
+      message: 'All agent prompts reloaded successfully',
+      timestamp: new Date().toISOString(),
+      language,
+    });
+  } catch (error: unknown) {
+    const err = error as Error;
+    res.status(500).json({
+      error: 'Error reloading prompts',
+      message: err.message,
+      success: false,
+    });
+  }
+});
+
 export default router;

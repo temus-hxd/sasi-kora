@@ -31,6 +31,18 @@ export class SentimentAgent extends BaseAgent {
   }
 
   /**
+   * Reset initialization state to allow prompts to be reloaded
+   * Resets to initial state with default prompts (sassi_personality_mini.md, sentiment_agent.md, etc.)
+   */
+  resetInitialization(): void {
+    (this as any).initialized = false;
+    this.personalityContext = '';
+    (this as any).systemPrompt = '';
+    // Reset to initial state - load default prompts (sentiment_agent.md, etc.)
+    this.includeAdditionalPrompts = false;
+  }
+
+  /**
    * Initialize prompts (override to use mini personality)
    */
   async initialize(): Promise<void> {
@@ -46,7 +58,12 @@ export class SentimentAgent extends BaseAgent {
         'sassi_personality_mini.md',
         clientName
       );
-      const agentPrompt = await loadPrompt('sentiment_agent.md', clientName);
+
+      // Only load sentiment_agent.md if includeAdditionalPrompts is disabled
+      let agentPrompt: string = '';
+      if (!this.includeAdditionalPrompts) {
+        agentPrompt = await loadPrompt('sentiment_agent.md', clientName);
+      }
 
       // Load linguistic engine and false memory prompts
       const linguisticEnginePrompt = await loadPrompt(
@@ -118,7 +135,8 @@ export class SentimentAgent extends BaseAgent {
         }
       }
 
-      if (agentPrompt) {
+      // Only include sentiment_agent.md if includeAdditionalPrompts is disabled
+      if (!this.includeAdditionalPrompts && agentPrompt) {
         promptParts.push(agentPrompt);
       }
 
@@ -212,14 +230,16 @@ export class SentimentAgent extends BaseAgent {
             lastRawResponse.substring(0, 300)
           );
 
-          // Return a safe fallback instead of throwing
-          // This allows the conversation to continue even if sentiment analysis fails
-          console.warn('⚠️  Using fallback sentiment analysis (neutral)');
+          // Return raw response when sentiment analysis fails
+          // This allows the avatar to respond with the raw LLM output
+          console.warn('⚠️  Sentiment analysis failed, returning raw response');
           return {
             emotion: 'neutral',
             intensity: 0.5,
             emotional_indicators: [],
-            thinking: `Sentiment analysis failed after ${retries} attempts. Using neutral fallback. Error: ${err.message}. Raw response: ${lastRawResponse.substring(0, 100)}...`,
+            thinking: `Sentiment analysis failed after ${retries} attempts. Error: ${err.message}`,
+            failed: true,
+            rawResponse: lastRawResponse,
           };
         }
       }

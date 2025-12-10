@@ -13,6 +13,8 @@ export interface SentimentAnalysis {
   intensity: number; // 0.0 to 1.0
   emotional_indicators: string[];
   thinking: string;
+  failed?: boolean; // True if sentiment analysis failed
+  rawResponse?: string; // Raw LLM response when sentiment fails
 }
 
 export interface AngerMeterInfo {

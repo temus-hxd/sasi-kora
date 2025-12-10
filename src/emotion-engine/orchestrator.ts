@@ -95,6 +95,63 @@ export class Orchestrator {
       `⏱️  [TRACE] Sentiment analysis completed in ${sentimentDuration.toFixed(2)}s`
     );
 
+    // If sentiment analysis failed, return raw response directly
+    if (sentimentAnalysis.failed && sentimentAnalysis.rawResponse) {
+      console.warn('⚠️  Sentiment analysis failed, using raw LLM response');
+      const currentState = this.getCurrentState();
+      // Get current anger meter status without processing
+      const meterStatus = this.angerMeter.getMeterStatus();
+      // Get max_points from config (typically 100)
+      const maxPoints =
+        (this.angerMeter as any).config?.meter?.max_points || 100;
+      const angerMeterInfo = {
+        anger_points: meterStatus.anger_points,
+        anger_level: meterStatus.current_level as
+          | 'normal'
+          | 'irritated'
+          | 'agitated'
+          | 'enraged',
+        points_change: 0,
+        change_reasons: ['Sentiment analysis failed - no anger processing'],
+        consecutive_anger: meterStatus.consecutive_anger,
+        message_count: meterStatus.message_count,
+        thresholds: meterStatus.thresholds,
+        max_points: maxPoints,
+      };
+      const analysisData = {
+        sentiment_analysis: sentimentAnalysis,
+        orchestrator_decision: {
+          current_agent: this.currentAgent,
+          next_agent: this.currentAgent,
+          action: 'sentiment_failed_raw_response',
+          thinking: 'Sentiment analysis failed, returning raw LLM response',
+          emotion_detected: 'unknown',
+          intensity_detected: 0.5,
+          anger_meter: angerMeterInfo,
+        },
+        orchestrator_insights: {
+          current_state: `${this.currentAgent} → ${this.currentAgent}`,
+          emotional_intensity: '0.5/1.0 (unknown)',
+          trigger_explanation: 'Sentiment analysis failed',
+          conversation_trajectory: 'Unknown',
+          detected_triggers: [],
+          state_transition: 'No transition - sentiment failed',
+          orchestrator_suggestion:
+            'Using raw LLM response due to sentiment analysis failure',
+          anger_points: meterStatus.anger_points,
+          anger_level: meterStatus.current_level,
+          anger_thresholds: meterStatus.thresholds,
+          anger_change_reasons: [],
+        },
+      };
+      return [
+        sentimentAnalysis.rawResponse,
+        this.currentAgent,
+        analysisData,
+        currentState,
+      ];
+    }
+
     // Step 2: Process anger meter (anger persists across messages)
     const angerEmotions = [
       'anger',
@@ -598,5 +655,24 @@ export class Orchestrator {
     this.sentimentAgent.setIncludeAdditionalPrompts(include);
     // Reinitialize to reload prompts
     await this.sentimentAgent.initialize();
+  }
+
+  /**
+   * Reload all agent prompts by clearing cache and reinitializing
+   * This ensures fresh prompts are loaded when starting a new scenario
+   */
+  async reloadPrompts(): Promise<void> {
+    console.log('🔄 Reloading all agent prompts...');
+
+    // Clear agent factory cache to force recreation
+    this.agentFactory.clearCache();
+
+    // Reset sentiment agent initialization
+    this.sentimentAgent.resetInitialization();
+
+    // Reinitialize sentiment agent with fresh prompts
+    await this.sentimentAgent.initialize();
+
+    console.log('✅ All agent prompts reloaded successfully');
   }
 }
