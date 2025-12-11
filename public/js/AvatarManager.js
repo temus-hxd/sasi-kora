@@ -270,7 +270,6 @@ export class AvatarManager {
 
     // Initialize ChatManager
     this.chatManager?.init();
-
   }
 
   // =====================================================

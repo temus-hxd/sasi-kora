@@ -31,7 +31,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Remove active class from all buttons and contents
             tabButtons.forEach((btn) => btn.classList.remove('active'));
-            tabContents.forEach((content) => content.classList.remove('active'));
+            tabContents.forEach((content) =>
+              content.classList.remove('active')
+            );
 
             // Add active class to clicked button and corresponding content
             button.classList.add('active');
@@ -83,10 +85,10 @@ document.addEventListener('DOMContentLoaded', () => {
         e.stopPropagation(); // Prevent any card-level events
 
         const persona = card.getAttribute('data-persona');
-        
+
         // Store selected persona in localStorage
         localStorage.setItem('selectedPersona', persona);
-        
+
         // Clear all previously loaded prompts and reload initial prompts
         try {
           console.log('🔄 Reloading prompts for new scenario...');
@@ -111,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
           console.error('❌ Error reloading prompts:', error);
           // Continue anyway - prompts will be loaded on first use
         }
-        
+
         // Redirect to avatar page
         window.location.href = '/avatar';
       });

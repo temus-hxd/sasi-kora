@@ -166,7 +166,11 @@ export class AvatarManager {
   // =====================================================
   async initializeOtherManagers() {
     // Initialize managers that depend on avatar
-    this.emojiManager?.setDependencies(this.head, this.currentMoodRef, () => {});
+    this.emojiManager?.setDependencies(
+      this.head,
+      this.currentMoodRef,
+      () => {}
+    );
 
     // Initialize AnimationManager with TalkingHead instance
     if (this.animationManager && this.head) {
