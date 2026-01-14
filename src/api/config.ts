@@ -14,8 +14,11 @@ const router = Router();
  */
 router.get('/', (req, res) => {
   try {
+    // Use local avatar file from public/avatar directory, with fallback to env variables
     const avatarUrl =
-      process.env.READYPLAYERME_AVATAR_URL || process.env.AVATAR_URL;
+      process.env.READYPLAYERME_AVATAR_URL ||
+      process.env.AVATAR_URL ||
+      '/avatar/691325ffff586a2a2794a92c.glb';
     const lang = (req.query.lang as string) || 'en'; // Default to 'en'
 
     // Get voice ID based on language
@@ -29,9 +32,9 @@ router.get('/', (req, res) => {
     if (!avatarUrl || !voiceId) {
       res.status(500).json({
         error: 'Configuration missing',
-        message: `Please set READYPLAYERME_AVATAR_URL and VOICE_ID${
+        message: `Please set VOICE_ID${
           lang === 'cn' ? '_CN' : '_EN'
-        } in your .env file`,
+        } in your .env file. Avatar URL defaults to local file if not set.`,
       });
       return;
     }
